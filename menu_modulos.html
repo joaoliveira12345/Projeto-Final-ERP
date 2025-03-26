@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Icon Buttons</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+        .icon-buttons {
+            display: flex;
+            gap: 20px;
+        }
+        .icon-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .icon-button {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 50%;
+            background-color: #007bff;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .icon-button:hover {
+            background-color: #0056b3;
+        }
+        .icon-description {
+            margin-top: 5px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Escolha o modulo desejado</h2>
+    <div class="icon-buttons">
+        <div class="icon-container">
+            <a href="?button=1" class="icon-button">1</a>
+            <span class="icon-description">Produção</span>
+        </div>
+        <div class="icon-container">
+            <a href="?button=2" class="icon-button">2</a>
+            <span class="icon-description">Stock</span>
+        </div>
+        <div class="icon-container">
+            <a href="?button=3" class="icon-button">3</a>
+            <span class="icon-description">Compras</span>
+        </div>
+        <div class="icon-container">
+            <a href="?button=4" class="icon-button">4</a>
+            <span class="icon-description">Vendas</span>
+        </div>
+        <div class="icon-container">
+            <a href="?button=5" class="icon-button">5</a>
+            <span class="icon-description">Projetos</span>
+        </div>
+    </div>
+    
+   
+</body>
+</html>
