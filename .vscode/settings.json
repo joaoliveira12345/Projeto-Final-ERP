@@ -9,10 +9,10 @@
             "server": "localhost",
             "port": 3306,
             "driver": "MySQL",
-            "name": "MySQL local",
-            "database": "database",
+            "name": "Conecao local",
+            "database": "Database",
             "username": "root",
-            "password": "14971031Jp_"
+            "askForPassword": true
         }
     ]
 }
