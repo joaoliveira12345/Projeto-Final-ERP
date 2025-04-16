@@ -51,6 +51,21 @@
             color: red;
             font-weight: bold;
         }
+        .edit-input {
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .save-button {
+            margin-top: 10px;
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .save-button:hover {
+            background-color: #45a049;
+        }
     </style>
 </head>
 <body>
@@ -76,48 +91,97 @@
                     </tr>
                 </thead>
                 <tbody id="productTable">
-                    <!-- Os produtos serão carregados aqui -->
+                    <!-- Os dados serão carregados dinamicamente -->
                 </tbody>
             </table>
+            <button class="save-button" onclick="salvarAlteracoes()">Salvar Alterações</button>
         </section>
     </div>
 
     <script>
-        // Simulação de dados da base de dados
-        const produtos = [
-            { id: 1, nome: "Produto A", quantidade: 10 },
-            { id: 2, nome: "Produto B", quantidade: 5 },
-            { id: 3, nome: "Produto C", quantidade: 3 },
-        ];
+        async function carregarDados() {
+            try {
+                const response = await fetch('http://localhost:3000/api/produtos'); // Substitua pela sua API ou endpoint local
+                const produtos = await response.json();
 
-        const tabelaProdutos = document.getElementById("productTable");
+                const tabelaProdutos = document.getElementById("productTable");
+                tabelaProdutos.innerHTML = ""; // Limpa a tabela antes de adicionar novos dados
 
-        produtos.forEach(produto => {
-            const linha = document.createElement("tr");
+                produtos.forEach(produto => {
+                    const linha = document.createElement("tr");
 
-            const colunaId = document.createElement("td");
-            colunaId.textContent = produto.id;
-            linha.appendChild(colunaId);
+                    const colunaId = document.createElement("td");
+                    colunaId.textContent = produto.id;
+                    linha.appendChild(colunaId);
 
-            const colunaNome = document.createElement("td");
-            colunaNome.textContent = produto.nome;
-            linha.appendChild(colunaNome);
+                    const colunaNome = document.createElement("td");
+                    const inputNome = document.createElement("input");
+                    inputNome.type = "text";
+                    inputNome.value = produto.nome;
+                    inputNome.classList.add("edit-input");
+                    inputNome.dataset.id = produto.id;
+                    inputNome.dataset.field = "nome";
+                    colunaNome.appendChild(inputNome);
+                    linha.appendChild(colunaNome);
 
-            const colunaQuantidade = document.createElement("td");
-            colunaQuantidade.textContent = produto.quantidade;
-            if (produto.quantidade <= 5) {
-                colunaQuantidade.classList.add("low-stock");
-                enviarMensagem(produto);
+                    const colunaQuantidade = document.createElement("td");
+                    const inputQuantidade = document.createElement("input");
+                    inputQuantidade.type = "number";
+                    inputQuantidade.value = produto.quantidade;
+                    inputQuantidade.classList.add("edit-input");
+                    inputQuantidade.dataset.id = produto.id;
+                    inputQuantidade.dataset.field = "quantidade";
+                    if (produto.quantidade <= 5) {
+                        inputQuantidade.classList.add("low-stock");
+                        enviarMensagem(produto);
+                    }
+                    colunaQuantidade.appendChild(inputQuantidade);
+                    linha.appendChild(colunaQuantidade);
+
+                    tabelaProdutos.appendChild(linha);
+                });
+            } catch (error) {
+                console.error("Erro ao carregar os dados:", error);
             }
-            linha.appendChild(colunaQuantidade);
+        }
 
-            tabelaProdutos.appendChild(linha);
-        });
+        async function salvarAlteracoes() {
+            const inputs = document.querySelectorAll(".edit-input");
+            const alteracoes = [];
+
+            inputs.forEach(input => {
+                const id = input.dataset.id;
+                const field = input.dataset.field;
+                const value = input.value;
+
+                alteracoes.push({ id, field, value });
+            });
+
+            try {
+                const response = await fetch('http://localhost:3000/api/produtos', {
+                    method: 'PUT', // Substitua pelo método correto para atualizar os dados
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(alteracoes)
+                });
+
+                if (response.ok) {
+                    alert("Alterações salvas com sucesso!");
+                    carregarDados(); // Recarrega os dados atualizados
+                } else {
+                    console.error("Erro ao salvar alterações:", response.statusText);
+                }
+            } catch (error) {
+                console.error("Erro ao salvar alterações:", error);
+            }
+        }
 
         function enviarMensagem(produto) {
-            // Simulação de envio de mensagem para o ficheiro mensagens
             console.log(`Atenção: O produto "${produto.nome}" está com stock baixo (${produto.quantidade} unidades).`);
         }
+
+        carregarDados();
     </script>
 </body>
 </html>
