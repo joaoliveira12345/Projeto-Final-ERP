@@ -40,11 +40,11 @@ CREATE TABLE IF NOT EXISTS MovimentacoesStock (
 );
 
 -- Inserir uma categoria na tabela Categorias
-INSERT INTO Categorias (CategoriaID, Nome) VALUES
-(2, 'Perfumes');
+INSERT INTO Categorias (Nome) VALUES
+('Perfumes');
 
 -- Inserir 10 produtos relacionados a perfumes na tabela Produtos
-INSERT INTO Produtos (ProdutoID, Nome, Preco, QuantidadeStock, CategoriaID) VALUES
+INSERT INTO Produtos (ProdutoID, Nome, Preco, QuantidadeEstoque, CategoriaID) VALUES
 (10, 'Perfume Floral', 50, 100, 1),
 (2, 'Perfume Amadeirado', 30, 200, 1),
 (3, 'Perfume Cítrico', 40, 150, 1),
@@ -55,3 +55,11 @@ INSERT INTO Produtos (ProdutoID, Nome, Preco, QuantidadeStock, CategoriaID) VALU
 (8, 'Perfume Especiado', 25, 130, 1),
 (9, 'Perfume Verde', 45, 140, 1),
 (10, 'Perfume Musk', 20, 160, 1);
+
+UPDATE Categorias
+SET Nome = 'Perfumes'
+WHERE CategoriaID = 2;
+
+DESCRIBE Produtos;
+
+SELECT * FROM Categorias;
