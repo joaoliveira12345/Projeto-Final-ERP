@@ -44,22 +44,33 @@ INSERT INTO Categorias (Nome) VALUES
 ('Perfumes');
 
 -- Inserir 10 produtos relacionados a perfumes na tabela Produtos
+INSERT INTO Produtos (Nome, Preco, QuantidadeEstoque, CategoriaID) VALUES
+('Perfume Floral', 50, 100, 1),
+('Perfume Amadeirado', 30, 200, 1),
+('Perfume Cítrico', 40, 150, 1),
+('Perfume Oriental', 20, 120, 1),
+('Perfume Frutado', 35, 180, 1),
+('Perfume Gourmet', 15, 90, 1),
+('Perfume Aquático', 60, 110, 1),
+('Perfume Especiado', 25, 130, 1),
+('Perfume Verde', 45, 140, 1),
+('Perfume Musk', 20, 160, 1);
+
 INSERT INTO Produtos (ProdutoID, Nome, Preco, QuantidadeEstoque, CategoriaID) VALUES
-(10, 'Perfume Floral', 50, 100, 1),
-(2, 'Perfume Amadeirado', 30, 200, 1),
-(3, 'Perfume Cítrico', 40, 150, 1),
-(4, 'Perfume Oriental', 20, 120, 1),
-(5, 'Perfume Frutado', 35, 180, 1),
-(6, 'Perfume Gourmet', 15, 90, 1),
-(7, 'Perfume Aquático', 60, 110, 1),
-(8, 'Perfume Especiado', 25, 130, 1),
-(9, 'Perfume Verde', 45, 140, 1),
-(10, 'Perfume Musk', 20, 160, 1);
+(10, 'Perfume Floral', 50, 100, 1);
 
 UPDATE Categorias
 SET Nome = 'Perfumes'
 WHERE CategoriaID = 2;
 
+UPDATE Produtos
+SET Nome = 'Perfume Musk', Preco = 20, QuantidadeEstoque = 160, CategoriaID = 1
+WHERE ProdutoID = 10;
+
+DELETE FROM Produtos WHERE ProdutoID = 10;
+
 DESCRIBE Produtos;
 
 SELECT * FROM Categorias;
+
+SELECT * FROM Produtos;

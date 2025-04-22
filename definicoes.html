@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            background-color: #333;
+            color: #fff;
+            position: fixed;
+            top: 0;
+            left: 0;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .sidebar a {
+            text-decoration: none;
+            color: #fff;
+            padding: 10px;
+            margin: 5px 0;
+            display: block;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        .sidebar a:hover {
+            background-color: #575757;
+        }
+        .content {
+            margin-left: 270px;
+            padding: 20px;
+        }
+        .color-picker {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>Painel</h2>
+        <a href="mensagens.html">Mensagens</a>
+        <a href="graficos.html">Graficos</a>
+        <a href="inventario.html">Inventario</a>
+        <a href="qr.html">Qr</a>
+        <a href="definicoes.html">Definicoes</a>
+    </div>
+    <div class="content">
+        <h1>Definicoes</h1>
+        <p>Use as opções para guardar o layout da interface.</p>
+        <div class="color-picker">
+            <label for="bg-color">Cor de Fundo:</label>
+            <input type="color" id="bg-color" class="color-input" value="#f4f4f4">
+            <label for="sidebar-color">Cor da Sidebar:</label>
+            <input type="color" id="sidebar-color" class="color-input" value="#333">
+        </div>
+    </div>
+    <script>
+        const bgColorPicker = document.getElementById('bg-color');
+        const sidebarColorPicker = document.getElementById('sidebar-color');
+        const body = document.body;
+        const sidebar = document.querySelector('.sidebar');
+
+        // Load saved colors from localStorage
+        const savedBgColor = localStorage.getItem('bgColor');
+        const savedSidebarColor = localStorage.getItem('sidebarColor');
+
+        if (savedBgColor) {
+            body.style.backgroundColor = savedBgColor;
+            bgColorPicker.value = savedBgColor;
+        }
+
+        if (savedSidebarColor) {
+            sidebar.style.backgroundColor = savedSidebarColor;
+            sidebarColorPicker.value = savedSidebarColor;
+        }
+
+        // Save and apply background color
+        bgColorPicker.addEventListener('input', (e) => {
+            const color = e.target.value;
+            body.style.backgroundColor = color;
+            localStorage.setItem('bgColor', color);
+        });
+
+        // Save and apply sidebar color
+        sidebarColorPicker.addEventListener('input', (e) => {
+            const color = e.target.value;
+            sidebar.style.backgroundColor = color;
+            localStorage.setItem('sidebarColor', color);
+        });
+    </script>
+</body>
+</html>
