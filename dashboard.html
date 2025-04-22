@@ -3,6 +3,8 @@
 <head>
   <title>Dashboard - Inventory Management System</title>
   <link rel="stylesheet" type="text/css" href="ficheiro.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 </head>
 <body>
   <div class="dashboardMain">
@@ -34,5 +36,40 @@
       </div>
     </div>
   </div>
+  <script>
+    const supabaseUrl = 'https://uatghvawqfxuiszkbbki.supabase.co'
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVhdGdodmF3cWZ4dWlzemtiYmtpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDUzMzU0NDYsImV4cCI6MjA2MDkxMTQ0Nn0.INsFs5tQhJWEkCzQI7S1tGo3N4ECrJJYCupLVC6ZNy0'
+    const supabase = window.supabase.createClient(supabaseUrl, supabaseKey)
+  
+    async function carregarProdutos() {
+      const { data, error } = await supabase.from('produtos').select('*')
+  
+      if (error) {
+        console.error('❌ Erro ao buscar produtos:', error)
+      } else {
+        console.log('✅ Ligação bem-sucedida. Produtos:', data)
+  
+        const container = document.querySelector('.dashboard_conteudo_main')
+        container.innerHTML = ''
+        data.forEach((produto) => {
+          container.innerHTML += `
+            <div class="produto">
+              <h4>${produto.nome}</h4>
+              <p>Preço: €${produto.preco_venda}</p>
+              <p>Stock: ${produto.estoque_atual}</p>
+            </div>
+          `
+        })
+      }
+    }
+  
+    window.addEventListener('DOMContentLoaded', carregarProdutos)
+  </script>
+  
+</body>
+</html>
+  
+  
+
 </body>
 </html>
