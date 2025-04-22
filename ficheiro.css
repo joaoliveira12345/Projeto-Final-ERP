@@ -14,7 +14,7 @@ div.dashboard_conteudo_container{
 }
 
 h3.dashboard_icon{
-    color:#f685a1;
+    color:#4f9ae0;
     font-size: 80px;
     text-align: center;
 }
@@ -22,13 +22,13 @@ div.dashbord_user{
     text-align: center;
     position: relative;
     padding-bottom: 20%;
-    border-bottom: 2px solid #f685a1;
+    border-bottom: 2px solid #4f9ae0;
 }
 div.dashbord_user img{
     width: 50px;
     display: inline-block;
     border-radius: 50%;
-    border: 2px solid #f685a1;
+    border: 2px solid #4f9ae0;
     margin-right: 5px;
 }
 div.dashbord_user span{
@@ -57,11 +57,11 @@ ul.dashboard_lista_menus li a {
 }
 
 ul.dashboard_menu_lists li.menu_activo {
-    background: #f685a1;
+    background: #4f9ae0;
     color: #fff;
 }
 
 ul.dashboard_lista_menus li:hover {
-    background: #f685a1;
+    background: #4f9ae0;
     color: #fff;
 }
