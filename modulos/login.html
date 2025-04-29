@@ -65,28 +65,12 @@
       background-color: #ccc;
     }
 
-    #clientes-lista {
-      background-color: white;
+    #success-message {
       margin-top: 20px;
-      padding: 20px;
-      border-radius: 12px;
-      max-width: 600px;
-      width: 90%;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-
-    #clientes-lista h3 {
-      margin-top: 0;
-    }
-
-    #clientes-lista ul {
-      list-style: none;
-      padding: 0;
-    }
-
-    #clientes-lista li {
-      padding: 8px 0;
-      border-bottom: 1px solid #eee;
+      color: green;
+      font-size: 18px;
+      font-weight: bold;
+      display: none;
     }
   </style>
 </head>
@@ -99,9 +83,9 @@
     <button class="secondary" onclick="window.location.href='registo.html'">Criar conta</button>
   </div>
 
-  <div id="clientes-lista" style="display: none;">
-    <h3>Clientes Registrados</h3>
-    <ul id="lista"></ul>
+  <!-- Mensagem de sucesso que ficará oculta inicialmente -->
+  <div id="success-message">
+    Login bem-sucedido! Bem-vindo ao sistema.
   </div>
 
   <script>
@@ -118,31 +102,11 @@
       if (error) {
         alert('Erro ao iniciar sessão: ' + error.message);
       } else {
-        alert('Login bem-sucedido!');
+        // Exibe a mensagem de sucesso
+        document.getElementById('success-message').style.display = 'block';
+        // Esconde a tela de login
         document.querySelector('.login-container').style.display = 'none';
-        document.getElementById('clientes-lista').style.display = 'block';
-        buscarClientes();
       }
-    }
-
-    async function buscarClientes() {
-      const { data, error } = await supabase.from('clientes').select('*');
-      const lista = document.getElementById('lista');
-
-      if (error) {
-        lista.innerHTML = `<li>Erro ao buscar clientes: ${error.message}</li>`;
-        return;
-      }
-
-      if (data.length === 0) {
-        lista.innerHTML = '<li>Nenhum cliente registrado.</li>';
-        return;
-      }
-
-      lista.innerHTML = '';
-      data.forEach(cliente => {
-        lista.innerHTML += `<li><strong>${cliente.nome}</strong> (${cliente.tipo}) - ${cliente.email}</li>`;
-      });
     }
   </script>
 </body>
