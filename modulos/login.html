@@ -82,18 +82,18 @@
     const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
     async function login() {
-  const email = document.getElementById('login_email').value;
-  const password = document.getElementById('login_password').value;
+      const email = document.getElementById('login_email').value;
+      const password = document.getElementById('login_password').value;
 
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
-  if (error) {
-    alert('Erro ao iniciar sessão: ' + error.message);
-  } else {
-    alert('Login bem-sucedido!');
-    window.location.href = 'dashboard.html'; 
-  }  
-}
+      if (error) {
+        alert('Erro ao iniciar sessão: ' + error.message);
+      } else {
+        alert('Login bem-sucedido!');
+        window.location.href = 'dashboard.html'; 
+      }  
+    }
   </script>
 </body>
 </html>
