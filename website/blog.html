@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Web Page</title> <!-- Mudar o nome do titulo da pagina -->
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"> <!-- Updated Font Awesome link -->
+</head>
+<body>
+    <section class="sub-header">
+        <nav>
+            <a href="index.html"><img src="images/logo.png"></a>
+            <div class="nav-links" id="navLinks">
+                <i class="fa fa-times-circle" onclick="hideMenu()"></i>
+
+                <ul>
+                    <li><a href="index.html">HOME</a></li> <!-- Mudar o nome do arquivo HTML caso necessário -->
+                    <li><a href="about.html">ABOUT</a></li> <!-- Mudar o nome do arquivo HTML caso necessário -->
+                    <li><a href="course.html">COURSE</a></li> <!-- Mudar o nome do arquivo HTML caso necessário -->
+                    <li><a href="blog.html">BLOG</a></li> <!-- Mudar o nome do arquivo HTML caso necessário -->
+                    <li><a href="contact.html">CONTACT</a></li> <!-- Mudar o nome do arquivo HTML caso necessário -->                </ul>
+            </div>
+            <i class="fa fa-bars" onclick="showMenu()"></i>
+        </nav>
+        <h1> What We Are Working On For The Future</h1>
+    </section>
+<!------------- Blog page content ------------->
+    <section class="blog-content">
+        <div class="row">
+            <div class="blog-left">
+                <img src="images/temp.jpg">
+                <h2> What the Future Holds for 2025</h2>
+                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Praesentium, omnis.</p>
+                <br>
+                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusantium, quo.</p>
+                <br>
+                <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Voluptates, placeat.</p>
+                <br>
+                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Error, culpa.</p>
+
+                <div class="comment-box">
+                    <h3>Leave a Comment</h3>
+                    <form class="comment-form">
+                        <input type="text" placeholder=" Enter Name" required>
+                        <input type="email" placeholder="Enter Email" required>
+                        <textarea rows="5" placeholder=" Your Comment" required></textarea>
+                        <button type="submit" class="hero-btn blue-btn">POST COMMENT</button>
+                    </form>
+                </div>
+
+            </div>    
+            <div class="blog-right">
+                <h3>Post Categories</h3>
+                <div>
+                    <span>Business Analytics</span>
+                    <span>21</span>
+                </div>
+                <div>
+                    <span>AI Development</span>
+                    <span>37</span>
+                </div>
+                <div>
+                    <span>Security Operation</span>
+                    <span>43</span>
+                </div>
+                <div>
+                    <span>Sustainability and Environment</span>
+                    <span>13</span>
+                </div>
+                <div>
+                    <span>HR Future</span>
+                    <span>19</span>
+                </div>
+            </div>
+        </div>
+    </section>
+   
+<!------------- JavaScript for Toggle Menu ------------->
+    <script>
+
+        var navLinks = document.getElementById("navLinks");
+        function showMenu() {
+            navLinks.style.right = "0";
+        }
+        function hideMenu() {
+            navLinks.style.right = "-200px";
+        }
+
+    </script>
+</body>
+</html>

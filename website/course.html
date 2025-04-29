@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Web Page</title> <!-- Mudar o nome do titulo da pagina -->
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"> <!-- Updated Font Awesome link -->
+</head>
+<body>
+    <section class="sub-header">
+        <nav>
+            <a href="index.html"><img src="images/logo.png"></a>
+            <div class="nav-links" id="navLinks">
+                <i class="fa fa-times-circle" onclick="hideMenu()"></i>
+
+                <ul>
+                    <li><a href="index.html">HOME</a></li> <!-- Mudar o nome do arquivo HTML caso necessário -->
+                    <li><a href="about.html">ABOUT</a></li> <!-- Mudar o nome do arquivo HTML caso necessário -->
+                    <li><a href="course.html">COURSE</a></li> <!-- Mudar o nome do arquivo HTML caso necessário -->
+                    <li><a href="blog.html">BLOG</a></li> <!-- Mudar o nome do arquivo HTML caso necessário -->
+                    <li><a href="contact.html">CONTACT</a></li> <!-- Mudar o nome do arquivo HTML caso necessário -->                </ul>
+            </div>
+            <i class="fa fa-bars" onclick="showMenu()"></i>
+        </nav>
+        <h1> Our Courses</h1>
+    </section>
+<!------------- Course ------------->
+    <section class="course">
+    <h1>Our Courses</h1> <!-- Mudar a frase -->
+    <p>We offer a variety of courses to help you learn and grow.</p> <!-- Mudar a frase -->
+
+    <div class="row">
+        <div class="course-col">
+            <h3>Course 1</h3> <!-- Mudar o nome do curso -->
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p> <!-- Mudar a frase -->
+        </div>
+        <div class="course-col">
+            <h3>Course 2</h3> <!-- Mudar o nome do curso -->
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p> <!-- Mudar a frase -->
+        </div>
+        <div class="course-col">
+            <h3>Course 3</h3> <!-- Mudar o nome do curso -->
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p> <!-- Mudar a frase -->
+        </div>
+   </section>
+
+   <!------------- apps ------------->   
+   <section class="apps">
+    <h1>Apps We Offer</h1>
+    <p>Explore our range of applications designed to enhance your company planning.</p> <!-- Mudar a frase -->
+
+    <div class="row">
+        <div class="apps-col">
+            <img src="images/temp.jpg"> <!-- Mudar o nome do arquivo caso necessário -->
+            <div class="layer">
+                <h3>App 1</h3> <!-- Mudar o nome do aplicativo -->
+            </div>
+        </div>
+        <div class="apps-col">
+            <img src="images/temp.jpg"> <!-- Mudar o nome do arquivo caso necessário -->
+            <div class="layer">
+                <h3>App 2</h3> <!-- Mudar o nome do aplicativo -->
+            </div>
+        </div>
+        <div class="apps-col">
+            <img src="images/temp.jpg"> <!-- Mudar o nome do arquivo caso necessário -->
+            <div class="layer">
+                <h3>App 3</h3> <!-- Mudar o nome do aplicativo -->
+            </div>
+        </div>
+    </div>
+   </section>
+   
+<!------------- JavaScript for Toggle Menu ------------->
+    <script>
+
+        var navLinks = document.getElementById("navLinks");
+        function showMenu() {
+            navLinks.style.right = "0";
+        }
+        function hideMenu() {
+            navLinks.style.right = "-200px";
+        }
+
+    </script>
+</body>
+</html>
