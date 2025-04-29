@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Registo - Sistema de Inventário</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to right, #4f9ae0, #345b9c);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .registo-container {
+      background-color: #fff;
+      padding: 40px 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.2);
+      width: 100%;
+      max-width: 500px;
+      text-align: center;
+    }
+
+    .registo-container h2 {
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .registo-container input, .registo-container select {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+
+    .registo-container button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 15px;
+      background-color: #4f9ae0;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .registo-container button:hover {
+      background-color: #3a7cc4;
+    }
+  </style>
+</head>
+<body>
+  <div class="registo-container">
+    <h2>Criar Conta</h2>
+
+    <input type="text" id="nome" placeholder="Nome completo" required />
+    <select id="tipo">
+      <option value="cliente">Cliente</option>
+      <option value="empresa">Empresa</option>
+    </select>
+    <input type="text" id="NIF" placeholder="NIF" required />
+    <input type="email" id="email" placeholder="Email" required />
+    <input type="text" id="telefone" placeholder="Telefone" />
+    <input type="text" id="endereco" placeholder="Endereço (ex: Rua, Nº, Bairro...)" />
+    <input type="password" id="senha" placeholder="Senha" required />
+
+    <button onclick="registar()">Registar</button>
+  </div>
+
+  <script>
+    const supabaseUrl = 'https://uatghvawqfxuiszkbbki.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVhdGdodmF3cWZ4dWlzemtiYmtpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDUzMzU0NDYsImV4cCI6MjA2MDkxMTQ0Nn0.INsFs5tQhJWEkCzQI7S1tGo3N4ECrJJYCupLVC6ZNy0'; 
+    const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+    async function registar() {
+      const nome = document.getElementById('nome').value;
+      const tipo = document.getElementById('tipo').value;
+      const cpf_cnpj = document.getElementById('cpf_cnpj').value;
+      const email = document.getElementById('email').value;
+      const telefone = document.getElementById('telefone').value;
+      const endereco = document.getElementById('endereco').value;
+      const senha = document.getElementById('senha').value;
+
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: email,
+        password: senha
+      });
+
+      if (authError) {
+        alert('Erro no registo: ' + authError.message);
+        return;
+      }
+
+      const userId = authData.user?.id;
+
+      const { data: clienteData, error: clienteError } = await supabase.from('clientes').insert([{
+        id: userId,
+        nome,
+        tipo,
+        cpf_cnpj,
+        email,
+        telefone,
+        endereco: { texto: endereco }, 
+        data_cadastro: new Date().toISOString(),
+        status: 'ativo',
+        limite_credito: 0
+      }]);
+
+      if (clienteError) {
+        alert('Erro ao guardar dados do cliente: ' + clienteError.message);
+      } else {
+        alert('Conta criada com sucesso!');
+        window.location.href = 'login.html';
+      }
+    }
+  </script>
+</body>
+</html>

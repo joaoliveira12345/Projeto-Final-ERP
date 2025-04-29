@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login - Sistema de Inventário</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to right, #4f9ae0, #345b9c);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .login-container {
+      background-color: #fff;
+      padding: 40px 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.2);
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+    }
+
+    .login-container h2 {
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .login-container input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+
+    .login-container button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      background-color: #4f9ae0;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .login-container button:hover {
+      background-color: #3a7cc4;
+    }
+
+    .login-container .secondary {
+      background-color: #ddd;
+      color: #333;
+    }
+
+    .login-container .secondary:hover {
+      background-color: #ccc;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <h2>Bem-vindo</h2>
+    <input type="email" id="login_email" placeholder="Email" required>
+    <input type="password" id="login_password" placeholder="Senha" required>
+    <button onclick="login()">Login</button>
+    <button class="secondary" onclick="window.location.href='registo.html'">Criar conta</button>
+  </div>
+
+  <script>
+    const supabaseUrl = 'https://uatghvawqfxuiszkbbki.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVhdGdodmF3cWZ4dWlzemtiYmtpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDUzMzU0NDYsImV4cCI6MjA2MDkxMTQ0Nn0.INsFs5tQhJWEkCzQI7S1tGo3N4ECrJJYCupLVC6ZNy0'; 
+    const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+    async function login() {
+  const email = document.getElementById('login_email').value;
+  const password = document.getElementById('login_password').value;
+
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+  if (error) {
+    alert('Erro ao iniciar sessão: ' + error.message);
+  } else {
+    alert('Login bem-sucedido!');
+    window.location.href = 'dashboard.html'; 
+  }  
+}
+  </script>
+</body>
+</html>
