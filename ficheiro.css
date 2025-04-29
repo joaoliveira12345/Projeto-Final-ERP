@@ -25,7 +25,7 @@ div.dashboard_user{
     border-bottom: 2px solid #4f9ae0;
 }
 div.dashboard_user img{
-    width: 200px;
+    width: 100px;
     display: inline-block;
     border-radius: 50%;
     border: 2px solid #4f9ae0;
@@ -64,5 +64,6 @@ ul.dashboard_menu_lists li.menu_activo {
 ul.dashboard_lista_menus li:hover {
     background: #4f9ae0;
     color: #fff;
+    transition: 0.3s all;
 }
 
