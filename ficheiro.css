@@ -18,20 +18,20 @@ h3.dashboard_icon{
     font-size: 80px;
     text-align: center;
 }
-div.dashbord_user{
+div.dashboard_user{
     text-align: center;
     position: relative;
     padding-bottom: 20%;
     border-bottom: 2px solid #4f9ae0;
 }
-div.dashbord_user img{
-    width: 50px;
+div.dashboard_user img{
+    width: 200px;
     display: inline-block;
     border-radius: 50%;
     border: 2px solid #4f9ae0;
     margin-right: 5px;
 }
-div.dashbord_user span{
+div.dashboard_user span{
     top: 20%;
     font-size: 20px;
     text-transform: uppercase;
@@ -65,3 +65,4 @@ ul.dashboard_lista_menus li:hover {
     background: #4f9ae0;
     color: #fff;
 }
+
