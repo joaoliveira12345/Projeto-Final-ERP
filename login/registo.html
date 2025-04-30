@@ -55,6 +55,15 @@
     .registo-container button:hover {
       background-color: #3a7cc4;
     }
+
+    .secondary {
+      background-color: #ccc;
+      color: #333;
+    }
+
+    .secondary:hover {
+      background-color: #bbb;
+    }
   </style>
 </head>
 <body>
@@ -63,8 +72,8 @@
 
     <input type="text" id="nome" placeholder="Nome completo" required />
     <select id="tipo">
-      <option value="cliente">Cliente</option>
-      <option value="empresa">Empresa</option>
+      <option value="pessoa_fisica">Cliente</option>
+      <option value="pessoa_juridica">Empresa</option>
     </select>
     <input type="text" id="nif" placeholder="NIF" required />
     <input type="email" id="email" placeholder="Email" required />
@@ -73,12 +82,33 @@
     <input type="password" id="senha" placeholder="Senha" required />
 
     <button onclick="registar()">Registar</button>
+    <button class="secondary" onclick="window.location.href='login.html'">Voltar ao Login</button>
   </div>
 
   <script>
     const supabaseUrl = 'https://uatghvawqfxuiszkbbki.supabase.co';
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVhdGdodmF3cWZ4dWlzemtiYmtpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDUzMzU0NDYsImV4cCI6MjA2MDkxMTQ0Nn0.INsFs5tQhJWEkCzQI7S1tGo3N4ECrJJYCupLVC6ZNy0'; 
     const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+    // Função para esperar até que o usuário seja criado
+    async function esperarUsuarioCriado(userId) {
+      let retries = 10;
+      while (retries > 0) {
+        const { data: userCheck, error: userCheckError } = await supabase
+          .from('auth.users')
+          .select('id')
+          .eq('id', userId)
+          .single();
+
+        if (userCheck && !userCheckError) {
+          return true;
+        }
+
+        retries--;
+        await new Promise(resolve => setTimeout(resolve, 1000)); // Espera de 1 segundo
+      }
+      return false;
+    }
 
     async function registar() {
       const nome = document.getElementById('nome').value;
@@ -89,37 +119,54 @@
       const endereco = document.getElementById('endereco').value;
       const senha = document.getElementById('senha').value;
 
+      // Registrar o usuário no Supabase (tabela de auth)
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: email,
         password: senha
       });
 
       if (authError) {
+        console.log(authError);
         alert('Erro no registo: ' + authError.message);
         return;
       }
 
-      const userId = authData.user?.id;
+      const user = authData.user;
+      if (!user) {
+        alert("Verifica o teu email para concluir o registo.");
+        return;
+      }
 
-      const { data: clienteData, error: clienteError } = await supabase.from('clientes').insert([{
-        id: userId,
-        nome,
-        tipo,
-        nif,
-        email,
-        telefone,
-        endereco: { texto: endereco }, 
-        data_cadastro: new Date().toISOString(),
-        status: 'ativo',
-        limite_credito: 0
+      // Esperar que o usuário seja confirmado na tabela auth.users
+      const usuarioCriado = await esperarUsuarioCriado(user.id);
+      if (!usuarioCriado) {
+        alert('O usuário não foi encontrado na tabela auth.users.');
+        return;
+      }
+
+      // Inserir os dados do cliente na tabela 'clientes' com valores padrão
+      const { error: clienteError } = await supabase.from('clientes').insert([{
+        user_id: user.id, // user.id deve ser válido agora
+        nome: nome,
+        tipo: tipo || 'pessoa_fisica', // Definir valor padrão se não for selecionado
+        nif: nif,
+        email: email,
+        telefone: telefone,
+        endereco: { texto: endereco }, // Garantir que o endereço seja um objeto JSON válido
+        status: 'ativo', // Valor padrão
+        limite_credito: 0, // Valor padrão
+        data_cadastro: new Date().toISOString() // Timestamp atual
       }]);
 
       if (clienteError) {
         alert('Erro ao guardar dados do cliente: ' + clienteError.message);
-      } else {
-        alert('Conta criada com sucesso!');
-        window.location.href = 'login.html';
+        return;
       }
+
+      alert('Registo realizado com sucesso!');
+
+      // Redirecionar para o login ou perfil
+      window.location.href = "login.html";
     }
   </script>
 </body>

@@ -103,9 +103,10 @@
         alert('Erro ao iniciar sessão: ' + error.message);
       } else {
         // Exibe a mensagem de sucesso
-        document.getElementById('success-message').style.display = 'block';
-        // Esconde a tela de login
-        document.querySelector('.login-container').style.display = 'none';
+        sessionStorage.setItem('userId', data.user.id); 
+
+        window.location.href = 'perfil.html';
+
       }
     }
   </script>

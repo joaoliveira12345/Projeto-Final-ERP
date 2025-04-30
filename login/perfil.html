@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Perfil do Cliente</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to right, #8bd3dd, #2f8f9d);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      color: #fff;
+    }
+    .perfil-container {
+      background-color: #1a3e4c;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+      max-width: 500px;
+      width: 100%;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .info {
+      margin-bottom: 15px;
+    }
+  </style>
+</head>
+<body>
+  <div class="perfil-container">
+    <h2>Informações do Cliente</h2>
+    <div class="info" id="cliente-info">A carregar...</div>
+  </div>
+
+  <script>
+    const supabaseUrl = 'https://uatghvawqfxuiszkbbki.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVhdGdodmF3cWZ4dWlzemtiYmtpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDUzMzU0NDYsImV4cCI6MjA2MDkxMTQ0Nn0.INsFs5tQhJWEkCzQI7S1tGo3N4ECrJJYCupLVC6ZNy0';
+    const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+    async function carregarInformacoes() {
+      const userId = sessionStorage.getItem('userId');
+      if (!userId) {
+        document.getElementById('cliente-info').innerText = 'Utilizador não autenticado.';
+        return;
+      }
+
+      // Buscar dados da tabela 'clientes' com base no ID
+      const { data, error } = await supabase
+        .from('clientes')
+        .select('*')
+        .eq('user_id', userId) // <- mudar de 'id' para 'user_id'
+        .single();
+
+
+
+      if (error) {
+        document.getElementById('cliente-info').innerText = 'Erro ao carregar informações: ' + error.message;
+      } else {
+        document.getElementById('cliente-info').innerHTML = `
+          <strong>ID:</strong> ${data.id}<br>
+          <strong>Nome:</strong> ${data.nome}<br>
+          <strong>Email:</strong> ${data.email}<br>
+          <strong>Telefone:</strong> ${data.telefone || 'N/A'}<br>
+        `;
+      }
+    }
+
+    carregarInformacoes();
+  </script>
+</body>
+</html>
