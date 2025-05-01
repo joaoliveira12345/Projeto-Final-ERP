@@ -87,28 +87,8 @@
 
   <script>
     const supabaseUrl = 'https://uatghvawqfxuiszkbbki.supabase.co';
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVhdGdodmF3cWZ4dWlzemtiYmtpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDUzMzU0NDYsImV4cCI6MjA2MDkxMTQ0Nn0.INsFs5tQhJWEkCzQI7S1tGo3N4ECrJJYCupLVC6ZNy0'; 
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVhdGdodmF3cWZ4dWlzemtiYmtpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDUzMzU0NDYsImV4cCI6MjA2MDkxMTQ0Nn0.INsFs5tQhJWEkCzQI7S1tGo3N4ECrJJYCupLVC6ZNy0';
     const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
-
-    // Função para esperar até que o usuário seja criado
-    async function esperarUsuarioCriado(userId) {
-      let retries = 10;
-      while (retries > 0) {
-        const { data: userCheck, error: userCheckError } = await supabase
-          .from('auth.users')
-          .select('id')
-          .eq('id', userId)
-          .single();
-
-        if (userCheck && !userCheckError) {
-          return true;
-        }
-
-        retries--;
-        await new Promise(resolve => setTimeout(resolve, 1000)); // Espera de 1 segundo
-      }
-      return false;
-    }
 
     async function registar() {
       const nome = document.getElementById('nome').value;
@@ -119,7 +99,6 @@
       const endereco = document.getElementById('endereco').value;
       const senha = document.getElementById('senha').value;
 
-      // Registrar o usuário no Supabase (tabela de auth)
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: email,
         password: senha
@@ -137,25 +116,17 @@
         return;
       }
 
-      // Esperar que o usuário seja confirmado na tabela auth.users
-      const usuarioCriado = await esperarUsuarioCriado(user.id);
-      if (!usuarioCriado) {
-        alert('O usuário não foi encontrado na tabela auth.users.');
-        return;
-      }
-
-      // Inserir os dados do cliente na tabela 'clientes' com valores padrão
       const { error: clienteError } = await supabase.from('clientes').insert([{
-        user_id: user.id, // user.id deve ser válido agora
+        user_id: user.id,
         nome: nome,
-        tipo: tipo || 'pessoa_fisica', // Definir valor padrão se não for selecionado
+        tipo: tipo || 'pessoa_fisica',
         nif: nif,
         email: email,
         telefone: telefone,
-        endereco: { texto: endereco }, // Garantir que o endereço seja um objeto JSON válido
-        status: 'ativo', // Valor padrão
-        limite_credito: 0, // Valor padrão
-        data_cadastro: new Date().toISOString() // Timestamp atual
+        endereco: { texto: endereco }, // ou só `endereco: endereco` se não for um JSON
+        status: 'ativo',
+        limite_credito: 0,
+        data_cadastro: new Date().toISOString()
       }]);
 
       if (clienteError) {
@@ -164,9 +135,7 @@
       }
 
       alert('Registo realizado com sucesso!');
-
-      // Redirecionar para o login ou perfil
-      window.location.href = "login.html";
+      window.location.href = "perfil.html";
     }
   </script>
 </body>

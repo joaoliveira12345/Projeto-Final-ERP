@@ -103,7 +103,8 @@
         alert('Erro ao iniciar sessão: ' + error.message);
       } else {
         // Exibe a mensagem de sucesso
-        sessionStorage.setItem('userId', data.user.id); 
+        sessionStorage.setItem('userId', data.session.user.id);
+ 
 
         window.location.href = 'perfil.html';
 
