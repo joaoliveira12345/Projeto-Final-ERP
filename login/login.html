@@ -102,12 +102,11 @@
       if (error) {
         alert('Erro ao iniciar sessão: ' + error.message);
       } else {
-        // Exibe a mensagem de sucesso
+        // Armazena o ID do usuário na sessão
         sessionStorage.setItem('userId', data.session.user.id);
- 
 
-        window.location.href = 'perfil.html';
-
+        // Redireciona para o dashboard
+        window.location.href = '../modulos/dashboard_inventario.html';
       }
     }
   </script>
