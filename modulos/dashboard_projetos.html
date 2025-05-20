@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Dashboard - Inventory Management System</title>
+
+  <!-- CSS -->
+  <link rel="stylesheet" type="text/css" href="ficheiro.css">
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+  <div class="dashboardMain">
+
+    <!-- Barra lateral -->
+    <div class="dashboard_lateral">
+      <h3 class="dashboard_icon">JGDM</h3>
+
+      <div class="dashboard_user">
+        <i class="fa fa-user"></i>
+        <span>Gonçalo</span>
+      </div>
+
+      <div class="dashboard_menu">
+        <ul class="dashboard_lista_menus">
+          <li class="menu_activo">
+            <a href="dashboard_inventario.html"><i class="fa fa-dashboard"></i> Inventário</a>
+          </li>
+          <li>
+            <a href="dashboard_vendas.html"><i class="fa fa-dashboard"></i> Vendas</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Botão hamburger externo -->
+    <a class="menu-toggle-externo"><i class="fa fa-bars"></i></a>
+
+    <!-- Conteúdo principal -->
+    <div class="dashboard_conteudo_conteiner">
+      <div class="dashboard_Nav">
+        <a href="log/login.html" class="logout-button"><i class="fa fa-power-off"></i> Log-out</a>
+      </div>
+
+      <div class="dashboard_conteudo">
+        <div class="dashboard_conteudo_main">
+          <!-- Produtos inseridos aqui -->
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Script Supabase + toggle -->
+  <script>
+    const supabaseUrl = 'https://uatghvawqfxuiszkbbki.supabase.co';
+    const supabaseKey = 'ey...zNy0'; // Chave truncada
+    const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+    async function carregarProdutos() {
+      const { data, error } = await supabase.from('produtos').select('*');
+
+      if (error) {
+        console.error('❌ Erro ao buscar produtos:', error);
+      } else {
+        const container = document.querySelector('.dashboard_conteudo_main');
+        container.innerHTML = '';
+        data.forEach((produto) => {
+          container.innerHTML += `
+            <div class="produto">
+              <h4>${produto.nome}</h4>
+              <p>Preço: €${produto.preco_venda}</p>
+              <p>Stock: ${produto.estoque_atual}</p>
+            </div>
+          `;
+        });
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', carregarProdutos);
+
+    // 👉 Toggle da barra lateral
+    const toggleBtn = document.querySelector('.menu-toggle-externo');
+    const sidebar = document.querySelector('.dashboard_lateral');
+
+    toggleBtn.addEventListener('click', function (e) {
+      e.preventDefault();
+      sidebar.classList.toggle('collapsed');
+    });
+  </script>
+</body>
+</html>
