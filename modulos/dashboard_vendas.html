@@ -2,55 +2,77 @@
 <html>
 <head>
   <title>Dashboard - Inventory Management System</title>
-  <link rel="stylesheet" type="text/css" href="ficheiro.css">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+  <!-- CSS externo -->
+  <link rel="stylesheet" type="text/css" href="ficheiro.css">
+
+  <!-- Ícones Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Biblioteca Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
+
 <body>
   <div class="dashboardMain">
+    <!-- Botão de menu fora da barra lateral -->
+    <a href="#" class="menu-toggle-externo"><i class="fa fa-bars"></i></a>
+
+    <!-- Menu lateral -->
     <div class="dashboard_lateral">
+      <div class="dashboard_topo">
       <h3 class="dashboard_icon">JGDM</h3>
+      <a href="#" class="menu-toggle"><i class="fa fa-bars"></i></a>
+    </div>
+
+
+      <!-- Utilizador -->
       <div class="dashboard_user">
-        <img src="preto.png" alt="User image." />
+        <i class="fa fa-user"></i>
         <span>Gonçalo</span>
       </div>
+
+      <!-- Menu de navegação -->
       <div class="dashboard_menu">
         <ul class="dashboard_lista_menus">
-          <li class = "menu_activo">
-            <a href="" ><i class="fa fa-dashboard"></i> Inventario</a>
-          </li>
           <li>
-            <a href=""><i class="fa fa-dashboard"></i> Vendas</a>
+            <a href="dashboard_inventario.html"><i class="fa fa-dashboard"></i> Inventário</a>
+          </li>
+          <li class="menu_activo">
+            <a href="dashboard_vendas.html"><i class="fa fa-dashboard"></i> Vendas</a>
           </li>
         </ul>
       </div>
     </div>
+
+    <!-- Conteúdo -->
     <div class="dashboard_conteudo_conteiner">
       <div class="dashboard_Nav">
-        <a href=""><i class="fa fa-navicon"></i></a>
-        <a href="login.html"><i class="fa fa-user"></i> Login / Registo</a>
-        <a href=""><i class="fa fa-power-off"></i> Log-out</a>
+        <!-- Botão de logout fixo no canto superior direito -->
+        <a href="#" class="logout-button"><i class="fa fa-power-off"></i> Log-out</a>
       </div>
-      
+
       <div class="dashboard_conteudo">
         <div class="dashboard_conteudo_main">
+          <!-- Conteúdo das vendas aqui -->
         </div>
       </div>
     </div>
   </div>
+
   <script>
     const supabaseUrl = 'https://uatghvawqfxuiszkbbki.supabase.co'
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVhdGdodmF3cWZ4dWlzemtiYmtpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDUzMzU0NDYsImV4cCI6MjA2MDkxMTQ0Nn0.INsFs5tQhJWEkCzQI7S1tGo3N4ECrJJYCupLVC6ZNy0'
+    const supabaseKey = 'ey...zNy0' // Chave encurtada
     const supabase = window.supabase.createClient(supabaseUrl, supabaseKey)
-  
+
     async function carregarProdutos() {
       const { data, error } = await supabase.from('produtos').select('*')
-  
+
       if (error) {
         console.error('❌ Erro ao buscar produtos:', error)
       } else {
-        console.log('✅ Ligação bem-sucedida. Produtos:', data)
-  
+        console.log('✅ Produtos carregados:', data)
+
         const container = document.querySelector('.dashboard_conteudo_main')
         container.innerHTML = ''
         data.forEach((produto) => {
@@ -64,14 +86,9 @@
         })
       }
     }
-  
+
     window.addEventListener('DOMContentLoaded', carregarProdutos)
   </script>
-  
 </body>
 </html>
-  
-  
 
-</body>
-</html>

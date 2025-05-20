@@ -67,3 +67,90 @@ ul.dashboard_lista_menus li:hover {
     transition: 0.3s all;
 }
 
+/* Estilo do botão de logout */
+.logout-button {
+    position: fixed; /* fixo ao ecrã */
+    top: 20px;       /* distância do topo */
+    right: 20px;     /* distância da direita */
+    background-color: #4f9ae0;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: bold;
+    z-index: 1000; /* garantir que está acima */
+    transition: 0.3s;
+}
+
+.logout-button:hover {
+    background-color: #3c7bb1;
+}
+
+
+.logout-button:hover {
+    background-color: #3c7bb1;
+}
+
+/* Garantir posicionamento do nav para o botão logout */
+.dashboard_Nav {
+    position: relative;
+}
+
+/* Estilo do ícone de utilizador */
+.dashboard_user i.fa-user {
+    font-size: 80px;
+    color: white;
+    margin-bottom: 10px;
+    display: block;
+}
+
+/* Container do topo lateral com ícone e botão */
+.dashboard_topo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 10px;
+    height: 80px;
+}
+
+/* Ícone JGDM com menor margem */
+.dashboard_icon {
+    color: #4f9ae0;
+    font-size: 40px;
+    margin: 0;
+}
+
+/* Botão do menu hamburguer */
+.menu-toggle i {
+    font-size: 24px;
+    color: white;
+    padding: 10px;
+    transition: 0.3s;
+}
+
+.menu-toggle i:hover {
+    color: #4f9ae0;
+}
+
+/* Botão hamburguer posicionado fora da barra lateral */
+.menu-toggle-externo {
+    position: absolute;
+    top: 20px;               /* alinha com topo do JGDM */
+    left: 20.2%;             /* logo após a barra lateral (20%) */
+    z-index: 1000;
+    text-decoration: none;
+}
+
+.menu-toggle-externo i {
+    font-size: 24px;
+    color: #4f9ae0;
+    background-color: white;
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+    transition: 0.3s;
+}
+
+.menu-toggle-externo i:hover {
+    background-color: #e0e0e0;
+}
