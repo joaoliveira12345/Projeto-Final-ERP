@@ -3,78 +3,71 @@
 <head>
   <title>Dashboard - Inventory Management System</title>
 
-  <!-- CSS externo -->
+  <!-- CSS -->
   <link rel="stylesheet" type="text/css" href="ficheiro.css">
 
-  <!-- Ícones Font Awesome -->
+  <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-  <!-- Biblioteca Supabase -->
+  <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-
 <body>
   <div class="dashboardMain">
-    <!-- Botão de menu fora da barra lateral -->
-    <a href="#" class="menu-toggle-externo"><i class="fa fa-bars"></i></a>
 
-    <!-- Menu lateral -->
+    <!-- Barra lateral -->
     <div class="dashboard_lateral">
-      <div class="dashboard_topo">
       <h3 class="dashboard_icon">JGDM</h3>
-      <a href="#" class="menu-toggle"><i class="fa fa-bars"></i></a>
-    </div>
 
-
-      <!-- Utilizador -->
       <div class="dashboard_user">
         <i class="fa fa-user"></i>
         <span>Gonçalo</span>
       </div>
 
-      <!-- Menu de navegação -->
       <div class="dashboard_menu">
         <ul class="dashboard_lista_menus">
-          <li>
+          <li class="menu_activo">
             <a href="dashboard_inventario.html"><i class="fa fa-dashboard"></i> Inventário</a>
           </li>
-          <li class="menu_activo">
+          <li>
             <a href="dashboard_vendas.html"><i class="fa fa-dashboard"></i> Vendas</a>
           </li>
         </ul>
       </div>
     </div>
 
-    <!-- Conteúdo -->
+    <!-- Botão hamburger externo -->
+    <a href="#" class="menu-toggle-externo"><i class="fa fa-bars"></i></a>
+
+    <!-- Conteúdo principal -->
     <div class="dashboard_conteudo_conteiner">
       <div class="dashboard_Nav">
-        <!-- Botão de logout fixo no canto superior direito -->
         <a href="#" class="logout-button"><i class="fa fa-power-off"></i> Log-out</a>
       </div>
 
       <div class="dashboard_conteudo">
         <div class="dashboard_conteudo_main">
-          <!-- Conteúdo das vendas aqui -->
+          <!-- Produtos inseridos aqui -->
         </div>
       </div>
     </div>
+
   </div>
 
+  <!-- Script Supabase + toggle -->
   <script>
-    const supabaseUrl = 'https://uatghvawqfxuiszkbbki.supabase.co'
-    const supabaseKey = 'ey...zNy0' // Chave encurtada
-    const supabase = window.supabase.createClient(supabaseUrl, supabaseKey)
+    const supabaseUrl = 'https://uatghvawqfxuiszkbbki.supabase.co';
+    const supabaseKey = 'ey...zNy0'; // Chave truncada
+    const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
     async function carregarProdutos() {
-      const { data, error } = await supabase.from('produtos').select('*')
+      const { data, error } = await supabase.from('produtos').select('*');
 
       if (error) {
-        console.error('❌ Erro ao buscar produtos:', error)
+        console.error('❌ Erro ao buscar produtos:', error);
       } else {
-        console.log('✅ Produtos carregados:', data)
-
-        const container = document.querySelector('.dashboard_conteudo_main')
-        container.innerHTML = ''
+        const container = document.querySelector('.dashboard_conteudo_main');
+        container.innerHTML = '';
         data.forEach((produto) => {
           container.innerHTML += `
             <div class="produto">
@@ -82,13 +75,23 @@
               <p>Preço: €${produto.preco_venda}</p>
               <p>Stock: ${produto.estoque_atual}</p>
             </div>
-          `
-        })
+          `;
+        });
       }
     }
 
-    window.addEventListener('DOMContentLoaded', carregarProdutos)
+    window.addEventListener('DOMContentLoaded', carregarProdutos);
+
+    // 👉 Toggle da barra lateral
+    const toggleBtn = document.querySelector('.menu-toggle-externo');
+    const sidebar = document.querySelector('.dashboard_lateral');
+
+    toggleBtn.addEventListener('click', function (e) {
+      e.preventDefault();
+      sidebar.classList.toggle('collapsed');
+    });
   </script>
 </body>
 </html>
+
 

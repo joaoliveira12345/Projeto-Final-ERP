@@ -104,15 +104,6 @@ ul.dashboard_lista_menus li:hover {
     display: block;
 }
 
-/* Container do topo lateral com ícone e botão */
-.dashboard_topo {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0 10px;
-    height: 80px;
-}
-
 /* Ícone JGDM com menor margem */
 .dashboard_icon {
     color: #4f9ae0;
@@ -120,25 +111,19 @@ ul.dashboard_lista_menus li:hover {
     margin: 0;
 }
 
-/* Botão do menu hamburguer */
-.menu-toggle i {
-    font-size: 24px;
-    color: white;
-    padding: 10px;
-    transition: 0.3s;
-}
-
-.menu-toggle i:hover {
-    color: #4f9ae0;
-}
-
-/* Botão hamburguer posicionado fora da barra lateral */
+/* Botão hamburguer que segue o limite da barra lateral */
 .menu-toggle-externo {
     position: absolute;
-    top: 20px;               /* alinha com topo do JGDM */
-    left: 20.2%;             /* logo após a barra lateral (20%) */
+    top: 20px;
+    left: calc(20% + 10px); /* 10px após a barra (normal) */
     z-index: 1000;
     text-decoration: none;
+    transition: left 0.3s ease;
+}
+
+/* Quando a barra está colapsada */
+.dashboard_lateral.collapsed ~ .menu-toggle-externo {
+    left: 70px; /* 60px de barra + 10px de espaçamento */
 }
 
 .menu-toggle-externo i {
@@ -153,4 +138,29 @@ ul.dashboard_lista_menus li:hover {
 
 .menu-toggle-externo i:hover {
     background-color: #e0e0e0;
+}
+
+
+/* Estado colapsado da barra lateral */
+.dashboard_lateral.collapsed {
+    width: 60px; /* largura reduzida */
+    transition: width 0.3s ease;
+}
+
+/* Ocultar textos como "Gonçalo" e menu completo */
+.dashboard_lateral.collapsed .dashboard_user span,
+.dashboard_lateral.collapsed .dashboard_lista_menus li a {
+    display: none;
+}
+
+/* Centralizar ícone quando colapsado */
+.dashboard_lateral.collapsed .dashboard_icon {
+    font-size: 30px;
+    text-align: center;
+}
+
+/* Reposicionar ícone de utilizador */
+.dashboard_lateral.collapsed .dashboard_user i {
+    font-size: 40px;
+    margin: 10px 0;
 }
