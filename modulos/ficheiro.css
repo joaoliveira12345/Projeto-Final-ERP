@@ -104,18 +104,21 @@ ul.dashboard_lista_menus li:hover {
     display: block;
 }
 
-/* Ícone JGDM com menor margem */
+/* Ícone JGDM adaptável */
 .dashboard_icon {
     color: #4f9ae0;
-    font-size: 4vw;  /* responsivo na versão expandida */
+    font-size: clamp(24px, 5vw, 80px); /* cresce entre 24px e 80px */
     text-align: center;
     transition: font-size 0.3s ease;
+    white-space: nowrap;
+    overflow: hidden;
 }
 
-/* Quando a barra está colapsada, reduzir a sigla */
+/* Quando a barra está colapsada, usa tamanho pequeno fixo */
 .dashboard_lateral.collapsed .dashboard_icon {
     font-size: 16px;
 }
+
 
 
 /* Botão hamburguer que segue o limite da barra lateral */
