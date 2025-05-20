@@ -107,9 +107,16 @@ ul.dashboard_lista_menus li:hover {
 /* Ícone JGDM com menor margem */
 .dashboard_icon {
     color: #4f9ae0;
-    font-size: 40px;
-    margin: 0;
+    font-size: 4vw;  /* responsivo na versão expandida */
+    text-align: center;
+    transition: font-size 0.3s ease;
 }
+
+/* Quando a barra está colapsada, reduzir a sigla */
+.dashboard_lateral.collapsed .dashboard_icon {
+    font-size: 16px;
+}
+
 
 /* Botão hamburguer que segue o limite da barra lateral */
 .menu-toggle-externo {
@@ -133,8 +140,15 @@ ul.dashboard_lista_menus li:hover {
     padding: 10px;
     border-radius: 8px;
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
-    transition: 0.3s;
+    transition: 0.3s ease;
 }
+
+/* Quando a barra está colapsada, o botão também diminui */
+.dashboard_lateral.collapsed ~ .menu-toggle-externo i {
+    font-size: 16px;
+    padding: 6px;
+}
+
 
 .menu-toggle-externo i:hover {
     background-color: #e0e0e0;
