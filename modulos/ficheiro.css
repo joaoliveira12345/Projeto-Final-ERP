@@ -15,7 +15,7 @@ div.dashboard_conteudo_container{
 
 h3.dashboard_icon{
     color:#4f9ae0;
-    font-size: 80px;
+    font-size: 30px;
     text-align: center;
 }
 div.dashboard_user{
@@ -125,7 +125,7 @@ ul.dashboard_lista_menus li:hover {
 .menu-toggle-externo {
     position: absolute;
     top: 20px;
-    left: calc(20% + 10px); /* 10px após a barra (normal) */
+    left: calc(20% + 15px); /* 10px após a barra (normal) */
     z-index: 1000;
     text-decoration: none;
     transition: left 0.3s ease;
