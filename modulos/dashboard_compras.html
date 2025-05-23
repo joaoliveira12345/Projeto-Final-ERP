@@ -7,6 +7,36 @@
   <link rel="stylesheet" href="ficheiro.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    .resumo-cards {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .card {
+      background: #f4f4f4;
+      border-radius: 8px;
+      padding: 20px;
+      flex: 1;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
+
+    .tabela-compras {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .tabela-compras th, .tabela-compras td {
+      border: 1px solid #ccc;
+      padding: 8px 12px;
+      text-align: left;
+    }
+
+    .tabela-compras th {
+      background-color: #eee;
+    }
+  </style>
 </head>
 <body>
   <div class="dashboardMain">
@@ -56,18 +86,17 @@
       }
 
       const { data, error } = await supabase
-  .from('ordens_compra')
-  .select(`
-    id,
-    data_compra,
-    total_custo,
-    status,
-    observacoes,
-    fornecedor:fornecedor_id (nome)
-  `)
-  .eq('usuario_id', userId) // <- nome correto
-  .order('data_compra', { ascending: false });
-
+        .from('ordens_compra')
+        .select(`
+          id,
+          data_compra,
+          total_custo,
+          status,
+          observacoes,
+          fornecedor:fornecedor_id (nome)
+        `)
+        .eq('usuario_id', userId)
+        .order('data_compra', { ascending: false });
 
       if (error) {
         container.innerHTML = '<p>Erro ao carregar compras.</p>';
@@ -80,16 +109,56 @@
         return;
       }
 
-      container.innerHTML = data.map(compra => `
-        <div class="produto">
-          <h4>Ordem #${compra.id}</h4>
-          <p>Fornecedor: ${compra.fornecedor?.nome || '—'}</p>
-          <p>Data: ${new Date(compra.data_compra).toLocaleDateString()}</p>
-          <p>Total: €${compra.total_custo.toFixed(2)}</p>
-          <p>Status: ${compra.status}</p>
-          <p>Observações: ${compra.observacoes}</p>
+      let totalMes = 0;
+      let totalPendentes = 0;
+      const fornecedoresUnicos = new Set();
+
+      let tabelaHTML = `
+        <div class="resumo-cards">
+          <div class="card"><h3>Compras (Mês Atual)</h3><p id="totalMes">€0</p></div>
+          <div class="card"><h3>Compras Pendentes</h3><p id="totalPendentes">€0</p></div>
+          <div class="card"><h3>Total de Fornecedores</h3><p id="totalFornecedores">0</p></div>
         </div>
-      `).join('');
+        <h3>Pedidos de Compra</h3>
+        <table class="tabela-compras">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Fornecedor</th>
+              <th>Data</th>
+              <th>Total</th>
+              <th>Status</th>
+              <th>Observações</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      data.forEach(compra => {
+        const dataCompra = new Date(compra.data_compra);
+        const mesAtual = new Date().getMonth();
+        if (dataCompra.getMonth() === mesAtual) totalMes += compra.total_custo;
+        if (compra.status === 'pendente') totalPendentes += compra.total_custo;
+        if (compra.fornecedor?.nome) fornecedoresUnicos.add(compra.fornecedor.nome);
+
+        tabelaHTML += `
+          <tr>
+            <td>${compra.id}</td>
+            <td>${compra.fornecedor?.nome || '—'}</td>
+            <td>${dataCompra.toLocaleDateString()}</td>
+            <td>€${compra.total_custo.toFixed(2)}</td>
+            <td>${compra.status}</td>
+            <td>${compra.observacoes || ''}</td>
+          </tr>
+        `;
+      });
+
+      tabelaHTML += `</tbody></table>`;
+      container.innerHTML = tabelaHTML;
+
+      document.getElementById('totalMes').innerText = `€${totalMes.toFixed(2)}`;
+      document.getElementById('totalPendentes').innerText = `€${totalPendentes.toFixed(2)}`;
+      document.getElementById('totalFornecedores').innerText = fornecedoresUnicos.size;
     }
 
     window.addEventListener('DOMContentLoaded', carregarCompras);
