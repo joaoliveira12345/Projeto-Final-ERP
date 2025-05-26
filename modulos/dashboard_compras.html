@@ -3,16 +3,63 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Dashboard - Compras</title>
-  <link rel="stylesheet" href="ficheiro.css">
+  <title>Dashboard de Compras</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
-    .compras-dashboard {
-      padding: 20px;
-      font-family: Arial, sans-serif;
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background-color: #f4f6fa;
+      display: flex;
     }
 
-    .compras-cards {
+    .sidebar {
+      width: 220px;
+      background: #fff;
+      height: 100vh;
+      padding: 20px 10px;
+      border-right: 1px solid #ddd;
+      box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+    }
+
+    .sidebar h2 {
+      margin: 0;
+      font-size: 18px;
+      color: #333;
+      text-align: center;
+    }
+
+    .nav {
+      margin-top: 30px;
+    }
+
+    .nav a {
+      display: flex;
+      align-items: center;
+      padding: 10px 16px;
+      margin: 4px 0;
+      border-radius: 8px;
+      text-decoration: none;
+      color: #333;
+      transition: 0.2s;
+    }
+
+    .nav a:hover, .nav a.active {
+      background-color: #e0edff;
+      color: #1d4ed8;
+    }
+
+    .nav a i {
+      margin-right: 10px;
+    }
+
+    .main {
+      flex: 1;
+      padding: 30px;
+    }
+
+    .cards {
       display: flex;
       gap: 20px;
       margin-bottom: 30px;
@@ -20,168 +67,249 @@
 
     .card {
       flex: 1;
-      background: #f9f9f9;
-      border-left: 5px solid #4f9ae0;
-      padding: 16px;
-      border-radius: 10px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
     }
 
     .card h3 {
-      margin: 0 0 5px;
-      font-size: 18px;
-      color: #333;
+      font-size: 16px;
+      color: #777;
+      margin-bottom: 8px;
     }
 
     .card p {
       font-size: 24px;
-      font-weight: bold;
-      color: #4f9ae0;
+      font-weight: 600;
+      color: #1d4ed8;
+    }
+
+    h2 {
+      margin-bottom: 12px;
+      color: #333;
     }
 
     table {
       width: 100%;
-      border-collapse: collapse;
       background: #fff;
+      border-collapse: collapse;
       border-radius: 10px;
       overflow: hidden;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      margin-bottom: 30px;
     }
 
     th, td {
-      padding: 12px 16px;
+      padding: 12px 14px;
       text-align: left;
     }
 
     th {
-      background: #f0f0f0;
-      color: #333;
+      background-color: #f0f2f5;
     }
 
     tr:nth-child(even) {
-      background: #f9f9f9;
+      background-color: #fafafa;
+    }
+
+    .form-box {
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      margin-bottom: 12px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    button {
+      background-color: #3b82f6;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 6px;
+      font-size: 14px;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    button:hover {
+      background-color: #2563eb;
     }
 
     .status {
-      padding: 4px 10px;
-      border-radius: 20px;
-      font-size: 0.85rem;
-      text-transform: capitalize;
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      color: #fff;
+      background-color: #999;
     }
 
-    .status.recebido { background-color: #d1f5d3; color: #207c3d; }
-    .status.pendente { background-color: #fff3cd; color: #856404; }
-    .status.cancelado { background-color: #f8d7da; color: #721c24; }
+    .status.pendente { background-color: #facc15; color: #333; }
+    .status.recebido { background-color: #22c55e; }
+    .status.cancelado { background-color: #ef4444; }
   </style>
 </head>
 <body>
-  <div class="dashboardMain">
-    <div class="dashboard_lateral">
-      <h3 class="dashboard_icon">JGDM</h3>
-      <div class="dashboard_user">
-        <i class="fa fa-user"></i>
-        <span>Gonçalo</span>
+  <div class="sidebar">
+    <h2>ERP System</h2>
+    <div class="nav">
+      <a href="#"><i>🏠</i> Dashboard</a>
+      <a href="#"><i>📦</i> Estoque</a>
+      <a href="#"><i>🏭</i> Produção</a>
+      <a class="active" href="#"><i>🛒</i> Compras</a>
+      <a href="#"><i>📁</i> Projetos</a>
+      <a href="#"><i>💰</i> Vendas</a>
+    </div>
+  </div>
+
+  <div class="main">
+    <h1>Gestão de Compras</h1>
+    <div class="cards">
+      <div class="card">
+        <h3>Compras (Mês)</h3>
+        <p id="valorMes">€ 0.00</p>
       </div>
-      <div class="dashboard_menu">
-        <ul class="dashboard_lista_menus">
-          <li><a href="dashboard_inventario.html"><i class="fa fa-warehouse"></i> Inventário</a></li>
-          <li><a href="dashboard_vendas.html"><i class="fa fa-shopping-cart"></i> Vendas</a></li>
-          <li class="menu_activo"><a href="dashboard_compras.html"><i class="fa fa-truck"></i> Compras</a></li>
-          <li><a href="dashboard_producao.html"><i class="fa fa-industry"></i> Produção</a></li>
-          <li><a href="dashboard_projetos.html"><i class="fa fa-tasks"></i> Projetos</a></li>
-        </ul>
+      <div class="card">
+        <h3>Pendentes</h3>
+        <p id="pendentes">0</p>
+      </div>
+      <div class="card">
+        <h3>Fornecedores</h3>
+        <p id="fornecedores">0</p>
       </div>
     </div>
 
-    <a class="menu-toggle-externo"><i class="fa fa-bars"></i></a>
+    <h2>Pedidos de Compra</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Fornecedor</th>
+          <th>Data</th>
+          <th>Total</th>
+          <th>Status</th>
+          <th>Observações</th>
+        </tr>
+      </thead>
+      <tbody id="listaPedidos">
+        <tr><td colspan="6">Sem pedidos ainda.</td></tr>
+      </tbody>
+    </table>
 
-    <div class="dashboard_conteudo_conteiner">
-      <div class="dashboard_Nav">
-        <a href="../log/login.html" class="logout-button"><i class="fa fa-power-off"></i> Log-out</a>
-      </div>
-      <div class="dashboard_conteudo">
-        <div class="compras-dashboard">
-          <div class="compras-cards" id="resumoCompras">
-            <!-- Cartões resumo -->
-          </div>
-          <h2>Pedidos de Compra</h2>
-          <table>
-            <thead>
-              <tr>
-                <th>Ordem</th>
-                <th>Fornecedor</th>
-                <th>Data</th>
-                <th>Total</th>
-                <th>Status</th>
-                <th>Notas</th>
-              </tr>
-            </thead>
-            <tbody id="listaCompras">
-              <!-- Dados JS -->
-            </tbody>
-          </table>
-        </div>
-      </div>
+    <div class="form-box">
+      <h3>Nova Compra</h3>
+      <input type="text" id="fornecedor_id" placeholder="UUID do fornecedor" />
+      <input type="number" id="total_custo" placeholder="Total (€)" />
+      <textarea id="observacoes" placeholder="Observações"></textarea>
+      <button onclick="guardarCompra()">Guardar Compra</button>
     </div>
   </div>
 
   <script>
     const supabase = window.supabase.createClient(
-      'https://uatghvawqfxuiszkbbki.supabase.co',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVhdGdodmF3cWZ4dWlzemtiYmtpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDUzMzU0NDYsImV4cCI6MjA2MDkxMTQ0Nn0.INsFs5tQhJWEkCzQI7S1tGo3N4ECrJJYCupLVC6ZNy0'
+      'https://nnitvxhubovlyfxdeemf.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5uaXR2eGh1Ym92bHlmeGRlZW1mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgyNjU4ODYsImV4cCI6MjA2Mzg0MTg4Nn0.fTwCna-UBzfLRlbJ2EkWwQeXuq5t3ORwfgbsfiUqejU'
     );
 
     async function carregarCompras() {
-  const userId = sessionStorage.getItem('userId');
-  const container = document.getElementById('listaCompras');
-  const cardsContainer = document.getElementById('resumoCompras');
+      const userId = sessionStorage.getItem("userId");
+      const lista = document.getElementById("listaPedidos");
+      const valorMes = document.getElementById("valorMes");
+      const pendentes = document.getElementById("pendentes");
+      const fornecedoresTotal = document.getElementById("fornecedores");
 
-  if (!userId) {
-    container.innerHTML = '<tr><td colspan="6">Usuário não autenticado.</td></tr>';
-    return;
-  }
+      const { data: compras } = await supabase
+        .from("ordens_compra")
+        .select("*")
+        .eq("usuario_id", userId)
+        .order("data_compra", { ascending: false });
 
-  const { data, error } = await supabase
-    .from('ordens_compra')
-    .select(`id, data_compra, total_custo, status, observacoes, fornecedores (nome)`)
-    .eq('usuario_id', userId)
-    .order('data_compra', { ascending: false });
+      const { data: fornecedores } = await supabase
+        .from("fornecedores")
+        .select("id, nome");
 
-  if (error) {
-    container.innerHTML = `<tr><td colspan="6">Erro ao carregar compras.</td></tr>`;
-    console.error(error);
-    return;
-  }
+      const fornecedorMap = {};
+      fornecedores.forEach(f => fornecedorMap[f.id] = f.nome);
 
-  const totalMes = data.reduce((acc, item) => acc + (new Date(item.data_compra).getMonth() === new Date().getMonth() ? item.total_custo : 0), 0);
-  const pendentes = data.filter(item => item.status === 'pendente').length;
-  const fornecedoresUnicos = new Set(data.map(d => d.fornecedores?.nome)).size;
+      if (!compras || compras.length === 0) {
+        lista.innerHTML = '<tr><td colspan="6">Sem pedidos ainda.</td></tr>';
+        valorMes.textContent = '€ 0.00';
+        pendentes.textContent = '0';
+        fornecedoresTotal.textContent = '0';
+        return;
+      }
 
-  cardsContainer.innerHTML = `
-    <div class="card"><h3>Compras (Mês Atual)</h3><p>€ ${totalMes.toFixed(2)}</p></div>
-    <div class="card"><h3>Compras Pendentes</h3><p>${pendentes}</p></div>
-    <div class="card"><h3>Total de Fornecedores</h3><p>${fornecedoresUnicos}</p></div>
-  `;
+      let totalMes = 0;
+      const hoje = new Date();
+      const pendentesCount = compras.filter(c => c.status === "pendente").length;
+      const fornecedoresUnicos = new Set(compras.map(c => c.fornecedor_id)).size;
 
-  container.innerHTML = data.map(c => `
-    <tr>
-      <td>${c.id.slice(0, 8)}</td>
-      <td>${c.fornecedores?.nome || '—'}</td>
-      <td>${new Date(c.data_compra).toLocaleDateString()}</td>
-      <td>€ ${c.total_custo?.toFixed(2) || '—'}</td>
-      <td><span class="status ${c.status}">${c.status}</span></td>
-      <td>${c.observacoes || '—'}</td>
-    </tr>
-  `).join('');
-}
+      lista.innerHTML = compras.map(c => {
+        const data = new Date(c.data_compra).toLocaleDateString();
+        const valor = `€ ${parseFloat(c.total_custo).toFixed(2)}`;
+        if (new Date(c.data_compra).getMonth() === hoje.getMonth()) {
+          totalMes += parseFloat(c.total_custo);
+        }
+        return `
+          <tr>
+            <td>${c.id.slice(0, 6)}</td>
+            <td>${fornecedorMap[c.fornecedor_id] || '—'}</td>
+            <td>${data}</td>
+            <td>${valor}</td>
+            <td><span class="status ${c.status}">${c.status}</span></td>
+            <td>${c.observacoes || '—'}</td>
+          </tr>
+        `;
+      }).join('');
 
+      valorMes.textContent = `€ ${totalMes.toFixed(2)}`;
+      pendentes.textContent = pendentesCount;
+      fornecedoresTotal.textContent = fornecedoresUnicos;
+    }
 
-    window.addEventListener('DOMContentLoaded', carregarCompras);
+    async function guardarCompra() {
+      const fornecedorId = document.getElementById("fornecedor_id").value.trim();
+      const total = parseFloat(document.getElementById("total_custo").value);
+      const observacoes = document.getElementById("observacoes").value;
+      const userId = sessionStorage.getItem("userId");
 
-    document.querySelector('.menu-toggle-externo').addEventListener('click', (e) => {
-      e.preventDefault();
-      document.querySelector('.dashboard_lateral').classList.toggle('collapsed');
-    });
+      if (!fornecedorId || isNaN(total)) {
+        alert("Preenche corretamente os campos obrigatórios.");
+        return;
+      }
+
+      const hoje = new Date();
+      const entrega = new Date(hoje);
+      entrega.setDate(hoje.getDate() + 7);
+
+      const { error } = await supabase.from("ordens_compra").insert([{
+        fornecedor_id: fornecedorId,
+        usuario_id: userId,
+        data_compra: hoje.toISOString().split("T")[0],
+        previsao_entrega: entrega.toISOString().split("T")[0],
+        total_custo: total,
+        status: "pendente",
+        observacoes
+      }]);
+
+      if (error) {
+        alert("Erro ao guardar: " + error.message);
+      } else {
+        alert("Compra registrada com sucesso!");
+        carregarCompras();
+      }
+    }
+
+    window.addEventListener("DOMContentLoaded", carregarCompras);
   </script>
 </body>
 </html>

@@ -16,7 +16,6 @@
       height: 100vh;
       margin: 0;
     }
-
     .login-container {
       background-color: #fff;
       padding: 40px 30px;
@@ -26,12 +25,10 @@
       max-width: 400px;
       text-align: center;
     }
-
     .login-container h2 {
       margin-bottom: 20px;
       color: #333;
     }
-
     .login-container input, .login-container button {
       width: 100%;
       padding: 12px;
@@ -39,11 +36,9 @@
       border-radius: 6px;
       font-size: 16px;
     }
-
     .login-container input {
       border: 1px solid #ccc;
     }
-
     .login-container button {
       background-color: #4f9ae0;
       color: white;
@@ -51,20 +46,16 @@
       cursor: pointer;
       transition: background 0.3s;
     }
-
     .login-container button:hover {
       background-color: #3a7cc4;
     }
-
     .login-container .secondary {
       background-color: #ddd;
       color: #333;
     }
-
     .login-container .secondary:hover {
       background-color: #ccc;
     }
-
     #success-message {
       margin-top: 20px;
       color: green;
@@ -83,14 +74,13 @@
     <button class="secondary" onclick="window.location.href='registo.html'">Criar conta</button>
   </div>
 
-  <!-- Mensagem de sucesso que ficará oculta inicialmente -->
   <div id="success-message">
     Login bem-sucedido! Bem-vindo ao sistema.
   </div>
-
+          
   <script>
-    const supabaseUrl = 'https://uatghvawqfxuiszkbbki.supabase.co';
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVhdGdodmF3cWZ4dWlzemtiYmtpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDUzMzU0NDYsImV4cCI6MjA2MDkxMTQ0Nn0.INsFs5tQhJWEkCzQI7S1tGo3N4ECrJJYCupLVC6ZNy0';
+    const supabaseUrl = 'https://nnitvxhubovlyfxdeemf.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5uaXR2eGh1Ym92bHlmeGRlZW1mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgyNjU4ODYsImV4cCI6MjA2Mzg0MTg4Nn0.fTwCna-UBzfLRlbJ2EkWwQeXuq5t3ORwfgbsfiUqejU'; 
     const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
     async function login() {
@@ -101,13 +91,20 @@
 
       if (error) {
         alert('Erro ao iniciar sessão: ' + error.message);
-      } else {
-        // Armazena o ID do usuário na sessão
-        sessionStorage.setItem('userId', data.session.user.id);
-
-        // Redireciona para o dashboard
-        window.location.href = '../modulos/dashboard_compras.html';
+        return;
       }
+
+      const user = data?.user;
+      if (!user) {
+        alert("Login falhou. Verifique as credenciais.");
+        return;
+      }
+
+      // Armazena o ID do utilizador
+      sessionStorage.setItem('userId', user.id);
+
+      // Redireciona para o dashboard
+      window.location.href = '../modulos/dashboard_compras.html';
     }
   </script>
 </body>

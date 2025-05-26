@@ -15,7 +15,6 @@
       height: 100vh;
       margin: 0;
     }
-
     .registo-container {
       background-color: #fff;
       padding: 40px 30px;
@@ -25,12 +24,10 @@
       max-width: 500px;
       text-align: center;
     }
-
     .registo-container h2 {
       margin-bottom: 20px;
       color: #333;
     }
-
     .registo-container input, .registo-container select {
       width: 100%;
       padding: 12px;
@@ -39,7 +36,6 @@
       border: 1px solid #ccc;
       font-size: 16px;
     }
-
     .registo-container button {
       width: 100%;
       padding: 12px;
@@ -51,16 +47,13 @@
       font-size: 16px;
       cursor: pointer;
     }
-
     .registo-container button:hover {
       background-color: #3a7cc4;
     }
-
     .secondary {
       background-color: #ccc;
       color: #333;
     }
-
     .secondary:hover {
       background-color: #bbb;
     }
@@ -69,16 +62,9 @@
 <body>
   <div class="registo-container">
     <h2>Criar Conta</h2>
-
     <input type="text" id="nome" placeholder="Nome completo" required />
-    <select id="tipo">
-      <option value="pessoa_fisica">Cliente</option>
-      <option value="pessoa_juridica">Empresa</option>
-    </select>
-    <input type="text" id="nif" placeholder="NIF" required />
     <input type="email" id="email" placeholder="Email" required />
     <input type="text" id="telefone" placeholder="Telefone" />
-    <input type="text" id="endereco" placeholder="Endereço (ex: Rua, Nº, Bairro...)" />
     <input type="password" id="senha" placeholder="Senha" required />
 
     <button onclick="registar()">Registar</button>
@@ -86,70 +72,47 @@
   </div>
 
   <script>
-    const supabaseUrl = 'https://uatghvawqfxuiszkbbki.supabase.co';
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVhdGdodmF3cWZ4dWlzemtiYmtpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDUzMzU0NDYsImV4cCI6MjA2MDkxMTQ0Nn0.INsFs5tQhJWEkCzQI7S1tGo3N4ECrJJYCupLVC6ZNy0';
+    const supabaseUrl = 'https://nnitvxhubovlyfxdeemf.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5uaXR2eGh1Ym92bHlmeGRlZW1mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgyNjU4ODYsImV4cCI6MjA2Mzg0MTg4Nn0.fTwCna-UBzfLRlbJ2EkWwQeXuq5t3ORwfgbsfiUqejU'; 
     const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
     async function registar() {
       const nome = document.getElementById('nome').value;
-      const tipo = document.getElementById('tipo').value;
-      const nif = document.getElementById('nif').value;
       const email = document.getElementById('email').value;
       const telefone = document.getElementById('telefone').value;
-      const endereco = document.getElementById('endereco').value;
       const senha = document.getElementById('senha').value;
 
-const { data: authData, error: authError } = await supabase.auth.signUp({
-  email: email,
-  password: senha
-});
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: email,
+        password: senha
+      });
 
-if (authError) {
-  alert('Erro no registo: ' + authError.message);
-  return;
-}
+      if (authError) {
+        alert('Erro no registo: ' + authError.message);
+        return;
+      }
 
-const user = authData.user;
+      const user = authData?.user;
 
-if (!user) {
-  alert("Verifica o teu email para concluir o registo.");
-  return;
-}
+      if (!user) {
+        alert("Verifica o teu email para concluir o registo.");
+        return;
+      }
 
-// Inserir cliente
-const { error: clienteError } = await supabase.from('clientes').insert([{
-  user_id: user.id,
-  nome: nome,
-  tipo: tipo,
-  nif: nif,
-  email: email,
-  telefone: telefone,
-  endereco: { texto: endereco },
-  status: 'ativo',
-  limite_credito: 0,
-  data_cadastro: new Date().toISOString()
-}]);
+      const { error: perfilError } = await supabase.from('perfis').insert([{
+        id: user.id,
+        nome: nome,
+        tipo_usuario: 'cliente',  // ou 'admin', 'colaborador' conforme apropriado
+        criado_em: new Date().toISOString()
+      }]);
 
-// Inserir perfil de utilizador
-const { error: perfilError } = await supabase.from('profiles').insert([{
-  id: user.id,
-  nome: nome,
-  telefone: telefone,
-  avatar_url: '',
-  nivel_acesso: 'cliente', // ou admin, funcionário, etc.
-  ativo: true,
-  created_at: new Date().toISOString(),
-  updated_at: new Date().toISOString()
-}]);
+      if (perfilError) {
+        alert('Erro ao guardar dados do perfil: ' + perfilError.message);
+        return;
+      }
 
-if (clienteError || perfilError) {
-  alert('Erro ao guardar dados adicionais: ' + (clienteError?.message || perfilError?.message));
-  return;
-}
-
-alert('Registo realizado com sucesso!');
-window.location.href = "perfil.html";
-
+      alert('Registo realizado com sucesso!');
+      window.location.href = "login.html";
     }
   </script>
 </body>
