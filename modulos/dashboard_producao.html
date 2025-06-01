@@ -1,82 +1,273 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt">
 <head>
-  <title>Dashboard - Inventory Management System</title>
-  <link rel="stylesheet" type="text/css" href="ficheiro.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard de Produção</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background-color: #f4f6fa;
+      display: flex;
+    }
+
+    .sidebar {
+      width: 220px;
+      background: #fff;
+      height: 100vh;
+      padding: 20px 10px;
+      border-right: 1px solid #ddd;
+      box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+    }
+
+    .sidebar h2 {
+      margin: 0;
+      font-size: 18px;
+      color: #333;
+      text-align: center;
+    }
+
+    .nav {
+      margin-top: 30px;
+    }
+
+    .nav a {
+      display: flex;
+      align-items: center;
+      padding: 10px 16px;
+      margin: 4px 0;
+      border-radius: 8px;
+      text-decoration: none;
+      color: #333;
+      transition: 0.2s;
+    }
+
+    .nav a:hover, .nav a.active {
+      background-color: #e0edff;
+      color: #1d4ed8;
+    }
+
+    .nav a i {
+      margin-right: 10px;
+    }
+
+    .main {
+      flex: 1;
+      padding: 30px;
+    }
+
+    .cards {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .card {
+      flex: 1;
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    }
+
+    .card h3 {
+      font-size: 16px;
+      color: #777;
+      margin-bottom: 8px;
+    }
+
+    .card p {
+      font-size: 24px;
+      font-weight: 600;
+      color: #1d4ed8;
+    }
+
+    table {
+      width: 100%;
+      background: #fff;
+      border-collapse: collapse;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      margin-bottom: 30px;
+    }
+
+    th, td {
+      padding: 12px 14px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f0f2f5;
+    }
+
+    tr:nth-child(even) {
+      background-color: #fafafa;
+    }
+
+    .form-box {
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      margin-bottom: 12px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    button {
+      background-color: #3b82f6;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 6px;
+      font-size: 14px;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    button:hover {
+      background-color: #2563eb;
+    }
+
+    .status {
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      color: #fff;
+      background-color: #999;
+    }
+
+    .status.Em\ Tran\u00c3\u00adsito { background-color: #facc15; color: #333; }
+    .status.Processando { background-color: #3b82f6; }
+    .status.Completo { background-color: #10b981; }
+    .progress-bar {
+      background-color: #e5e7eb;
+      border-radius: 8px;
+      overflow: hidden;
+      height: 10px;
+    }
+    .progress-bar-inner {
+      height: 100%;
+      background-color: #3b82f6;
+    }
+  </style>
 </head>
 <body>
-  <div class="dashboardMain">
-    <div class="dashboard_lateral">
-      <h3 class="dashboard_icon">JGDM</h3>
-      <div class="dashboard_user">
-        <i class="fa fa-user"></i>
-        <span>Gonçalo</span>
+  <div class="sidebar">
+    <h2>ERP System</h2>
+    <div class="nav">
+  
+  <a href="dashboard_inventario.html"><i>📦</i> Estoque</a>
+  <a href="dashboard_producao.html"><i>🏭</i> Produção</a>
+  <a href="dashboard_compras.html"><i>🛒</i> Compras</a>
+  <a href="dashboard_projetos.html"><i>📁</i> Projetos</a>
+  <a href="dashboard_vendas.html"><i>💰</i> Vendas</a>
+</div>
+
+  </div>
+
+  <div class="main">
+    <h1>Gestão de Produção</h1>
+    <div class="cards">
+      <div class="card">
+        <h3>Produção Mensal</h3>
+        <p id="producaoMensal">0 unidades</p>
       </div>
-      <div class="dashboard_menu">
-        <ul class="dashboard_lista_menus">
-          <li class="menu_activo"><a href="dashboard_inventario.html"><i class="fa fa-warehouse"></i> Inventário</a></li>
-          <li><a href="dashboard_vendas.html"><i class="fa fa-shopping-cart"></i> Vendas</a></li>
-          <li><a href="dashboard_compras.html"><i class="fa fa-truck"></i> Compras</a></li>
-          <li><a href="dashboard_producao.html"><i class="fa fa-industry"></i> Produção</a></li>
-          <li><a href="dashboard_projetos.html"><i class="fa fa-tasks"></i> Projetos</a></li>
-        </ul>
+      <div class="card">
+        <h3>Ordens em Andamento</h3>
+        <p id="ordensAndamento">0</p>
+      </div>
+      <div class="card">
+        <h3>Ordens Concluídas</h3>
+        <p id="ordensConcluidas">0</p>
       </div>
     </div>
 
-    <a class="menu-toggle-externo"><i class="fa fa-bars"></i></a>
-
-    <div class="dashboard_conteudo_conteiner">
-      <div class="dashboard_Nav">
-        <a href="../log/login.html" class="logout-button"><i class="fa fa-power-off"></i> Log-out</a>
-      </div>
-      <div class="dashboard_conteudo">
-        <div class="dashboard_conteudo_main" id="listaProdutos">
-          <!-- Conteúdo será inserido por JavaScript -->
-        </div>
-      </div>
-    </div>
+    <h2>Ordens de Produção</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Produto</th>
+          <th>Quantidade</th>
+          <th>Data Início</th>
+          <th>Previsão</th>
+          <th>Progresso</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="tabelaProducao">
+        <tr><td colspan="7">Sem ordens ainda.</td></tr>
+      </tbody>
+    </table>
   </div>
 
   <script>
-    const supabaseUrl = 'https://nnitvxhubovlyfxdeemf.supabase.co';
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5uaXR2eGh1Ym92bHlmeGRlZW1mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgyNjU4ODYsImV4cCI6MjA2Mzg0MTg4Nn0.fTwCna-UBzfLRlbJ2EkWwQeXuq5t3ORwfgbsfiUqejU';
-    const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+    const supabase = window.supabase.createClient(
+      'https://nnitvxhubovlyfxdeemf.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5uaXR2eGh1Ym92bHlmeGRlZW1mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgyNjU4ODYsImV4cCI6MjA2Mzg0MTg4Nn0.fTwCna-UBzfLRlbJ2EkWwQeXuq5t3ORwfgbsfiUqejU'
+    );
 
-    async function carregarInventario() {
-      const { data, error } = await supabase.from('produtos').select('*');
-      const container = document.getElementById('listaProdutos');
+    async function carregarProducao() {
+      const { data, error } = await supabase.from('ordens_producao').select('*').order('data_inicio', { ascending: false });
+      if (error) return alert('Erro ao carregar dados');
 
-      if (error) {
-        container.innerHTML = '<p>Erro ao carregar inventário.</p>';
-        console.error(error);
-        return;
+      const tabela = document.getElementById('tabelaProducao');
+      let mensal = 0, andamento = 0, concluidas = 0;
+
+      if (!data || data.length === 0) {
+        tabela.innerHTML = '<tr><td colspan="7">Sem ordens ainda.</td></tr>';
+      } else {
+        tabela.innerHTML = data.map(o => {
+          const inicio = new Date(o.data_inicio).toLocaleDateString();
+          const fim = new Date(o.previsao_conclusao).toLocaleDateString();
+          const progresso = o.progresso || 0;
+          if (new Date(o.data_inicio).getMonth() === new Date().getMonth()) mensal += o.qtd_produzir;
+          if (o.status === 'completo') concluidas++;
+          if (o.status !== 'completo') andamento++;
+
+          return `<tr>
+            <td>${o.id.slice(0, 6)}</td>
+            <td>${o.produto_id}</td>
+            <td>${o.qtd_produzir}</td>
+            <td>${inicio}</td>
+            <td>${fim}</td>
+            <td>
+              <div class="progress-bar">
+                <div class="progress-bar-inner" style="width: ${progresso}%"></div>
+              </div>
+            </td>
+            <td><span class="status ${o.status}">${o.status}</span></td>
+          </tr>`;
+        }).join('');
       }
 
-      if (data.length === 0) {
-        container.innerHTML = '<p>Nenhum produto encontrado.</p>';
-        return;
-      }
-
-      data.forEach(produto => {
-        container.innerHTML += `
-          <div class="produto">
-            <h4>${produto.nome}</h4>
-            <p>Categoria: ${produto.categoria || '—'}</p>
-            <p>Preço: €${produto.preco_venda.toFixed(2)}</p>
-            <p>Stock atual: ${produto.estoque_atual}</p>
-          </div>
-        `;
-      });
+      document.getElementById('producaoMensal').textContent = `${mensal} unidades`;
+      document.getElementById('ordensAndamento').textContent = andamento;
+      document.getElementById('ordensConcluidas').textContent = concluidas;
     }
 
-    window.addEventListener('DOMContentLoaded', carregarInventario);
-
-    document.querySelector('.menu-toggle-externo').addEventListener('click', (e) => {
-      e.preventDefault();
-      document.querySelector('.dashboard_lateral').classList.toggle('collapsed');
-    });
+    window.addEventListener('DOMContentLoaded', carregarProducao);
   </script>
+  <script>
+  const currentPage = location.pathname.split("/").pop();
+  document.querySelectorAll(".nav a").forEach(link => {
+    if (link.getAttribute("href") === currentPage) {
+      link.classList.add("active");
+    }
+  });
+</script>
+
 </body>
 </html>
