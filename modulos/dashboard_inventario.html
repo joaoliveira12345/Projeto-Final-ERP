@@ -76,6 +76,11 @@
     .ativo { background-color: #22c55e; }
     .inativo { background-color: #ef4444; }
     .baixo { background-color: #facc15; color: #333; }
+    button:hover {
+  background-color: #2563eb;
+}
+
+    
   </style>
 </head>
 <body>
@@ -92,6 +97,11 @@
 
   <div class="main">
     <h1>Gestão de Inventário</h1>
+    <div class="card">
+  <h3>Valor Total em Estoque</h3>
+  <p id="valorTotal">€ 0.00</p>
+</div>
+
     <div class="cards">
       <div class="card">
         <h3>Total Produtos</h3>
@@ -108,6 +118,9 @@
     </div>
 
     <h2>Produtos</h2>
+    
+<input type="text" id="searchInput" placeholder="Buscar produtos..." oninput="carregarInventario(this.value)" style="width: 100%; padding: 10px; margin-bottom: 16px; border-radius: 6px; border: 1px solid #ccc;">
+
     <table>
       <thead>
         <tr>
@@ -127,12 +140,10 @@
       <input type="text" id="categoria" placeholder="Categoria">
       <input type="number" id="qtd" placeholder="Quantidade">
       <input type="number" id="valor_unitario" placeholder="Valor Unitário">
-      <select id="status">
-        <option value="ativo">Ativo</option>
-        <option value="inativo">Inativo</option>
-      </select>
+     
       <button onclick="adicionarProduto()">Adicionar Produto</button>
     </div>
+    
   </div>
 
   <script>
@@ -141,21 +152,31 @@
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5uaXR2eGh1Ym92bHlmeGRlZW1mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgyNjU4ODYsImV4cCI6MjA2Mzg0MTg4Nn0.fTwCna-UBzfLRlbJ2EkWwQeXuq5t3ORwfgbsfiUqejU'
     );
 
-    async function carregarInventario() {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return alert("Usuário não autenticado.");
-  const userId = user.id;
+   async function carregarInventario(filtro = '') {
+  const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+if (sessionError || !sessionData?.session?.user) {
+  alert("Usuário não autenticado.");
+  return;
+}
+const user = sessionData.session.user;
+
 
   const { data, error } = await supabase
     .from("produtos")
     .select("*")
-    .eq("usuario_id", userId)
+    .eq("usuario_id", user.id)
     .order("criado_em", { ascending: false });
 
   if (error) return alert("Erro ao carregar produtos.");
 
-  let ativos = 0, inativos = 0;
-  document.getElementById("tabelaProdutos").innerHTML = data.map(p => {
+  let ativos = 0, inativos = 0, total = 0;
+
+  const produtosFiltrados = data.filter(p =>
+  typeof filtro === "string" && p.nome.toLowerCase().includes(filtro.toLowerCase())
+);
+
+
+  const html = produtosFiltrados.map(p => {
     const statusBadge = p.qtd === 0
       ? `<span class="badge inativo">Indisponível</span>`
       : p.qtd < 5
@@ -165,6 +186,8 @@
     if (p.status === "ativo") ativos++;
     else inativos++;
 
+    total += p.qtd * p.valor_unitario;
+
     return `<tr>
       <td>${p.nome}</td>
       <td>${p.categoria}</td>
@@ -172,41 +195,76 @@
       <td>€ ${p.valor_unitario?.toFixed(2)}</td>
       <td>${statusBadge}</td>
     </tr>`;
-  }).join('') || '<tr><td colspan="5">Sem produtos ainda.</td></tr>';
+  }).join('') || '<tr><td colspan="5">Sem produtos encontrados.</td></tr>';
 
-  document.getElementById("totalProdutos").textContent = data.length;
+  document.getElementById("tabelaProdutos").innerHTML = html;
+  document.getElementById("totalProdutos").textContent = produtosFiltrados.length;
   document.getElementById("produtosAtivos").textContent = ativos;
   document.getElementById("produtosInativos").textContent = inativos;
+  document.getElementById("valorTotal").textContent = `€ ${total.toFixed(2)}`;
 }
+document.getElementById("nome").value = "";
+document.getElementById("categoria").value = "";
+document.getElementById("qtd").value = "";
+document.getElementById("valor_unitario").value = "";
 
 
-    async function adicionarProduto() {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return alert("Usuário não autenticado.");
-  const userId = user.id;
+
+
+   async function adicionarProduto() {
+  const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+if (sessionError || !sessionData?.session?.user) {
+  alert("Usuário não autenticado.");
+  return;
+}
+const user = sessionData.session.user;
+
 
   const nome = document.getElementById("nome").value.trim();
   const categoria = document.getElementById("categoria").value.trim();
   const qtd = parseInt(document.getElementById("qtd").value);
   const valor_unitario = parseFloat(document.getElementById("valor_unitario").value);
-  const status = document.getElementById("status").value.trim().toLowerCase();
+  const status = qtd === 0 ? 'inativo' : 'ativo';
 
-  if (!nome || !categoria || isNaN(qtd) || isNaN(valor_unitario) || !status) {
+  if (!nome || !categoria || isNaN(qtd) || isNaN(valor_unitario)) {
     return alert("Preencha todos os campos corretamente.");
+  }
+  if (qtd < 0) {
+    return alert("A quantidade não pode ser negativa.");
   }
 
   const { error } = await supabase.from("produtos").insert([
-    { nome, categoria, qtd, valor_unitario, status, usuario_id: userId }
+    { nome, categoria, qtd, valor_unitario, status, usuario_id: user.id }
   ]);
 
   if (error) return alert("Erro ao guardar: " + error.message);
 
   alert("Produto adicionado com sucesso!");
+
+  // ✅ Limpar os campos após cadastro
+  document.getElementById("nome").value = "";
+  document.getElementById("categoria").value = "";
+  document.getElementById("qtd").value = "";
+  document.getElementById("valor_unitario").value = "";
+
   carregarInventario();
 }
 
 
-    window.addEventListener("DOMContentLoaded", carregarInventario);
+
+
+   window.addEventListener("DOMContentLoaded", async () => {
+  const { data: sessionData } = await supabase.auth.getSession();
+  if (sessionData?.session?.user) {
+    carregarInventario();
+  } else {
+    // Espera por alterações de sessão (login)
+    supabase.auth.onAuthStateChange((event, session) => {
+      if (session?.user) carregarInventario();
+    });
+  }
+});
+
   </script>
 </body>
 </html>
