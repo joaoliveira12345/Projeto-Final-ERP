@@ -79,6 +79,19 @@
     button:hover {
   background-color: #2563eb;
 }
+.acao-btn {
+  background-color: #3b82f6;
+  color: white;
+  padding: 6px 10px;
+  border: none;
+  border-radius: 4px;
+  margin: 2px;
+  cursor: pointer;
+}
+.acao-btn:hover {
+  background-color: #2563eb;
+}
+
 
     
   </style>
@@ -129,96 +142,112 @@
           <th>Qtd</th>
           <th>Valor Unit.</th>
           <th>Status</th>
+          <th>Ações</th>
+
         </tr>
       </thead>
       <tbody id="tabelaProdutos"></tbody>
     </table>
+    <button id="toggleFormBtn" onclick="alternarFormulario()" style="margin-bottom: 20px;">
+  ➕ Adicionar Produto
+</button>
 
-    <div class="form-box">
-      <h3>Novo Produto</h3>
-      <input type="text" id="nome" placeholder="Nome do Produto">
-      <input type="text" id="categoria" placeholder="Categoria">
-      <input type="number" id="qtd" placeholder="Quantidade">
-      <input type="number" id="valor_unitario" placeholder="Valor Unitário">
-     
-      <button onclick="adicionarProduto()">Adicionar Produto</button>
-    </div>
-    
-  </div>
+    <div class="form-box" id="formularioProduto" style="display: none;">
+  <h3>Novo Produto</h3>
+  <input type="text" id="nome" placeholder="Nome do Produto">
+  <input type="text" id="categoria" placeholder="Categoria">
+  <input type="number" id="qtd" placeholder="Quantidade">
+  <input type="number" id="valor_unitario" placeholder="Valor Unitário">
+  <button id="submitBtn" onclick="salvarProduto()">Adicionar Produto</button>
+</div>
 
   <script>
-    const supabase = window.supabase.createClient(
-      'https://nnitvxhubovlyfxdeemf.supabase.co',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5uaXR2eGh1Ym92bHlmeGRlZW1mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgyNjU4ODYsImV4cCI6MjA2Mzg0MTg4Nn0.fTwCna-UBzfLRlbJ2EkWwQeXuq5t3ORwfgbsfiUqejU'
+  let editandoId = null;
+  const supabase = window.supabase.createClient(
+    'https://nnitvxhubovlyfxdeemf.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5uaXR2eGh1Ym92bHlmeGRlZW1mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgyNjU4ODYsImV4cCI6MjA2Mzg0MTg4Nn0.fTwCna-UBzfLRlbJ2EkWwQeXuq5t3ORwfgbsfiUqejU'
+  );
+
+  async function carregarInventario(filtro = '') {
+    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+    if (sessionError || !sessionData?.session?.user) {
+      alert("Usuário não autenticado.");
+      return;
+    }
+    const user = sessionData.session.user;
+
+    const { data, error } = await supabase
+      .from("produtos")
+      .select("*")
+      .eq("usuario_id", user.id)
+      .order("criado_em", { ascending: false });
+
+    if (error) return alert("Erro ao carregar produtos.");
+
+    let ativos = 0, inativos = 0, total = 0;
+
+    const produtosFiltrados = data.filter(p =>
+      typeof filtro === "string" && p.nome.toLowerCase().includes(filtro.toLowerCase())
     );
 
-   async function carregarInventario(filtro = '') {
-  const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-if (sessionError || !sessionData?.session?.user) {
-  alert("Usuário não autenticado.");
-  return;
+    const html = produtosFiltrados.map(p => {
+      const statusBadge = p.qtd === 0
+        ? `<span class="badge inativo">Indisponível</span>`
+        : p.qtd < 5
+        ? `<span class="badge baixo">Estoque Baixo</span>`
+        : `<span class="badge ativo">Disponível</span>`;
+
+      if (p.status === "ativo") ativos++;
+      else inativos++;
+
+      total += p.qtd * p.valor_unitario;
+
+      
+return `<tr>
+  <td>${p.nome}</td>
+  <td>${p.categoria}</td>
+  <td>${p.qtd}</td>
+  <td>€ ${p.valor_unitario?.toFixed(2)}</td>
+  <td>${statusBadge}</td>
+  <td>
+    <button class="acao-btn" onclick="prepararEdicao('${p.id}', '${p.nome}', '${p.categoria}', ${p.qtd}, ${p.valor_unitario ?? 0})">Editar</button>
+    <button class="acao-btn" onclick="removerProduto('${p.id}')">Remover</button>
+  </td>
+</tr>`;
+
+
+    }).join('') || '<tr><td colspan="5">Sem produtos encontrados.</td></tr>';
+
+    document.getElementById("tabelaProdutos").innerHTML = html;
+    document.getElementById("totalProdutos").textContent = produtosFiltrados.length;
+    document.getElementById("produtosAtivos").textContent = ativos;
+    document.getElementById("produtosInativos").textContent = inativos;
+    document.getElementById("valorTotal").textContent = `€ ${total.toFixed(2)}`;
+  }
+  function alternarFormulario() {
+  const form = document.getElementById("formularioProduto");
+  const btn = document.getElementById("toggleFormBtn");
+
+  if (form.style.display === "none") {
+    form.style.display = "block";
+    btn.textContent = "✖ Cancelar";
+  } else {
+    form.style.display = "none";
+    btn.textContent = "➕ Adicionar Produto";
+    // Opcional: limpar campos se cancelar
+    editandoId = null;
+    document.getElementById("submitBtn").textContent = "Adicionar Produto";
+    document.getElementById("nome").value = "";
+    document.getElementById("categoria").value = "";
+    document.getElementById("qtd").value = "";
+    document.getElementById("valor_unitario").value = "";
+  }
 }
-const user = sessionData.session.user;
 
 
-  const { data, error } = await supabase
-    .from("produtos")
-    .select("*")
-    .eq("usuario_id", user.id)
-    .order("criado_em", { ascending: false });
-
-  if (error) return alert("Erro ao carregar produtos.");
-
-  let ativos = 0, inativos = 0, total = 0;
-
-  const produtosFiltrados = data.filter(p =>
-  typeof filtro === "string" && p.nome.toLowerCase().includes(filtro.toLowerCase())
-);
-
-
-  const html = produtosFiltrados.map(p => {
-    const statusBadge = p.qtd === 0
-      ? `<span class="badge inativo">Indisponível</span>`
-      : p.qtd < 5
-      ? `<span class="badge baixo">Estoque Baixo</span>`
-      : `<span class="badge ativo">Disponível</span>`;
-
-    if (p.status === "ativo") ativos++;
-    else inativos++;
-
-    total += p.qtd * p.valor_unitario;
-
-    return `<tr>
-      <td>${p.nome}</td>
-      <td>${p.categoria}</td>
-      <td>${p.qtd}</td>
-      <td>€ ${p.valor_unitario?.toFixed(2)}</td>
-      <td>${statusBadge}</td>
-    </tr>`;
-  }).join('') || '<tr><td colspan="5">Sem produtos encontrados.</td></tr>';
-
-  document.getElementById("tabelaProdutos").innerHTML = html;
-  document.getElementById("totalProdutos").textContent = produtosFiltrados.length;
-  document.getElementById("produtosAtivos").textContent = ativos;
-  document.getElementById("produtosInativos").textContent = inativos;
-  document.getElementById("valorTotal").textContent = `€ ${total.toFixed(2)}`;
-}
-document.getElementById("nome").value = "";
-document.getElementById("categoria").value = "";
-document.getElementById("qtd").value = "";
-document.getElementById("valor_unitario").value = "";
-
-
-
-
-   async function adicionarProduto() {
-  const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-if (sessionError || !sessionData?.session?.user) {
-  alert("Usuário não autenticado.");
-  return;
-}
-const user = sessionData.session.user;
-
+  async function salvarProduto() {
+  const { data: sessionData } = await supabase.auth.getSession();
+  const user = sessionData.session.user;
 
   const nome = document.getElementById("nome").value.trim();
   const categoria = document.getElementById("categoria").value.trim();
@@ -229,42 +258,69 @@ const user = sessionData.session.user;
   if (!nome || !categoria || isNaN(qtd) || isNaN(valor_unitario)) {
     return alert("Preencha todos os campos corretamente.");
   }
-  if (qtd < 0) {
-    return alert("A quantidade não pode ser negativa.");
+  if (qtd < 0 || valor_unitario < 0) {
+    return alert("Quantidade e valor não podem ser negativos.");
   }
 
-  const { error } = await supabase.from("produtos").insert([
-    { nome, categoria, qtd, valor_unitario, status, usuario_id: user.id }
-  ]);
+  const produto = { nome, categoria, qtd, valor_unitario, status, usuario_id: user.id };
 
-  if (error) return alert("Erro ao guardar: " + error.message);
+  let result;
+  if (editandoId) {
+    result = await supabase.from("produtos").update(produto).eq("id", editandoId);
+    alert("Produto atualizado!");
+  } else {
+    result = await supabase.from("produtos").insert([produto]);
+    alert("Produto adicionado!");
+  }
 
-  alert("Produto adicionado com sucesso!");
+  if (result.error) return alert("Erro: " + result.error.message);
 
-  // ✅ Limpar os campos após cadastro
+  editandoId = null;
+  document.getElementById("submitBtn").textContent = "Adicionar Produto";
   document.getElementById("nome").value = "";
   document.getElementById("categoria").value = "";
   document.getElementById("qtd").value = "";
   document.getElementById("valor_unitario").value = "";
-
   carregarInventario();
 }
 
 
-
-
-   window.addEventListener("DOMContentLoaded", async () => {
+ window.addEventListener("DOMContentLoaded", async () => {
   const { data: sessionData } = await supabase.auth.getSession();
   if (sessionData?.session?.user) {
     carregarInventario();
   } else {
-    // Espera por alterações de sessão (login)
     supabase.auth.onAuthStateChange((event, session) => {
       if (session?.user) carregarInventario();
     });
   }
 });
 
-  </script>
+  
+
+function prepararEdicao(id, nome, categoria, qtd, valor_unitario) {
+  editandoId = id;
+  document.getElementById("nome").value = nome;
+  document.getElementById("categoria").value = categoria;
+  document.getElementById("qtd").value = qtd;
+  document.getElementById("valor_unitario").value = valor_unitario;
+  document.getElementById("submitBtn").textContent = "Atualizar Produto";
+  document.getElementById("formularioProduto").style.display = "block";
+  document.getElementById("toggleFormBtn").textContent = "✖ Cancelar";
+
+}
+
+async function removerProduto(id) {
+  if (!confirm("Tem certeza que deseja remover este produto?")) return;
+
+  const { error } = await supabase.from("produtos").delete().eq("id", id);
+  if (error) return alert("Erro ao remover: " + error.message);
+
+  alert("Produto removido!");
+  carregarInventario();
+}
+
+</script>
+
 </body>
 </html>
