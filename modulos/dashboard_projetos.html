@@ -166,12 +166,6 @@
         <input type="text" id="responsavel" placeholder="Responsável">
         <input type="date" id="data_inicio">
         <input type="date" id="data_termino">
-        <input type="number" id="progresso" placeholder="Progresso (%)">
-        <select id="status">
-          <option value="andamento">Em andamento</option>
-          <option value="concluido">Concluído</option>
-          <option value="atrasado">Atrasado</option>
-        </select>
         <button onclick="salvarProjeto()">Salvar</button>
       </div>
     </div>
@@ -195,114 +189,176 @@
     </table>
   </div>
   <script>
-    const supabase = window.supabase.createClient('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5uaXR2eGh1Ym92bHlmeGRlZW1mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgyNjU4ODYsImV4cCI6MjA2Mzg0MTg4Nn0.fTwCna-UBzfLRlbJ2EkWwQeXuq5t3ORwfgbsfiUqejU');
-    let grafico;
+  // Supabase config
+  const supabaseUrl = 'https://nnitvxhubovlyfxdeemf.supabase.co';
+  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5uaXR2eGh1Ym92bHlmeGRlZW1mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgyNjU4ODYsImV4cCI6MjA2Mzg0MTg4Nn0.fTwCna-UBzfLRlbJ2EkWwQeXuq5t3ORwfgbsfiUqejU';
+  const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-    function abrirModal() {
-      document.getElementById("modalProjeto").style.display = "flex";
+  let grafico;
+
+  function abrirModal() {
+    document.getElementById("modalProjeto").style.display = "flex";
+  }
+
+  function fecharModal() {
+    document.getElementById("modalProjeto").style.display = "none";
+  }
+
+  async function carregarClientes() {
+  const { data, error } = await supabase.from("clientes").select("id, nome");
+  if (error) return alert("Erro ao carregar clientes");
+
+  const select = document.getElementById("cliente_id");
+  select.innerHTML = data.map(c => `<option value="${c.id}">${c.nome}</option>`).join('');
+
+  // Guardar clientes para exibir nomes depois
+  window.clientesMap = new Map(data.map(c => [c.id, c.nome]));
+}
+
+
+  function calcularProgressoEStatus(inicio, termino) {
+    const hoje = new Date();
+    const dtInicio = new Date(inicio);
+    const dtFim = new Date(termino);
+
+    const diasTotais = Math.ceil((dtFim - dtInicio) / (1000 * 60 * 60 * 24));
+    const diasPassados = Math.ceil((hoje - dtInicio) / (1000 * 60 * 60 * 24));
+
+    let progresso = Math.min(Math.max((diasPassados / diasTotais) * 100, 0), 100);
+    progresso = Math.round(progresso);
+
+    let status = "andamento";
+    if (progresso >= 100) {
+      status = "concluido";
+    } else if (hoje > dtFim) {
+      status = "atrasado";
     }
-    function fecharModal() {
-      document.getElementById("modalProjeto").style.display = "none";
+
+    return { progresso, status };
+  }
+
+  async function salvarProjeto() {
+    const { data: sessionData } = await supabase.auth.getSession();
+    const user = sessionData?.session?.user;
+    if (!user) return alert("Usuário não autenticado.");
+
+    const nome = document.getElementById("nome").value;
+    const cliente_id = document.getElementById("cliente_id").value;
+    const responsavel = document.getElementById("responsavel").value;
+    const data_inicio = document.getElementById("data_inicio").value;
+    const data_termino = document.getElementById("data_termino").value;
+
+    const { progresso, status } = calcularProgressoEStatus(data_inicio, data_termino);
+
+    const projeto = {
+      nome,
+      cliente_id,
+      responsavel,
+      data_inicio,
+      data_termino,
+      progresso,
+      status,
+      usuario_id: user.id
+    };
+
+    const { error } = await supabase.from("projetos").insert([projeto]);
+    if (error) return alert("Erro ao adicionar projeto.");
+
+    alert("Projeto adicionado com sucesso!");
+    fecharModal();
+    carregarProjetos();
+  }
+
+  async function carregarProjetos() {
+  const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+  if (sessionError || !sessionData?.session?.user) {
+    alert("Usuário não autenticado.");
+    return;
+  }
+
+  const user = sessionData.session.user;
+
+  // Primeiro, busca os projetos do usuário
+  const { data, error } = await supabase.from('projetos').select('*').eq('usuario_id', user.id);
+  if (error) {
+    console.error("Erro Supabase:", error);
+    alert("Erro ao carregar projetos.");
+    return;
+  }
+
+  // Depois, atualiza o progresso/status se necessário
+  const hoje = new Date();
+  for (let projeto of data) {
+    const { progresso, status } = calcularProgressoEStatus(projeto.data_inicio, projeto.data_termino);
+
+    if (progresso !== projeto.progresso || status !== projeto.status) {
+      await supabase
+        .from("projetos")
+        .update({ progresso, status })
+        .eq("id", projeto.id);
+
+      projeto.progresso = progresso;
+      projeto.status = status;
     }
+  }
 
-    async function carregarClientes() {
-      const { data, error } = await supabase.from("clientes").select("id, nome");
-      if (error) return alert("Erro ao carregar clientes");
+  // Exibe os projetos atualizados
+  const tabela = document.getElementById("tabelaProjetos");
+  let ativos = 0, concluidos = 0, atrasados = 0;
 
-      const select = document.getElementById("cliente_id");
-      select.innerHTML = data.map(c => `<option value="${c.id}">${c.nome}</option>`).join('');
-    }
+  tabela.innerHTML = data.map(p => {
+    if (p.status === 'concluido') concluidos++;
+    else if (p.status === 'atrasado') atrasados++;
+    else ativos++;
 
-    async function carregarProjetos() {
-      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-      if (sessionError || !sessionData?.session?.user) {
-        alert("Usuário não autenticado.");
-        return;
+    const clienteNome = window.clientesMap?.get(p.cliente_id) || p.cliente_id;
+
+    return `<tr>
+      <td>${p.id.slice(0, 6)}</td>
+      <td>${p.nome}</td>
+      <td>${clienteNome}</td>
+      <td>${p.responsavel}</td>
+      <td>${p.data_inicio}</td>
+      <td>${p.data_termino}</td>
+      <td><div class="progress-bar"><div class="progress-inner" style="width:${p.progresso}%"></div></div></td>
+      <td><span class="badge ${p.status}">${p.status}</span></td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById("totalProjetos").textContent = data.length;
+  document.getElementById("projetosAtivos").textContent = ativos;
+  document.getElementById("projetosConcluidos").textContent = concluidos;
+  document.getElementById("projetosAtrasados").textContent = atrasados;
+
+  renderizarGrafico(ativos, concluidos, atrasados);
+}
+
+
+  function renderizarGrafico(ativos, concluidos, atrasados) {
+    const ctx = document.getElementById('graficoProjetos').getContext('2d');
+    if (grafico) grafico.destroy();
+    grafico = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Ativos', 'Concluídos', 'Atrasados'],
+        datasets: [{
+          data: [ativos, concluidos, atrasados],
+          backgroundColor: ['#3b82f6', '#10b981', '#ef4444'],
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '60%',
       }
-      const user = sessionData.session.user;
-
-      const { data, error } = await supabase.from('projetos').select('*').eq('usuario_id', user.id);
-      if (error) {
-        console.error("Erro Supabase:", error);
-        alert("Erro ao carregar projetos.");
-        return;
-      }
-
-      const tabela = document.getElementById("tabelaProjetos");
-      let ativos = 0, concluidos = 0, atrasados = 0;
-      tabela.innerHTML = data.map(p => {
-        if (p.status === 'concluido') concluidos++;
-        else if (p.status === 'atrasado') atrasados++;
-        else ativos++;
-
-        return `<tr>
-          <td>${p.id.slice(0, 6)}</td>
-          <td>${p.nome}</td>
-          <td>${p.cliente_id}</td>
-          <td>${p.responsavel}</td>
-          <td>${p.data_inicio}</td>
-          <td>${p.data_termino}</td>
-          <td><div class="progress-bar"><div class="progress-inner" style="width:${p.progresso}%"></div></div></td>
-          <td><span class="badge ${p.status}">${p.status}</span></td>
-        </tr>`;
-      }).join('');
-
-      document.getElementById("totalProjetos").textContent = data.length;
-      document.getElementById("projetosAtivos").textContent = ativos;
-      document.getElementById("projetosConcluidos").textContent = concluidos;
-      document.getElementById("projetosAtrasados").textContent = atrasados;
-
-      renderizarGrafico(ativos, concluidos, atrasados);
-    }
-
-    async function salvarProjeto() {
-      const { data: sessionData } = await supabase.auth.getSession();
-      const user = sessionData?.session?.user;
-      if (!user) return alert("Usuário não autenticado.");
-
-      const projeto = {
-        nome: document.getElementById("nome").value,
-        cliente_id: document.getElementById("cliente_id").value,
-        responsavel: document.getElementById("responsavel").value,
-        data_inicio: document.getElementById("data_inicio").value,
-        data_termino: document.getElementById("data_termino").value,
-        progresso: parseInt(document.getElementById("progresso").value),
-        status: document.getElementById("status").value,
-        usuario_id: user.id
-      };
-
-      const { error } = await supabase.from("projetos").insert([projeto]);
-      if (error) return alert("Erro ao adicionar projeto.");
-
-      alert("Projeto adicionado com sucesso!");
-      fecharModal();
-      carregarProjetos();
-    }
-
-    function renderizarGrafico(ativos, concluidos, atrasados) {
-      const ctx = document.getElementById('graficoProjetos').getContext('2d');
-      if (grafico) grafico.destroy();
-      grafico = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-          labels: ['Ativos', 'Concluídos', 'Atrasados'],
-          datasets: [{
-            data: [ativos, concluidos, atrasados],
-            backgroundColor: ['#3b82f6', '#10b981', '#ef4444'],
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          cutout: '60%',
-        }
-      });
-    }
-
-    window.addEventListener("DOMContentLoaded", () => {
-      carregarClientes();
-      carregarProjetos();
     });
-  </script>
+  }
+
+  window.addEventListener("DOMContentLoaded", () => {
+    carregarClientes();
+    carregarProjetos();
+  });
+</script>
+>
 </body>
 </html>
