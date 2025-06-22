@@ -124,6 +124,8 @@
   <a href="dashboard_compras.html"><i>🛒</i> Compras</a>
   <a href="dashboard_projetos.html"><i>📁</i> Projetos</a>
   <a href="dashboard_vendas.html"><i>💰</i> Vendas</a>
+  <a href="dashboard_clientes.html"><i>👤</i> Clientes</a>
+
 </div>
 
   </div>
@@ -133,7 +135,7 @@
     <div class="cards">
       <div class="card">
         <h3>Vendas (Mês Atual)</h3>
-        <p id="vendasMes">R$ 0,00</p>
+        <p id="vendasMes">€ 0,00</p>
       </div>
       <div class="card">
         <h3>Pedidos Pendentes</h3>
@@ -144,6 +146,52 @@
         <p id="clientes">0</p>
       </div>
     </div>
+    <button onclick="abrirModal()">➕ Novo Pedido</button>
+
+<div id="modalVenda" class="form-modal" style="display: none;">
+  <div class="form-box">
+    <button onclick="fecharModal()" style="float:right;">X</button>
+    <h3>Adicionar Pedido de Venda</h3>
+    <select id="clienteVenda"></select>
+    <input type="date" id="dataVenda">
+    <input type="number" id="valorVenda" placeholder="Total €">
+
+    <select id="statusVenda">
+      <option value="pendente">Pendente</option>
+      <option value="pago">Pago</option>
+      <option value="cancelado">Cancelado</option>
+    </select>
+    <button onclick="salvarVenda()">Salvar</button>
+  </div>
+</div>
+
+<style>
+  .form-modal {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.3);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  .form-box {
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    width: 400px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+  }
+  .form-box input, .form-box select {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+  }
+</style>
+
 
     <h2>Pedidos de Venda</h2>
     <table>
@@ -169,56 +217,129 @@
     );
 
     async function carregarVendas() {
-      const userId = sessionStorage.getItem("userId");
-      const lista = document.getElementById("listaPedidos");
-      const vendasMes = document.getElementById("vendasMes");
-      const pendentes = document.getElementById("pendentes");
-      const totalClientes = document.getElementById("clientes");
+  const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+  if (sessionError || !sessionData?.session?.user) {
+    alert("Usuário não autenticado.");
+    return;
+  }
 
-      const { data: vendas } = await supabase
-        .from("pedidos")
-        .select("*")
-        .eq("usuario_id", userId)
-        .order("data_pedido", { ascending: false });
+  const userId = sessionData.session.user.id;
+  const lista = document.getElementById("listaPedidos");
+  const vendasMes = document.getElementById("vendasMes");
+  const pendentes = document.getElementById("pendentes");
+  const totalClientes = document.getElementById("clientes");
 
-      const { data: clientes } = await supabase.from("clientes").select("id, nome");
+  const { data: vendas, error: vendasErro } = await supabase
+    .from("pedidos")
+    .select("*")
+    .eq("usuario_id", userId)
+    .order("data_pedido", { ascending: false });
 
-      const clienteMap = {};
-      clientes.forEach(c => clienteMap[c.id] = c.nome);
+  if (vendasErro) {
+    console.error("Erro ao carregar pedidos:", vendasErro);
+    return;
+  }
 
-      if (!vendas || vendas.length === 0) {
-        lista.innerHTML = '<tr><td colspan="5">Sem pedidos encontrados.</td></tr>';
-        vendasMes.textContent = 'R$ 0,00';
-        pendentes.textContent = '0';
-        totalClientes.textContent = clientes.length;
-        return;
-      }
+  const { data: clientes, error: clientesErro } = await supabase.from("clientes").select("id, nome");
+  if (clientesErro) {
+    console.error("Erro ao carregar clientes:", clientesErro);
+    return;
+  }
 
-      let totalMes = 0;
-      const hoje = new Date();
-      const pendentesCount = vendas.filter(v => v.status === "pendente").length;
+  const clienteMap = {};
+  clientes.forEach(c => clienteMap[c.id] = c.nome);
 
-      lista.innerHTML = vendas.map(v => {
-        const data = new Date(v.data_pedido).toLocaleDateString();
-        const valor = `R$ ${parseFloat(v.total_custo).toFixed(2)}`;
-        if (new Date(v.data_pedido).getMonth() === hoje.getMonth()) {
-          totalMes += parseFloat(v.total_custo);
-        }
-        return `
-          <tr>
-            <td>${v.id.slice(0, 6)}</td>
-            <td>${clienteMap[v.cliente_id] || '—'}</td>
-            <td>${data}</td>
-            <td>${valor}</td>
-            <td>${v.status}</td>
-          </tr>
-        `;
-      }).join('');
+  if (!vendas || vendas.length === 0) {
+    lista.innerHTML = '<tr><td colspan="5">Sem pedidos encontrados.</td></tr>';
+    vendasMes.textContent = '€ 0,00';
+    pendentes.textContent = '0';
+    totalClientes.textContent = clientes.length;
+    return;
+  }
 
-      vendasMes.textContent = `R$ ${totalMes.toFixed(2)}`;
-      pendentes.textContent = pendentesCount;
-      totalClientes.textContent = clientes.length;
+  let totalMes = 0;
+  const hoje = new Date();
+  const pendentesCount = vendas.filter(v => v.status === "pendente").length;
+
+  lista.innerHTML = vendas.map(v => {
+    const data = new Date(v.data_pedido).toLocaleDateString("pt-BR");
+    const valor = `€ ${parseFloat(v.total_custo).toFixed(2).replace('.', ',')}`;
+    if (new Date(v.data_pedido).getMonth() === hoje.getMonth()) {
+      totalMes += parseFloat(v.total_custo);
     }
+    return `
+      <tr>
+        <td>${v.id.slice(0, 6)}</td>
+        <td>${clienteMap[v.cliente_id] || '—'}</td>
+        <td>${data}</td>
+        <td>${valor}</td>
+        <td>${v.status}</td>
+      </tr>
+    `;
+  }).join('');
+
+  vendasMes.textContent = `€ ${totalMes.toFixed(2).replace('.', ',')}`;
+  pendentes.textContent = pendentesCount;
+  totalClientes.textContent = clientes.length;
+}
+function abrirModal() {
+  document.getElementById("modalVenda").style.display = "flex";
+  carregarClientesVenda(); // carrega lista de clientes
+}
+
+function fecharModal() {
+  document.getElementById("modalVenda").style.display = "none";
+}
+
+async function carregarClientesVenda() {
+  const { data, error } = await supabase.from("clientes").select("id, nome");
+  if (error) {
+    alert("Erro ao carregar clientes.");
+    return;
+  }
+  const select = document.getElementById("clienteVenda");
+  select.innerHTML = data.map(c => `<option value="${c.id}">${c.nome}</option>`).join('');
+}
+
+async function salvarVenda() {
+  const { data: sessionData } = await supabase.auth.getSession();
+  const user = sessionData?.session?.user;
+  if (!user) return alert("Usuário não autenticado.");
+
+  // Buscar o ID do perfil associado ao user.id
+  const { data: perfil, error: perfilError } = await supabase
+    .from("perfis")
+    .select("id")
+    .eq("user_id", user.id)
+    .single();
+
+  if (perfilError || !perfil) {
+    console.error(perfilError);
+    return alert("Perfil do usuário não encontrado.");
+  }
+
+  const pedido = {
+    cliente_id: document.getElementById("clienteVenda").value,
+    data_pedido: document.getElementById("dataVenda").value,
+    total_custo: parseFloat(document.getElementById("valorVenda").value),
+    status: document.getElementById("statusVenda").value,
+    usuario_id: perfil.id // agora com o ID certo de perfis
+  };
+
+  const { error } = await supabase.from("pedidos").insert([pedido]);
+  if (error) {
+    console.error(error);
+    alert("Erro ao adicionar pedido: " + error.message);
+    return;
+  }
+
+  alert("Pedido adicionado com sucesso!");
+  fecharModal();
+  carregarVendas();
+}
+
+
+
 
     window.addEventListener("DOMContentLoaded", carregarVendas);
   </script>
