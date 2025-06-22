@@ -1,19 +1,31 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Dashboard de Vendas</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
+    .chart-container {
+  width: 100%;
+  max-width: 700px;
+  margin: 40px auto;
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
     body {
       margin: 0;
       font-family: 'Inter', sans-serif;
       background-color: #f4f6fa;
       display: flex;
     }
-
     .sidebar {
       width: 220px;
       background: #fff;
@@ -21,19 +33,19 @@
       padding: 20px 10px;
       border-right: 1px solid #ddd;
       box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
     }
-
     .sidebar h2 {
       margin: 0;
       font-size: 18px;
       color: #333;
       text-align: center;
     }
-
     .nav {
       margin-top: 30px;
     }
-
     .nav a {
       display: flex;
       align-items: center;
@@ -44,27 +56,31 @@
       color: #333;
       transition: 0.2s;
     }
-
     .nav a:hover, .nav a.active {
       background-color: #e0edff;
       color: #1d4ed8;
     }
-
-    .nav a i {
-      margin-right: 10px;
+    .logout {
+      background: #f87171;
+      color: white;
+      padding: 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      text-align: center;
+      margin-top: 20px;
     }
-
+    .logout:hover {
+      background: #dc2626;
+    }
     .main {
       flex: 1;
       padding: 30px;
     }
-
     .cards {
       display: flex;
       gap: 20px;
       margin-bottom: 30px;
     }
-
     .card {
       flex: 1;
       background: #fff;
@@ -72,24 +88,16 @@
       border-radius: 12px;
       box-shadow: 0 1px 4px rgba(0,0,0,0.05);
     }
-
     .card h3 {
       font-size: 16px;
       color: #777;
       margin-bottom: 8px;
     }
-
     .card p {
       font-size: 24px;
       font-weight: 600;
       color: #1d4ed8;
     }
-
-    h2 {
-      margin-bottom: 12px;
-      color: #333;
-    }
-
     table {
       width: 100%;
       background: #fff;
@@ -99,258 +107,271 @@
       box-shadow: 0 2px 6px rgba(0,0,0,0.05);
       margin-bottom: 30px;
     }
-
     th, td {
       padding: 12px 14px;
       text-align: left;
     }
-
     th {
       background-color: #f0f2f5;
     }
-
     tr:nth-child(even) {
       background-color: #fafafa;
+    }
+    .form-modal {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.3);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    .form-box {
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      width: 400px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    }
+    .form-box input, .form-box select {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 6px;
     }
   </style>
 </head>
 <body>
   <div class="sidebar">
-    <h2>ERP System</h2>
-    <div class="nav">
-  
-  <a href="dashboard_inventario.html"><i>📦</i> Inventario</a>
-  <a href="dashboard_producao.html"><i>🏭</i> Produção</a>
-  <a href="dashboard_compras.html"><i>🛒</i> Compras</a>
-  <a href="dashboard_projetos.html"><i>📁</i> Projetos</a>
-  <a href="dashboard_vendas.html"><i>💰</i> Vendas</a>
-  <a href="dashboard_clientes.html"><i>👤</i> Clientes</a>
-
-</div>
-
+    <div>
+      <h2>ERP System</h2>
+      <div class="nav">
+        <a href="dashboard_inventario.html">📦 Inventario</a>
+        <a href="dashboard_producao.html">🏭 Produção</a>
+        <a href="dashboard_compras.html">🛒 Compras</a>
+        <a href="dashboard_projetos.html">📁 Projetos</a>
+        <a href="dashboard_vendas.html" class="active">💰 Vendas</a>
+        <a href="dashboard_clientes.html">👤 Clientes</a>
+      </div>
+    </div>
+    <div class="logout" onclick="logout()">🔓 Logout</div>
   </div>
-
   <div class="main">
     <h1>Gestão de Vendas</h1>
     <div class="cards">
-      <div class="card">
-        <h3>Vendas (Mês Atual)</h3>
-        <p id="vendasMes">€ 0,00</p>
-      </div>
-      <div class="card">
-        <h3>Pedidos Pendentes</h3>
-        <p id="pendentes">0</p>
-      </div>
-      <div class="card">
-        <h3>Total de Clientes</h3>
-        <p id="clientes">0</p>
-      </div>
+      <div class="card"><h3>Vendas (Mês Atual)</h3><p id="vendasMes">€ 0,00</p></div>
+      <div class="card"><h3>Pedidos Pendentes</h3><p id="pendentes">0</p></div>
+      <div class="card"><h3>Total de Clientes</h3><p id="clientes">0</p></div>
     </div>
     <button onclick="abrirModal()">➕ Novo Pedido</button>
 
-<div id="modalVenda" class="form-modal" style="display: none;">
-  <div class="form-box">
-    <button onclick="fecharModal()" style="float:right;">X</button>
-    <h3>Adicionar Pedido de Venda</h3>
-    <select id="clienteVenda"></select>
-    <input type="date" id="dataVenda">
-    <input type="number" id="valorVenda" placeholder="Total €">
+    <div id="modalVenda" class="form-modal" style="display:none;">
+      <div class="form-box">
+        <button onclick="fecharModal()" style="float:right;">X</button>
+        <h3>Adicionar Pedido de Venda</h3>
+        <select id="clienteVenda"></select>
+        <input type="date" id="dataVenda">
+        <input type="number" id="valorVenda" placeholder="Total €">
+        <select id="statusVenda">
+          <option value="pendente">Pendente</option>
+          <option value="pago">Pago</option>
+          <option value="cancelado">Cancelado</option>
+        </select>
+        <button onclick="salvarVenda()">Salvar</button>
+      </div>
+    </div>
 
-    <select id="statusVenda">
-      <option value="pendente">Pendente</option>
-      <option value="pago">Pago</option>
-      <option value="cancelado">Cancelado</option>
-    </select>
-    <button onclick="salvarVenda()">Salvar</button>
-  </div>
-</div>
-
-<style>
-  .form-modal {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: rgba(0,0,0,0.3);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-  }
-  .form-box {
-    background: #fff;
-    padding: 20px;
-    border-radius: 12px;
-    width: 400px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-  }
-  .form-box input, .form-box select {
-    width: 100%;
-    padding: 10px;
-    margin: 10px 0;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-  }
-</style>
-
-
+    
     <h2>Pedidos de Venda</h2>
     <table>
       <thead>
-        <tr>
-          <th>ID</th>
-          <th>Cliente</th>
-          <th>Data</th>
-          <th>Total</th>
-          <th>Status</th>
-        </tr>
+        <tr><th>ID</th><th>Cliente</th><th>Data</th><th>Total</th><th>Status</th></tr>
       </thead>
-      <tbody id="listaPedidos">
-        <tr><td colspan="5">Sem pedidos encontrados.</td></tr>
-      </tbody>
+      <tbody id="listaPedidos"><tr><td colspan="5">Sem pedidos encontrados.</td></tr></tbody>
     </table>
+    <div class="chart-container">
+  <canvas id="graficoVendasMes"></canvas>
+</div>
+
   </div>
 
   <script>
+    let graficoVendas;
+
+function desenharGraficoVendasPorMes(vendas) {
+  const meses = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+  const totais = Array(12).fill(0);
+
+  vendas.forEach(v => {
+    const mes = new Date(v.data_pedido).getMonth();
+    totais[mes] += parseFloat(v.total_custo || 0);
+  });
+
+  const ctx = document.getElementById("graficoVendasMes").getContext("2d");
+  if (graficoVendas) graficoVendas.destroy();
+
+  graficoVendas = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: meses,
+      datasets: [{
+        label: 'Total de Vendas (€)',
+        data: totais,
+        backgroundColor: '#3b82f6'
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: {
+          label: context => `€ ${context.parsed.y.toFixed(2).replace('.', ',')}`
+        }}
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            callback: value => `€ ${value.toFixed(2).replace('.', ',')}`
+          }
+        }
+      }
+    }
+  });
+}
+
     const supabase = window.supabase.createClient(
       'https://nnitvxhubovlyfxdeemf.supabase.co',
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5uaXR2eGh1Ym92bHlmeGRlZW1mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgyNjU4ODYsImV4cCI6MjA2Mzg0MTg4Nn0.fTwCna-UBzfLRlbJ2EkWwQeXuq5t3ORwfgbsfiUqejU'
     );
 
-    async function carregarVendas() {
-  const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-  if (sessionError || !sessionData?.session?.user) {
-    alert("Usuário não autenticado.");
-    return;
-  }
+    let grafico;
 
-  const userId = sessionData.session.user.id;
-  const lista = document.getElementById("listaPedidos");
-  const vendasMes = document.getElementById("vendasMes");
-  const pendentes = document.getElementById("pendentes");
-  const totalClientes = document.getElementById("clientes");
-
-  const { data: vendas, error: vendasErro } = await supabase
-    .from("pedidos")
-    .select("*")
-    .eq("usuario_id", userId)
-    .order("data_pedido", { ascending: false });
-
-  if (vendasErro) {
-    console.error("Erro ao carregar pedidos:", vendasErro);
-    return;
-  }
-
-  const { data: clientes, error: clientesErro } = await supabase.from("clientes").select("id, nome");
-  if (clientesErro) {
-    console.error("Erro ao carregar clientes:", clientesErro);
-    return;
-  }
-
-  const clienteMap = {};
-  clientes.forEach(c => clienteMap[c.id] = c.nome);
-
-  if (!vendas || vendas.length === 0) {
-    lista.innerHTML = '<tr><td colspan="5">Sem pedidos encontrados.</td></tr>';
-    vendasMes.textContent = '€ 0,00';
-    pendentes.textContent = '0';
-    totalClientes.textContent = clientes.length;
-    return;
-  }
-
-  let totalMes = 0;
-  const hoje = new Date();
-  const pendentesCount = vendas.filter(v => v.status === "pendente").length;
-
-  lista.innerHTML = vendas.map(v => {
-    const data = new Date(v.data_pedido).toLocaleDateString("pt-BR");
-    const valor = `€ ${parseFloat(v.total_custo).toFixed(2).replace('.', ',')}`;
-    if (new Date(v.data_pedido).getMonth() === hoje.getMonth()) {
-      totalMes += parseFloat(v.total_custo);
+    async function logout() {
+      const { error } = await supabase.auth.signOut();
+      if (!error) location.href = 'index.html';
     }
-    return `
-      <tr>
-        <td>${v.id.slice(0, 6)}</td>
-        <td>${clienteMap[v.cliente_id] || '—'}</td>
-        <td>${data}</td>
-        <td>${valor}</td>
-        <td>${v.status}</td>
-      </tr>
-    `;
-  }).join('');
 
-  vendasMes.textContent = `€ ${totalMes.toFixed(2).replace('.', ',')}`;
-  pendentes.textContent = pendentesCount;
-  totalClientes.textContent = clientes.length;
-}
-function abrirModal() {
-  document.getElementById("modalVenda").style.display = "flex";
-  carregarClientesVenda(); // carrega lista de clientes
-}
+    function abrirModal() {
+      document.getElementById("modalVenda").style.display = "flex";
+      carregarClientesVenda();
+    }
 
-function fecharModal() {
-  document.getElementById("modalVenda").style.display = "none";
-}
+    function fecharModal() {
+      document.getElementById("modalVenda").style.display = "none";
+    }
 
-async function carregarClientesVenda() {
-  const { data, error } = await supabase.from("clientes").select("id, nome");
-  if (error) {
-    alert("Erro ao carregar clientes.");
-    return;
-  }
-  const select = document.getElementById("clienteVenda");
-  select.innerHTML = data.map(c => `<option value="${c.id}">${c.nome}</option>`).join('');
-}
+    async function carregarClientesVenda() {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const userId = sessionData?.session?.user?.id;
+      const { data, error } = await supabase.from("clientes").select("id, nome").eq("usuario_id", userId);
 
-async function salvarVenda() {
-  const { data: sessionData } = await supabase.auth.getSession();
-  const user = sessionData?.session?.user;
-  if (!user) return alert("Usuário não autenticado.");
+      const select = document.getElementById("clienteVenda");
+      if (data?.length) {
+        select.innerHTML = data.map(c => `<option value="${c.id}">${c.nome}</option>`).join('');
+      } else {
+        select.innerHTML = '<option disabled selected>Nenhum cliente disponível</option>';
+      }
+    }
 
-  // Buscar o ID do perfil associado ao user.id
-  const { data: perfil, error: perfilError } = await supabase
-    .from("perfis")
-    .select("id")
-    .eq("user_id", user.id)
-    .single();
+    async function salvarVenda() {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const userId = sessionData?.session?.user?.id;
 
-  if (perfilError || !perfil) {
-    console.error(perfilError);
-    return alert("Perfil do usuário não encontrado.");
-  }
+      const pedido = {
+        cliente_id: document.getElementById("clienteVenda").value,
+        data_pedido: document.getElementById("dataVenda").value,
+        total_custo: parseFloat(document.getElementById("valorVenda").value),
+        status: document.getElementById("statusVenda").value,
+        usuario_id: userId
+      };
 
-  const pedido = {
-    cliente_id: document.getElementById("clienteVenda").value,
-    data_pedido: document.getElementById("dataVenda").value,
-    total_custo: parseFloat(document.getElementById("valorVenda").value),
-    status: document.getElementById("statusVenda").value,
-    usuario_id: perfil.id // agora com o ID certo de perfis
-  };
+      const { error } = await supabase.from("pedidos").insert([pedido]);
+      if (!error) {
+        alert("Pedido adicionado com sucesso!");
+        fecharModal();
+        carregarVendas();
+      } else {
+        alert("Erro: " + error.message);
+      }
+    }
 
-  const { error } = await supabase.from("pedidos").insert([pedido]);
-  if (error) {
-    console.error(error);
-    alert("Erro ao adicionar pedido: " + error.message);
-    return;
-  }
+    async function carregarVendas() {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const userId = sessionData?.session?.user?.id;
 
-  alert("Pedido adicionado com sucesso!");
-  fecharModal();
-  carregarVendas();
-}
+      const lista = document.getElementById("listaPedidos");
+      const vendasMes = document.getElementById("vendasMes");
+      const pendentes = document.getElementById("pendentes");
+      const totalClientes = document.getElementById("clientes");
 
+      const { data: vendas } = await supabase.from("pedidos").select("*").eq("usuario_id", userId).order("data_pedido", { ascending: false });
+      const { data: clientes } = await supabase.from("clientes").select("id, nome");
 
+      const clienteMap = Object.fromEntries(clientes.map(c => [c.id, c.nome]));
 
+      if (!vendas?.length) {
+        lista.innerHTML = '<tr><td colspan="5">Sem pedidos encontrados.</td></tr>';
+        return;
+      }
+
+      let totalMes = 0;
+      const hoje = new Date();
+      const pendentesCount = vendas.filter(v => v.status === "pendente").length;
+      const meses = Array(12).fill(0);
+
+      lista.innerHTML = vendas.map(v => {
+        const data = new Date(v.data_pedido);
+        const valor = parseFloat(v.total_custo);
+        if (data.getMonth() === hoje.getMonth()) totalMes += valor;
+        meses[data.getMonth()] += valor;
+        return `<tr>
+          <td>${v.id.slice(0,6)}</td>
+          <td>${clienteMap[v.cliente_id] || '—'}</td>
+          <td>${data.toLocaleDateString("pt-BR")}</td>
+          <td>€ ${valor.toFixed(2).replace('.', ',')}</td>
+          <td>${v.status}</td>
+        </tr>`;
+      }).join('');
+
+      vendasMes.textContent = `€ ${totalMes.toFixed(2).replace('.', ',')}`;
+      pendentes.textContent = pendentesCount;
+      totalClientes.textContent = clientes.length;
+
+      const ctx = document.getElementById("graficoVendasMes").getContext("2d");
+
+      if (grafico) grafico.destroy();
+      grafico = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels: ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"],
+          datasets: [{
+            label: "Total por mês (€)",
+            data: meses.map(v => v.toFixed(2)),
+            backgroundColor: "#3b82f6"
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                callback: valor => `€ ${valor}`
+              }
+              
+            }
+          }
+        }
+      });
+    }
 
     window.addEventListener("DOMContentLoaded", carregarVendas);
   </script>
-  <script>
-  const currentPage = location.pathname.split("/").pop();
-  document.querySelectorAll(".nav a").forEach(link => {
-    if (link.getAttribute("href") === currentPage) {
-      link.classList.add("active");
-    }
-  });
-</script>
-
 </body>
 </html>

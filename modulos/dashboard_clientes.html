@@ -1,126 +1,301 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dashboard de Clientes</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
   <style>
-    body { margin: 0; font-family: 'Inter', sans-serif; background: #f4f6fa; display: flex; }
-    .sidebar { width: 220px; background: #fff; height: 100vh; padding: 20px 10px; border-right: 1px solid #ddd; box-shadow: 2px 0 5px rgba(0,0,0,0.05); }
-    .sidebar h2 { margin: 0; font-size: 18px; text-align: center; }
-    .nav { margin-top: 30px; }
-    .nav a { display: flex; align-items: center; padding: 10px 16px; margin: 4px 0; border-radius: 8px; text-decoration: none; color: #333; }
-    .nav a:hover, .nav a.active { background: #e0edff; color: #1d4ed8; }
-    .main { flex: 1; padding: 30px; }
-    table { width: 100%; background: #fff; border-collapse: collapse; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
-    th, td { padding: 12px; text-align: left; }
-    th { background-color: #f0f2f5; }
-    .form-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); display: flex; justify-content: center; align-items: center; z-index: 1000; }
-    .form-box { background: #fff; padding: 20px; border-radius: 12px; width: 400px; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
-    .form-box input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 6px; }
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background-color: #f4f6fa;
+      display: flex;
+    }
+    .sidebar {
+      width: 220px;
+      background: #fff;
+      height: 100vh;
+      padding: 20px 10px;
+      border-right: 1px solid #ddd;
+      box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .nav {
+      margin-top: 30px;
+    }
+    .nav a {
+      display: flex;
+      align-items: center;
+      padding: 10px 16px;
+      margin: 4px 0;
+      border-radius: 8px;
+      text-decoration: none;
+      color: #333;
+      transition: 0.2s;
+    }
+    .nav a:hover, .nav a.active {
+      background-color: #e0edff;
+      color: #1d4ed8;
+    }
+    .main {
+      flex: 1;
+      padding: 30px;
+    }
+    table {
+      width: 100%;
+      background: #fff;
+      border-collapse: collapse;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      margin-bottom: 30px;
+    }
+    th, td {
+      padding: 12px 14px;
+      text-align: left;
+    }
+    th {
+      background-color: #f0f2f5;
+    }
+    tr:nth-child(even) {
+      background-color: #fafafa;
+    }
+    .form-modal {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.3);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    .form-box {
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      width: 400px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    }
+    .form-box input, .form-box select {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    .logout {
+      background: #f87171;
+      color: white;
+      padding: 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      text-align: center;
+      margin-top: 20px;
+    }
+    @media (max-width: 768px) {
+      .main {
+        padding: 15px;
+      }
+      table, .sidebar {
+        width: 100%;
+        overflow-x: auto;
+      }
+    }
   </style>
 </head>
 <body>
   <div class="sidebar">
-    <h2>ERP System</h2>
-    <div class="nav">
-      <a href="dashboard_inventario.html">📦 Inventário</a>
-      <a href="dashboard_producao.html">🏭 Produção</a>
-      <a href="dashboard_compras.html">🛒 Compras</a>
-      <a href="dashboard_projetos.html">📁 Projetos</a>
-      <a href="dashboard_vendas.html">💰 Vendas</a>
-      <a href="dashboard_clientes.html" class="active">👥 Clientes</a>
-      
-      
-      
-
+    <div>
+      <h2>ERP System</h2>
+      <div class="nav">
+        <a href="dashboard_inventario.html">📦 Inventário</a>
+        <a href="dashboard_producao.html">🏭 Produção</a>
+        <a href="dashboard_compras.html">🛒 Compras</a>
+        <a href="dashboard_projetos.html">📁 Projetos</a>
+        <a href="dashboard_vendas.html">💰 Vendas</a>
+        <a href="dashboard_clientes.html" class="active">👥 Clientes</a>
+      </div>
     </div>
+    <div class="logout" onclick="logout()">🔓 Logout</div>
   </div>
 
   <div class="main">
     <h1>Clientes</h1>
+    <input type="text" id="pesquisa" placeholder="🔍 Pesquisar cliente..." onkeyup="pesquisarClientes()" style="padding: 10px; width: 100%; margin-bottom: 20px; border-radius: 8px; border: 1px solid #ccc;">
     <button onclick="abrirModal()">➕ Novo Cliente</button>
-    <div id="modalCliente" class="form-modal" style="display: none;">
+    <div id="modalCliente" class="form-modal" style="display:none;">
       <div class="form-box">
         <button onclick="fecharModal()" style="float:right;">X</button>
-        <h3>Adicionar Cliente</h3>
-        <input type="text" id="nomeCliente" placeholder="Nome">
-        <input type="email" id="emailCliente" placeholder="Email">
-        <input type="text" id="telCliente" placeholder="Telefone">
+        <h3 id="modalTitulo">Adicionar Cliente</h3>
+        <input type="text" id="empresa" placeholder="Empresa">
+        <input type="text" id="nif" placeholder="NIF">
+        <input type="text" id="email" placeholder="Email">
+        <input type="text" id="telefone" placeholder="Telefone">
+        <input type="text" id="endereco" placeholder="Endereço">
         <button onclick="salvarCliente()">Salvar</button>
       </div>
     </div>
     <table>
       <thead>
         <tr>
-          <th>Nome</th>
+          <th>Empresa</th>
+          <th>NIF</th>
           <th>Email</th>
           <th>Telefone</th>
+          <th>Endereço</th>
+          <th>Ações</th>
         </tr>
       </thead>
       <tbody id="listaClientes">
-        <tr><td colspan="3">Carregando...</td></tr>
+        <tr><td colspan="6">Nenhum cliente encontrado.</td></tr>
       </tbody>
     </table>
+    <canvas id="graficoClientes" height="100"></canvas>
   </div>
-
   <script>
     const supabase = window.supabase.createClient(
       'https://nnitvxhubovlyfxdeemf.supabase.co',
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5uaXR2eGh1Ym92bHlmeGRlZW1mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgyNjU4ODYsImV4cCI6MjA2Mzg0MTg4Nn0.fTwCna-UBzfLRlbJ2EkWwQeXuq5t3ORwfgbsfiUqejU'
     );
 
+    let clientes = [], clienteEditandoId = null, graficoClientes;
+
+    async function obterUserId() {
+      const { data: session } = await supabase.auth.getSession();
+      return session?.session?.user?.id || null;
+    }
+
     async function carregarClientes() {
-      const { data: sessionData } = await supabase.auth.getSession();
-      const user = sessionData?.session?.user;
-      if (!user) return alert("Usuário não autenticado.");
+      const userId = await obterUserId();
+      if (!userId) return alert("Usuário não autenticado.");
 
-      const { data, error } = await supabase.from("clientes").select("*").eq("usuario_id", user.id);
+      const { data, error } = await supabase
+        .from("clientes")
+        .select("id, nome, email, telefone, nif, endereco, criado_em")
+        .eq("usuario_id", userId);
+
+      if (error) return console.error("Erro ao carregar clientes:", error);
+
+      clientes = data;
       const lista = document.getElementById("listaClientes");
-
-      if (error || !data.length) {
-        lista.innerHTML = '<tr><td colspan="3">Nenhum cliente encontrado.</td></tr>';
-        return;
-      }
-
-      lista.innerHTML = data.map(c => `
+      lista.innerHTML = clientes.map(c => `
         <tr>
           <td>${c.nome}</td>
-          <td>${c.email || ''}</td>
-          <td>${c.telefone || ''}</td>
-        </tr>`).join('');
+          <td>${c.nif || ''}</td>
+          <td>${c.email}</td>
+          <td>${c.telefone}</td>
+          <td>${c.endereco || ''}</td>
+          <td>
+            <button onclick="editarCliente('${c.id}')">✏️</button>
+            <button onclick="eliminarCliente('${c.id}')">🗑️</button>
+          </td>
+        </tr>
+      `).join('');
+
+      const contagemMeses = Array(12).fill(0);
+      clientes.forEach(c => contagemMeses[new Date(c.criado_em).getMonth()]++);
+
+      graficoClientes.data.datasets[0].data = contagemMeses;
+      graficoClientes.update();
     }
 
-    function abrirModal() {
-      document.getElementById("modalCliente").style.display = "flex";
+    function pesquisarClientes() {
+      const termo = document.getElementById("pesquisa").value.toLowerCase();
+      const filtrados = clientes.filter(c => c.nome.toLowerCase().includes(termo));
+      const tbody = document.getElementById("listaClientes");
+      tbody.innerHTML = filtrados.map(c => `
+        <tr>
+          <td>${c.nome}</td>
+          <td>${c.nif}</td>
+          <td>${c.email}</td>
+          <td>${c.telefone}</td>
+          <td>${c.endereco}</td>
+          <td>
+            <button onclick="editarCliente('${c.id}')">✏️</button>
+            <button onclick="eliminarCliente('${c.id}')">🗑️</button>
+          </td>
+        </tr>
+      `).join('');
     }
+
+    function abrirModal(cliente = null) {
+      document.getElementById("modalCliente").style.display = "flex";
+      clienteEditandoId = cliente?.id || null;
+      document.getElementById("modalTitulo").textContent = cliente ? "Editar Cliente" : "Adicionar Cliente";
+      document.getElementById("empresa").value = cliente?.nome || "";
+      document.getElementById("nif").value = cliente?.nif || "";
+      document.getElementById("email").value = cliente?.email || "";
+      document.getElementById("telefone").value = cliente?.telefone || "";
+      document.getElementById("endereco").value = cliente?.endereco || "";
+    }
+
     function fecharModal() {
       document.getElementById("modalCliente").style.display = "none";
     }
 
     async function salvarCliente() {
-      const { data: sessionData } = await supabase.auth.getSession();
-      const user = sessionData?.session?.user;
-      if (!user) return alert("Usuário não autenticado.");
+      const userId = await obterUserId();
+      if (!userId) return alert("Não autenticado");
 
       const cliente = {
-        nome: document.getElementById("nomeCliente").value,
-        email: document.getElementById("emailCliente").value,
-        telefone: document.getElementById("telCliente").value,
-        usuario_id: user.id
+        nome: document.getElementById("empresa").value,
+        nif: document.getElementById("nif").value,
+        email: document.getElementById("email").value,
+        telefone: document.getElementById("telefone").value,
+        endereco: document.getElementById("endereco").value,
+        usuario_id: userId
       };
 
-      const { error } = await supabase.from("clientes").insert([cliente]);
-      if (error) return alert("Erro ao adicionar cliente: " + error.message);
+      if (!cliente.nome || !cliente.email || !cliente.telefone)
+        return alert("Preencha todos os campos obrigatórios.");
 
-      alert("Cliente adicionado com sucesso!");
+      const resultado = clienteEditandoId ?
+        await supabase.from("clientes").update(cliente).eq("id", clienteEditandoId) :
+        await supabase.from("clientes").insert([cliente]);
+
+      if (resultado.error) return alert("Erro ao salvar cliente");
+
       fecharModal();
       carregarClientes();
     }
 
-    window.addEventListener("DOMContentLoaded", carregarClientes);
+    function editarCliente(id) {
+      const cliente = clientes.find(c => c.id === id);
+      if (cliente) abrirModal(cliente);
+    }
+
+    async function eliminarCliente(id) {
+      if (!confirm("Deseja mesmo eliminar este cliente?")) return;
+      await supabase.from("clientes").delete().eq("id", id);
+      carregarClientes();
+    }
+
+    function desenharGraficoInicial() {
+      const ctx = document.getElementById("graficoClientes").getContext("2d");
+      graficoClientes = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"],
+          datasets: [{ label: 'Clientes por mês', data: Array(12).fill(0), backgroundColor: '#60a5fa' }]
+        }
+      });
+    }
+
+    async function logout() {
+      await supabase.auth.signOut();
+      window.location.href = "login.html";
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      desenharGraficoInicial();
+      carregarClientes();
+    });
   </script>
 </body>
 </html>
