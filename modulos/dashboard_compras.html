@@ -16,42 +16,59 @@
 
     .sidebar {
       width: 220px;
-      background: #fff;
+      background: #ffffff;
       height: 100vh;
-      padding: 20px 10px;
-      border-right: 1px solid #ddd;
-      box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+      padding: 20px 0;
+      border-right: 1px solid #e5e7eb;
+      box-shadow: 2px 0 6px rgba(0,0,0,0.03);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
     }
 
     .sidebar h2 {
-      margin: 0;
-      font-size: 18px;
-      color: #333;
       text-align: center;
+      font-size: 20px;
+      color: #1f2937;
+      margin-bottom: 20px;
     }
 
     .nav {
-      margin-top: 30px;
+      display: flex;
+      flex-direction: column;
     }
 
     .nav a {
       display: flex;
       align-items: center;
+      gap: 10px;
       padding: 10px 16px;
-      margin: 4px 0;
+      margin: 6px 10px;
       border-radius: 8px;
       text-decoration: none;
-      color: #333;
-      transition: 0.2s;
+      color: #374151;
+      font-weight: 500;
+      transition: background 0.2s;
     }
 
-    .nav a:hover, .nav a.active {
+    .nav a:hover,
+    .nav a.active {
       background-color: #e0edff;
       color: #1d4ed8;
     }
 
-    .nav a i {
-      margin-right: 10px;
+    .logout {
+      background: #f87171;
+      color: white;
+      padding: 10px;
+      margin: 20px 10px;
+      text-align: center;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .logout:hover {
+      background: #dc2626;
     }
 
     .main {
@@ -85,11 +102,6 @@
       color: #1d4ed8;
     }
 
-    h2 {
-      margin-bottom: 12px;
-      color: #333;
-    }
-
     table {
       width: 100%;
       background: #fff;
@@ -113,65 +125,74 @@
       background-color: #fafafa;
     }
 
+    button {
+      background: #3b82f6;
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #2563eb;
+    }
+
+    .form-modal {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.3);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
     .form-box {
       background: #fff;
       padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+      border-radius: 12px;
+      width: 400px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
     }
 
     input, textarea {
       width: 100%;
       padding: 10px;
-      margin-top: 10px;
-      margin-bottom: 12px;
+      margin: 10px 0;
       border: 1px solid #ccc;
       border-radius: 6px;
-      font-size: 14px;
-    }
-
-    button {
-      background-color: #3b82f6;
-      color: white;
-      border: none;
-      padding: 12px 20px;
-      border-radius: 6px;
-      font-size: 14px;
-      cursor: pointer;
-      width: 100%;
-    }
-
-    button:hover {
-      background-color: #2563eb;
+      font-family: 'Inter', sans-serif;
     }
 
     .status {
-      padding: 4px 8px;
+      padding: 4px 10px;
       border-radius: 12px;
       font-size: 0.8rem;
-      color: #fff;
-      background-color: #999;
+      color: white;
     }
 
-    .status.pendente { background-color: #facc15; color: #333; }
-    .status.recebido { background-color: #22c55e; }
-    .status.cancelado { background-color: #ef4444; }
+    .pendente { background: #f59e0b; }
+    .concluido { background: #10b981; }
+    .atrasado { background: #ef4444; }
   </style>
 </head>
 <body>
+
   <div class="sidebar">
-    <h2>ERP System</h2>
-    <div class="nav">
-  
-  <a href="dashboard_inventario.html"><i>📦</i> Inventario</a>
-  <a href="dashboard_producao.html"><i>🏭</i> Produção</a>
-  <a href="dashboard_compras.html"><i>🛒</i> Compras</a>
-  <a href="dashboard_projetos.html"><i>📁</i> Projetos</a>
-  <a href="dashboard_vendas.html"><i>💰</i> Vendas</a>
-  <a href="dashboard_clientes.html"><i>👤</i> Clientes</a>
-
-</div>
-
+    <div>
+      <h2>ERP System</h2>
+      <div class="nav">
+        <a href="dashboard_inventario.html"><i>📦</i> Inventario</a>
+        <a href="dashboard_producao.html"><i>🏭</i> Produção</a>
+        <a href="dashboard_compras.html"><i>🛒</i> Compras</a>
+        <a href="dashboard_projetos.html"><i>📁</i> Projetos</a>
+        <a href="dashboard_vendas.html"><i>💰</i> Vendas</a>
+        <a href="dashboard_clientes.html"><i>👤</i> Clientes</a>
+      </div>
+    </div>
+    <div class="logout" onclick="logout()">🔓 Logout</div>
   </div>
 
   <div class="main">
@@ -190,7 +211,10 @@
         <p id="fornecedores">0</p>
       </div>
     </div>
-    
+
+    <div style="text-align: center;">
+      <button onclick="alternarFormulario()">➕ Nova Compra</button>
+    </div>
 
     <h2>Pedidos de Compra</h2>
     <table>
@@ -208,10 +232,15 @@
         <tr><td colspan="6">Sem pedidos ainda.</td></tr>
       </tbody>
     </table>
+  </div>
 
+  <div class="form-modal" id="formCompra">
     <div class="form-box">
       <h3>Nova Compra</h3>
-      <input type="text" id="fornecedor_id" placeholder="UUID do fornecedor" />
+      <select id="fornecedor_id">
+  <option value="">Selecione um fornecedor</option>
+</select>
+
       <input type="number" id="total_custo" placeholder="Total (€)" />
       <textarea id="observacoes" placeholder="Observações"></textarea>
       <button onclick="guardarCompra()">Guardar Compra</button>
@@ -224,8 +253,29 @@
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5uaXR2eGh1Ym92bHlmeGRlZW1mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgyNjU4ODYsImV4cCI6MjA2Mzg0MTg4Nn0.fTwCna-UBzfLRlbJ2EkWwQeXuq5t3ORwfgbsfiUqejU'
     );
 
-    async function carregarCompras() {
-      const userId = sessionStorage.getItem("userId");
+   async function carregarCompras() {
+  const userId = sessionStorage.getItem("userId");
+  if (!userId) {
+    console.warn("⚠️ Nenhum userId encontrado na sessão.");
+    return;
+  }
+  async function carregarFornecedoresDropdown() {
+  const select = document.getElementById("fornecedor_id");
+  const { data, error } = await supabase.from("fornecedores").select("id, nome");
+
+  if (error) {
+    console.error("Erro ao carregar fornecedores:", error.message);
+    return;
+  }
+
+  data.forEach(fornecedor => {
+    const option = document.createElement("option");
+    option.value = fornecedor.id;
+    option.textContent = fornecedor.nome;
+    select.appendChild(option);
+  });
+}
+
       const lista = document.getElementById("listaPedidos");
       const valorMes = document.getElementById("valorMes");
       const pendentes = document.getElementById("pendentes");
@@ -309,20 +359,35 @@
         alert("Erro ao guardar: " + error.message);
       } else {
         alert("Compra registrada com sucesso!");
+        document.getElementById("formCompra").style.display = "none";
         carregarCompras();
       }
     }
 
-    window.addEventListener("DOMContentLoaded", carregarCompras);
-  </script>
-  <script>
-  const currentPage = location.pathname.split("/").pop();
-  document.querySelectorAll(".nav a").forEach(link => {
-    if (link.getAttribute("href") === currentPage) {
-      link.classList.add("active");
+    function alternarFormulario() {
+      const modal = document.getElementById("formCompra");
+      modal.style.display = modal.style.display === "none" || modal.style.display === "" ? "flex" : "none";
     }
-  });
-</script>
 
+    window.addEventListener("click", function(e) {
+      const modal = document.getElementById("formCompra");
+      if (e.target === modal) {
+        modal.style.display = "none";
+      }
+    });
+
+    window.addEventListener("DOMContentLoaded", () => {
+  carregarCompras();
+  carregarFornecedoresDropdown(); // <-- novo
+});
+
+
+    const currentPage = location.pathname.split("/").pop();
+    document.querySelectorAll(".nav a").forEach(link => {
+      if (link.getAttribute("href") === currentPage) {
+        link.classList.add("active");
+      }
+    });
+  </script>
 </body>
 </html>

@@ -155,8 +155,9 @@
         <a href="dashboard_vendas.html" class="active">💰 Vendas</a>
         <a href="dashboard_clientes.html">👤 Clientes</a>
       </div>
+      <div class="logout" onclick="logout()">🔓 Logout</div>
     </div>
-    <div class="logout" onclick="logout()">🔓 Logout</div>
+    
   </div>
   <div class="main">
     <h1>Gestão de Vendas</h1>
@@ -198,6 +199,7 @@
   </div>
 
   <script>
+    
     let graficoVendas;
 
 function desenharGraficoVendasPorMes(vendas) {
@@ -242,6 +244,7 @@ function desenharGraficoVendasPorMes(vendas) {
   });
 }
 
+
     const supabase = window.supabase.createClient(
       'https://nnitvxhubovlyfxdeemf.supabase.co',
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5uaXR2eGh1Ym92bHlmeGRlZW1mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgyNjU4ODYsImV4cCI6MjA2Mzg0MTg4Nn0.fTwCna-UBzfLRlbJ2EkWwQeXuq5t3ORwfgbsfiUqejU'
@@ -251,7 +254,8 @@ function desenharGraficoVendasPorMes(vendas) {
 
     async function logout() {
       const { error } = await supabase.auth.signOut();
-      if (!error) location.href = 'index.html';
+      if (!error) location.href = '../log/login.html';
+
     }
 
     function abrirModal() {
