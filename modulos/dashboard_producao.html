@@ -7,193 +7,180 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet"/>
   <style>
-    body {
-      margin: 0;
-      font-family: 'Inter', sans-serif;
-      background-color: #f4f6fa;
-      display: flex;
-    }
-
-    .sidebar {
-      width: 220px;
-      background: #fff;
-      height: 100vh;
-      padding: 20px 10px;
-      border-right: 1px solid #ddd;
-      box-shadow: 2px 0 5px rgba(0,0,0,0.05);
-      display: flex;
-      flex-direction: column;
-      gap: 30px;
-    }
-
-    .sidebar h2 {
-      margin: 0;
-      font-size: 18px;
-      color: #333;
-      text-align: center;
-    }
-
-    .nav a {
-      display: flex;
-      align-items: center;
-      padding: 10px 16px;
-      margin: 4px 0;
-      border-radius: 8px;
-      text-decoration: none;
-      color: #333;
-      transition: 0.2s;
-    }
-
-    .nav a:hover, .nav a.active {
-      background-color: #e0edff;
-      color: #1d4ed8;
-    }
-
-    .logout {
-      background: #f87171;
-      color: white;
-      padding: 10px;
-      border-radius: 8px;
-      cursor: pointer;
-      text-align: center;
-      margin-top: 20px;
-    }
-
-    .logout:hover {
-      background: #dc2626;
-    }
-
-    .main {
-      flex: 1;
-      padding: 30px;
-    }
-
-    .cards {
-      display: flex;
-      gap: 20px;
-      margin-bottom: 30px;
-    }
-
-    .card {
-      flex: 1;
-      background: #fff;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
-    }
-
-    .card h3 {
-      font-size: 16px;
-      color: #777;
-      margin-bottom: 8px;
-    }
-
-    .card p {
-      font-size: 24px;
-      font-weight: 600;
-      color: #1d4ed8;
-    }
-
-    button {
-      background: #3b82f6;
-      color: white;
-      border: none;
-      padding: 10px 16px;
-      border-radius: 6px;
-      cursor: pointer;
-      margin-bottom: 20px;
-    }
-
-    button:hover {
-      background: #2563eb;
-    }
-
-    table {
-      width: 100%;
-      background: #fff;
-      border-collapse: collapse;
-      border-radius: 10px;
-      overflow: hidden;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-      margin-bottom: 30px;
-    }
-
-    th, td {
-      padding: 12px 14px;
-      text-align: left;
-    }
-
-    th {
-      background-color: #f0f2f5;
-    }
-
-    tr:nth-child(even) {
-      background-color: #fafafa;
-    }
-
-    .form-box {
-      display: none;
-      background: #fff;
-      padding: 20px;
-      border-radius: 12px;
-      width: 100%;
-      max-width: 500px;
-      margin: 0 auto 30px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    }
-
-    .form-box input,
-    .form-box select {
-      width: 100%;
-      padding: 12px;
-      margin: 8px 0;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      font-size: 15px;
-    }
-
-    .progress-bar {
-      background: #e5e7eb;
-      border-radius: 8px;
-      height: 10px;
-      overflow: hidden;
-    }
-
-    .progress-bar-inner {
-      background: #3b82f6;
-      height: 100%;
-    }
-
-    .badge {
-      padding: 4px 10px;
-      border-radius: 12px;
-      font-size: 0.8rem;
-      color: white;
-      display: inline-block;
-    }
-
-    .andamento { background: #3b82f6; }
-    .concluido { background: #10b981; }
-    .atrasado { background: #ef4444; }
-  </style>
+  body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    background-color: #f4f6fa;
+    display: flex;
+  }
+  .sidebar {
+    width: 220px;
+    background: #fff;
+    height: 100vh;
+    padding: 20px 10px;
+    border-right: 1px solid #ddd;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .sidebar h2 {
+    margin: 0;
+    font-size: 18px;
+    color: #333;
+    text-align: center;
+  }
+  .nav {
+    margin-top: 30px;
+  }
+  .nav a {
+    display: flex;
+    align-items: center;
+    padding: 10px 16px;
+    margin: 4px 0;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #333;
+    transition: 0.2s;
+  }
+  .nav a:hover, .nav a.active {
+    background-color: #e0edff;
+    color: #1d4ed8;
+  }
+  .logout {
+    background: #f87171;
+    color: white;
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: center;
+    margin-top: 20px;
+  }
+  .logout:hover {
+    background: #dc2626;
+  }
+  .main {
+    flex: 1;
+    padding: 30px;
+  }
+  .cards {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 30px;
+  }
+  .card {
+    flex: 1;
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  }
+  .card h3 {
+    font-size: 16px;
+    color: #777;
+    margin-bottom: 8px;
+  }
+  .card p {
+    font-size: 24px;
+    font-weight: 600;
+    color: #1d4ed8;
+  }
+  button {
+    background: #3b82f6;
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-bottom: 20px;
+  }
+  button:hover {
+    background: #2563eb;
+  }
+  table {
+    width: 100%;
+    background: #fff;
+    border-collapse: collapse;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    margin-bottom: 30px;
+  }
+  th, td {
+    padding: 12px 14px;
+    text-align: left;
+  }
+  th {
+    background-color: #f0f2f5;
+  }
+  tr:nth-child(even) {
+    background-color: #fafafa;
+  }
+  .form-modal {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.3);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  .form-box {
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    width: 400px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+  }
+  input, select {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+  }
+  .progress-bar {
+    background: #e5e7eb;
+    border-radius: 8px;
+    height: 10px;
+    overflow: hidden;
+  }
+  .progress-inner {
+    background: #3b82f6;
+    height: 100%;
+  }
+  .badge {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    color: white;
+    display: inline-block;
+  }
+  .andamento { background: #3b82f6; }
+  .concluido { background: #10b981; }
+  .atrasado { background: #ef4444; }
+</style>
 </head>
 <body>
   <div class="sidebar">
-    <h2>ERP System</h2>
-    <div class="nav">
-      <a href="dashboard_inventario.html">📦 Inventário</a>
-      <a href="dashboard_producao.html" class="active">🏭 Produção</a>
-      <a href="dashboard_compras.html">🛒 Compras</a>
-      <a href="dashboard_projetos.html">📁 Projetos</a>
-      <a href="dashboard_vendas.html">💰 Vendas</a>
-      <a href="dashboard_clientes.html">👤 Clientes</a>
+    <div>
+      <h2>ERP System</h2>
+      <div class="nav">
+        <a href="dashboard_inventario.html" >📦 Inventário</a>
+        <a href="dashboard_producao.html"class="active">🏭 Produção</a>
+        <a href="dashboard_compras.html">🛒 Compras</a>
+        <a href="dashboard_projetos.html">📁 Projetos</a>
+        <a href="dashboard_vendas.html">💰 Vendas</a>
+        <a href="dashboard_clientes.html" >👤 Clientes</a>
+      </div>
+      <div class="logout" onclick="logout()">🔓 Logout</div>
     </div>
-    <div class="logout" onclick="logout()">🔓 Logout</div>
   </div>
 
   <div class="main">
     <h1>Gestão de Produção</h1>
-    <p style="margin-top: -10px; color: #666;">Controle de ordens e processos de produção</p>
+    <p style="margin-top: -10px; color: #666;"></p>
 
     <div class="cards">
       <div class="card"><h3>Produção Mensal</h3><p id="producaoMensal">0 unidades</p></div>
@@ -205,14 +192,17 @@
       <button onclick="mostrarFormulario()">➕ Nova Ordem de Produção</button>
     </div>
 
-    <div class="form-box" id="formOrdem">
-      <h3>Nova Ordem de Produção</h3>
-      <select id="produto"></select>
-      <input type="number" id="quantidade" placeholder="Quantidade">
-      <input type="date" id="data_inicio">
-      <input type="date" id="previsao">
-      <button onclick="adicionarOrdem()">Salvar Ordem</button>
-    </div>
+    <div class="form-modal" id="formOrdem" style="display: none;">
+  <div class="form-box">
+    <h3>Nova Ordem de Produção</h3>
+    <input type="text" id="produto" placeholder="Nome do Produto">
+    <input type="number" id="quantidade" placeholder="Quantidade">
+    <input type="date" id="data_inicio">
+    <input type="date" id="previsao">
+    <button onclick="adicionarOrdem()">Salvar Ordem</button>
+  </div>
+</div>
+
 
     <div class="table-section">
       <h2>Ordens de Produção</h2>
@@ -254,42 +244,57 @@
     }
 
     async function carregarProducao() {
-      const { data, error } = await supabase.from('ordens_producao').select('*').order('data_inicio', { ascending: false });
-      if (error) return alert('Erro ao carregar dados');
-      const { data: produtos } = await supabase.from('produtos').select('id, nome');
-      const nomes = Object.fromEntries(produtos.map(p => [p.id, p.nome]));
+  const { data, error } = await supabase.from('ordens_producao').select('*').order('data_inicio', { ascending: false });
+  if (error) return alert('Erro ao carregar dados');
+  const { data: produtos } = await supabase.from('produtos').select('id, nome');
+  const nomes = Object.fromEntries(produtos.map(p => [p.id, p.nome]));
 
-      const tabela = document.getElementById('tabelaProducao');
-      let mensal = 0, andamento = 0, concluidas = 0;
+  const tabela = document.getElementById('tabelaProducao');
+  let mensal = 0, andamento = 0, concluidas = 0;
 
-      if (!data || data.length === 0) {
-        tabela.innerHTML = '<tr><td colspan="7">Sem ordens ainda.</td></tr>';
+  if (!data || data.length === 0) {
+    tabela.innerHTML = '<tr><td colspan="7">Sem ordens ainda.</td></tr>';
+  } else {
+    tabela.innerHTML = data.map(o => {
+      const inicioDate = new Date(o.data_inicio);
+      const fimDate = new Date(o.previsao_conclusao);
+      const hoje = new Date();
+
+      const diasTotais = Math.ceil((fimDate - inicioDate) / (1000 * 60 * 60 * 24));
+      const diasPassados = Math.ceil((hoje - inicioDate) / (1000 * 60 * 60 * 24));
+      let progresso = Math.round((diasPassados / diasTotais) * 100);
+
+      progresso = Math.max(0, Math.min(progresso, 100)); // garante que está entre 0% e 100%
+
+      // Atualiza os contadores
+      if (inicioDate.getMonth() === hoje.getMonth() && inicioDate.getFullYear() === hoje.getFullYear()) {
+        mensal += o.qtd_produzir;
+      }
+      if (progresso >= 100) {
+        concluidas++;
       } else {
-        tabela.innerHTML = data.map(o => {
-          const inicio = new Date(o.data_inicio).toLocaleDateString();
-          const fim = new Date(o.previsao_conclusao).toLocaleDateString();
-          const progresso = o.progresso || 0;
-          if (new Date(o.data_inicio).getMonth() === new Date().getMonth()) mensal += o.qtd_produzir;
-          if (o.status === 'completo') concluidas++;
-          if (o.status !== 'completo') andamento++;
-
-          return `<tr>
-            <td>${o.id.slice(0, 6)}</td>
-            <td>${nomes[o.produto_id] || 'Produto removido'}</td>
-            <td>${o.qtd_produzir}</td>
-            <td>${inicio}</td>
-            <td>${fim}</td>
-            <td><div class="progress-bar"><div class="progress-bar-inner" style="width: ${progresso}%"></div></div></td>
-            <td><span>${o.status}</span></td>
-
-          </tr>`;
-        }).join('');
+        andamento++;
       }
 
-      document.getElementById('producaoMensal').textContent = `${mensal} unidades`;
-      document.getElementById('ordensAndamento').textContent = andamento;
-      document.getElementById('ordensConcluidas').textContent = concluidas;
-    }
+      const status = progresso >= 100 ? 'concluído' : o.status;
+
+      return `<tr>
+        <td>${o.id.slice(0, 6)}</td>
+        <td>${o.produto_id}</td>
+        <td>${o.qtd_produzir}</td>
+        <td>${inicioDate.toLocaleDateString()}</td>
+        <td>${fimDate.toLocaleDateString()}</td>
+        <td><div class="progress-bar"><div class="progress-inner" style="width: ${progresso}%"></div></div></td>
+        <td><span>${status}</span></td>
+      </tr>`;
+    }).join('');
+  }
+
+  document.getElementById('producaoMensal').textContent = `${mensal} unidades`;
+  document.getElementById('ordensAndamento').textContent = andamento;
+  document.getElementById('ordensConcluidas').textContent = concluidas;
+}
+
 
     async function adicionarOrdem() {
       const produto_id = document.getElementById('produto').value;
@@ -315,9 +320,64 @@
     }
 
     function mostrarFormulario() {
-    const form = document.getElementById("formOrdem");
-    form.style.display = (form.style.display === "block") ? "none" : "block";
+  const modal = document.getElementById("formOrdem");
+  modal.style.display = modal.style.display === "none" || modal.style.display === "" ? "flex" : "none";
+}
+async function verificarEAdicionarProdutosConcluidos() {
+  const { data: ordens, error } = await supabase
+    .from('ordens_producao')
+    .select('*')
+    .eq('status', 'pendente');
+
+  if (error || !ordens) return;
+
+  const hoje = new Date();
+
+  for (const ordem of ordens) {
+    const fim = new Date(ordem.previsao_conclusao);
+    if (hoje >= fim) {
+      // Adicionar produto ao inventário
+      const produto = await supabase.from('produtos').select('*').eq('id', ordem.produto_id).single();
+      if (produto.error || !produto.data) continue;
+
+      const existente = await supabase
+        .from('produtos')
+        .select('*')
+        .eq('nome', produto.data.nome)
+        .maybeSingle();
+
+      if (existente.data) {
+        // Atualiza a quantidade do produto existente
+        await supabase
+          .from('produtos')
+          .update({ qtd: existente.data.qtd + ordem.qtd_produzir })
+          .eq('id', existente.data.id);
+      } else {
+        // Cria novo produto com quantidade produzida
+        await supabase.from('produtos').insert([{
+          nome: produto.data.nome,
+          categoria: produto.data.categoria,
+          qtd: ordem.qtd_produzir,
+          valor_unitario: produto.data.valor_unitario,
+          status: 'ativo',
+          usuario_id: produto.data.usuario_id
+        }]);
+      }
+
+      // Atualiza status da ordem
+      await supabase.from('ordens_producao').update({ status: 'concluído' }).eq('id', ordem.id);
+    }
   }
+}
+
+window.addEventListener("click", function(e) {
+  const modal = document.getElementById("formOrdem");
+  if (e.target === modal) {
+    modal.style.display = "none";
+  }
+});
+
+
 
     window.addEventListener('DOMContentLoaded', async () => {
       await carregarProdutos();

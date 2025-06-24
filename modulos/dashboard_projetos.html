@@ -15,17 +15,16 @@
     display: flex;
   }
   .sidebar {
-  width: 220px;
-  background: #fff;
-  height: 100vh;
-  padding: 20px 10px;
-  border-right: 1px solid #ddd;
-  box-shadow: 2px 0 5px rgba(0,0,0,0.05);
-  display: flex;
-  flex-direction: column;
-  gap: 30px; 
-}
-
+    width: 220px;
+    background: #fff;
+    height: 100vh;
+    padding: 20px 10px;
+    border-right: 1px solid #ddd;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
   .sidebar h2 {
     margin: 0;
     font-size: 18px;
@@ -129,15 +128,12 @@
     z-index: 1000;
   }
   .form-box {
-  background: #fff;
-  padding: 20px;
-  border-radius: 12px;
-  width: 100%;
-  max-width: 500px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-  margin: 0 auto 30px;
-}
-
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    width: 400px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+  }
   input, select {
     width: 100%;
     padding: 10px;
@@ -165,32 +161,23 @@
   .andamento { background: #3b82f6; }
   .concluido { background: #10b981; }
   .atrasado { background: #ef4444; }
-  .form-box input,
-.form-box select {
-  width: 100%;
-  padding: 12px;
-  margin: 8px 0;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: 15px;
-}
-
-  
 </style>
 </head>
 <body>
- <div class="sidebar">
-  <h2>ERP System</h2>
-  <div class="nav">
-    <a href="dashboard_inventario.html">📦 Inventario</a>
-    <a href="dashboard_producao.html">🏭 Produção</a>
-    <a href="dashboard_compras.html">🛒 Compras</a>
-    <a href="dashboard_projetos.html" class="active">📁 Projetos</a>
-    <a href="dashboard_vendas.html">💰 Vendas</a>
-    <a href="dashboard_clientes.html">👤 Clientes</a>
+  <div class="sidebar">
+    <div>
+      <h2>ERP System</h2>
+      <div class="nav">
+        <a href="dashboard_inventario.html">📦 Inventário</a>
+        <a href="dashboard_producao.html">🏭 Produção</a>
+        <a href="dashboard_compras.html">🛒 Compras</a>
+        <a href="dashboard_projetos.html" class="active">📁 Projetos</a>
+        <a href="dashboard_vendas.html">💰 Vendas</a>
+        <a href="dashboard_clientes.html" >👤 Clientes</a>
+      </div>
+      <div class="logout" onclick="logout()">🔓 Logout</div>
+    </div>
   </div>
-  <div class="logout" onclick="logout()">🔒 Logout</div>
-</div>
 
 
     
@@ -405,6 +392,13 @@
     carregarClientes();
     carregarProjetos();
   });
+  window.addEventListener("click", function(e) {
+  const modal = document.getElementById("modalProjeto");
+  if (e.target === modal) {
+    modal.style.display = "none";
+  }
+});
+
 </script>
 <script>
   async function logout() {

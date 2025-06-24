@@ -164,16 +164,17 @@
 </head>
 <body>
   <div class="sidebar">
-    <h2>ERP System</h2>
-    <div class="nav">
-      <a href="dashboard_inventario.html"><i>📦</i> Inventario</a>
-      <a href="dashboard_producao.html"><i>🏫</i> Produção</a>
-      <a href="dashboard_compras.html"><i>🛒</i> Compras</a>
-      <a href="dashboard_projetos.html"><i>📁</i> Projetos</a>
-      <a href="dashboard_vendas.html"><i>💰</i> Vendas</a>
-      <a href="dashboard_clientes.html"><i>👤</i> Clientes</a>
+    <div>
+      <h2>ERP System</h2>
+      <div class="nav">
+        <a href="dashboard_inventario.html" class="active">📦 Inventário</a>
+        <a href="dashboard_producao.html">🏭 Produção</a>
+        <a href="dashboard_compras.html">🛒 Compras</a>
+        <a href="dashboard_projetos.html">📁 Projetos</a>
+        <a href="dashboard_vendas.html">💰 Vendas</a>
+        <a href="dashboard_clientes.html" >👤 Clientes</a>
+      </div>
       <div class="logout" onclick="logout()">🔓 Logout</div>
-
     </div>
   </div>
 
@@ -221,13 +222,15 @@
   ➕ Adicionar Produto
 </button>
 
-    <div class="form-box" id="formularioProduto" style="display: none;">
-  <h3>Novo Produto</h3>
-  <input type="text" id="nome" placeholder="Nome do Produto">
-  <input type="text" id="categoria" placeholder="Categoria">
-  <input type="number" id="qtd" placeholder="Quantidade">
-  <input type="number" id="valor_unitario" placeholder="Valor Unitário">
-  <button id="submitBtn" onclick="salvarProduto()">Adicionar Produto</button>
+    <div class="form-modal" id="formularioProduto" style="display: none;">
+  <div class="form-box">
+    <h3>Novo Produto</h3>
+    <input type="text" id="nome" placeholder="Nome do Produto">
+    <input type="text" id="categoria" placeholder="Categoria">
+    <input type="number" id="qtd" placeholder="Quantidade">
+    <input type="number" id="valor_unitario" placeholder="Valor Unitário">
+    <button id="submitBtn" onclick="salvarProduto()">Adicionar Produto</button>
+  </div>
 </div>
 
   <script>
@@ -294,16 +297,15 @@ return `<tr>
     document.getElementById("valorTotal").textContent = `€ ${total.toFixed(2)}`;
   }
   function alternarFormulario() {
-  const form = document.getElementById("formularioProduto");
+  const modal = document.getElementById("formularioProduto");
   const btn = document.getElementById("toggleFormBtn");
 
-  if (form.style.display === "none") {
-    form.style.display = "block";
+  if (modal.style.display === "none" || modal.style.display === "") {
+    modal.style.display = "flex";
     btn.textContent = "✖ Cancelar";
   } else {
-    form.style.display = "none";
+    modal.style.display = "none";
     btn.textContent = "➕ Adicionar Produto";
-    // Opcional: limpar campos se cancelar
     editandoId = null;
     document.getElementById("submitBtn").textContent = "Adicionar Produto";
     document.getElementById("nome").value = "";
@@ -312,6 +314,7 @@ return `<tr>
     document.getElementById("valor_unitario").value = "";
   }
 }
+
 
 
   async function salvarProduto() {
@@ -388,6 +391,13 @@ async function removerProduto(id) {
   alert("Produto removido!");
   carregarInventario();
 }
+window.addEventListener("click", function(e) {
+  const modal = document.getElementById("formularioProduto");
+  if (e.target === modal) {
+    modal.style.display = "none";
+    document.getElementById("toggleFormBtn").textContent = "➕ Adicionar Produto";
+  }
+});
 
 </script>
 
