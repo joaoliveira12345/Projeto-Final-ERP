@@ -194,14 +194,17 @@
       <div class="form-box">
         <button onclick="fecharModal()" style="float:right;">X</button>
         <h3>Adicionar Pedido de Venda</h3>
+        <select id="produtoVenda"></select>
+        <input type="number" id="quantidadeVenda" placeholder="Quantidade" />
+        <input type="number" id="valorVenda" placeholder="Valor Unitário (€)" />
         <select id="clienteVenda"></select>
         <input type="date" id="dataVenda">
-        <input type="number" id="valorVenda" placeholder="Total €">
         <select id="statusVenda">
-          <option value="pendente">Pendente</option>
-          <option value="pago">Pago</option>
-          <option value="cancelado">Cancelado</option>
-        </select>
+        <option value="pendente">Pendente</option>
+        <option value="pago">Pago</option>
+        <option value="cancelado">Cancelado</option>
+</select>
+
         <button onclick="salvarVenda()">Salvar</button>
       </div>
     </div>
@@ -282,12 +285,26 @@ function desenharGraficoVendasPorMes(vendas) {
 
     function abrirModal() {
       document.getElementById("modalVenda").style.display = "flex";
-      carregarClientesVenda();
+      carregarClientesVenda(); carregarProdutosVenda();
+
     }
 
     function fecharModal() {
       document.getElementById("modalVenda").style.display = "none";
     }
+    async function carregarProdutosVenda() {
+  const { data: sessionData } = await supabase.auth.getSession();
+  const userId = sessionData?.session?.user?.id;
+
+  const { data: produtos, error } = await supabase
+    .from("produtos")
+    .select("id, nome")
+    .eq("usuario_id", userId);
+
+  const select = document.getElementById("produtoVenda");
+  select.innerHTML = produtos?.map(p => `<option value="${p.id}">${p.nome}</option>`).join('') || '<option>Nenhum produto</option>';
+}
+
 
     async function carregarClientesVenda() {
       const { data: sessionData } = await supabase.auth.getSession();
@@ -303,26 +320,75 @@ function desenharGraficoVendasPorMes(vendas) {
     }
 
     async function salvarVenda() {
-      const { data: sessionData } = await supabase.auth.getSession();
-      const userId = sessionData?.session?.user?.id;
+  const { data: sessionData } = await supabase.auth.getSession();
+  const userId = sessionData?.session?.user?.id;
 
-      const pedido = {
-        cliente_id: document.getElementById("clienteVenda").value,
-        data_pedido: document.getElementById("dataVenda").value,
-        total_custo: parseFloat(document.getElementById("valorVenda").value),
-        status: document.getElementById("statusVenda").value,
-        usuario_id: userId
-      };
+  const produto_id = document.getElementById("produtoVenda").value;
+  const cliente_id = document.getElementById("clienteVenda").value;
+  const data_pedido = document.getElementById("dataVenda").value;
+  const status = document.getElementById("statusVenda").value;
+  const quantidade = parseInt(document.getElementById("quantidadeVenda").value);
+  const valor_unitario = parseFloat(document.getElementById("valorVenda").value);
+  const total_custo = quantidade * valor_unitario;
 
-      const { error } = await supabase.from("pedidos").insert([pedido]);
-      if (!error) {
-        alert("Pedido adicionado com sucesso!");
-        fecharModal();
-        carregarVendas();
-      } else {
-        alert("Erro: " + error.message);
-      }
-    }
+  if (!produto_id || !cliente_id || !data_pedido || isNaN(quantidade) || isNaN(valor_unitario)) {
+    alert("Preenche todos os campos corretamente.");
+    return;
+  }
+
+  // Verifica estoque
+  const { data: produto, error: prodErro } = await supabase
+    .from("produtos")
+    .select("qtd")
+    .eq("id", produto_id)
+    .single();
+
+  if (prodErro || !produto) {
+    alert("Erro ao verificar o estoque.");
+    return;
+  }
+
+  if (produto.qtd < quantidade) {
+    alert("Estoque insuficiente! Produza ou compre mais desse produto.");
+    return;
+  }
+
+  // 1. Inserir pedido de venda
+  const { data: novaVenda, error } = await supabase
+    .from("pedidos")
+    .insert([{
+      usuario_id: userId,
+      produto_id,
+      cliente_id,
+      data_pedido,
+      status,
+      total_custo
+    }]);
+
+  if (error) {
+    alert("Erro ao salvar venda: " + error.message);
+    return;
+  }
+
+  // 2. Atualizar estoque
+  const novaQtd = produto.qtd - quantidade;
+  const statusProduto = novaQtd === 0 ? "inativo" : "ativo";
+
+  const { error: updateErro } = await supabase
+    .from("produtos")
+    .update({ qtd: novaQtd, status: statusProduto })
+    .eq("id", produto_id);
+
+  if (updateErro) {
+    alert("Erro ao atualizar o estoque: " + updateErro.message);
+    return;
+  }
+
+  alert("Venda registrada e estoque atualizado!");
+  fecharModal();
+  carregarVendas();
+}
+
 
     async function carregarVendas() {
       const { data: sessionData } = await supabase.auth.getSession();
