@@ -160,6 +160,7 @@
   .andamento { background: #3b82f6; }
   .concluido { background: #10b981; }
   .atrasado { background: #ef4444; }
+  
 </style>
 </head>
 <body>
@@ -195,7 +196,7 @@
     <div class="form-modal" id="formOrdem" style="display: none;">
   <div class="form-box">
     <h3>Nova Ordem de Produção</h3>
-    <input type="text" id="produto" placeholder="Nome do Produto">
+    <select id="produto"><option value="">Carregando produtos...</option></select>
     <input type="number" id="quantidade" placeholder="Quantidade">
     <input type="date" id="data_inicio">
     <input type="date" id="previsao">
@@ -216,6 +217,7 @@
             <th>Previsão</th>
             <th>Progresso</th>
             <th>Status</th>
+            <th>Ações</th>
           </tr>
         </thead>
         <tbody id="tabelaProducao">
@@ -232,16 +234,33 @@
     );
 
     async function carregarProdutos() {
-      const { data, error } = await supabase.from('produtos').select('id, nome');
-      if (error) return alert('Erro ao carregar produtos');
-      const select = document.getElementById('produto');
-      data.forEach(p => {
-        const opt = document.createElement('option');
-        opt.value = p.id;
-        opt.textContent = p.nome;
-        select.appendChild(opt);
-      });
-    }
+  const { data: sessionData } = await supabase.auth.getSession();
+  const userId = sessionData?.session?.user?.id;
+
+  const { data, error } = await supabase
+    .from('produtos')
+    .select('id, nome')
+    .eq('usuario_id', userId);
+
+  const select = document.getElementById('produto');
+  select.innerHTML = ""; // limpa opções anteriores
+
+  if (error || !data.length) {
+    const opt = document.createElement('option');
+    opt.textContent = "Nenhum produto encontrado";
+    opt.disabled = true;
+    select.appendChild(opt);
+    return;
+  }
+
+  data.forEach(p => {
+    const opt = document.createElement('option');
+    opt.value = p.id;
+    opt.textContent = p.nome;
+    select.appendChild(opt);
+  });
+}
+
 
     async function carregarProducao() {
   const { data, error } = await supabase.from('ordens_producao').select('*').order('data_inicio', { ascending: false });
@@ -261,10 +280,25 @@
       const hoje = new Date();
 
       const diasTotais = Math.ceil((fimDate - inicioDate) / (1000 * 60 * 60 * 24));
-      const diasPassados = Math.ceil((hoje - inicioDate) / (1000 * 60 * 60 * 24));
+      const diasPassados = Math.floor((hoje - inicioDate) / (1000 * 60 * 60 * 24));
       let progresso = Math.round((diasPassados / diasTotais) * 100);
 
-      progresso = Math.max(0, Math.min(progresso, 100)); // garante que está entre 0% e 100%
+
+progresso = Math.max(0, Math.min(progresso, 100));
+
+
+if (progresso >= 100) {
+  const hojeLimpo = new Date(hoje);
+  hojeLimpo.setHours(0, 0, 0, 0);
+  const fimLimpo = new Date(fimDate);
+  fimLimpo.setHours(0, 0, 0, 0);
+
+  if (hojeLimpo <= fimLimpo) {
+    progresso = 99; 
+  }
+}
+
+
 
       // Atualiza os contadores
       if (inicioDate.getMonth() === hoje.getMonth() && inicioDate.getFullYear() === hoje.getFullYear()) {
@@ -276,17 +310,31 @@
         andamento++;
       }
 
-      const status = progresso >= 100 ? 'concluído' : o.status;
+      const fimDateSemHora = new Date(fimDate);
+fimDateSemHora.setHours(0, 0, 0, 0);
+const hojeSemHora = new Date(hoje);
+hojeSemHora.setHours(0, 0, 0, 0);
 
-      return `<tr>
-        <td>${o.id.slice(0, 6)}</td>
-        <td>${o.produto_id}</td>
-        <td>${o.qtd_produzir}</td>
-        <td>${inicioDate.toLocaleDateString()}</td>
-        <td>${fimDate.toLocaleDateString()}</td>
-        <td><div class="progress-bar"><div class="progress-inner" style="width: ${progresso}%"></div></div></td>
-        <td><span>${status}</span></td>
-      </tr>`;
+let status = o.status;
+if (status === 'pendente' && fimDateSemHora < hojeSemHora) {
+  status = 'atrasado';
+}
+
+
+     return `<tr>
+  <td>${o.id.slice(0, 6)}</td>
+  <td>${nomes[o.produto_id] || '—'}</td>
+  <td>${o.qtd_produzir}</td>
+  <td>${inicioDate.toLocaleDateString()}</td>
+  <td>${fimDate.toLocaleDateString()}</td>
+  <td><div class="progress-bar"><div class="progress-inner" style="width: ${progresso}%"></div></div></td>
+  <td><span class="${status}">${status}</span></td>
+  <td>
+    <button onclick="editarOrdem('${o.id}')">✏️</button>
+    <button onclick="eliminarOrdem('${o.id}')" style="background:#ef4444;">🗑️</button>
+  </td>
+</tr>`;
+
     }).join('');
   }
 
@@ -323,6 +371,52 @@
   const modal = document.getElementById("formOrdem");
   modal.style.display = modal.style.display === "none" || modal.style.display === "" ? "flex" : "none";
 }
+async function eliminarOrdem(id) {
+  if (!confirm("Tem certeza que deseja eliminar esta ordem?")) return;
+
+  const { error } = await supabase.from('ordens_producao').delete().eq('id', id);
+  if (error) return alert("Erro ao eliminar: " + error.message);
+
+  alert("Ordem eliminada com sucesso!");
+  carregarProducao();
+}
+
+async function editarOrdem(id) {
+  const { data, error } = await supabase.from('ordens_producao').select('*').eq('id', id).single();
+  if (error) return alert("Erro ao carregar ordem");
+
+  document.getElementById('produto').value = data.produto_id;
+  document.getElementById('quantidade').value = data.qtd_produzir;
+  document.getElementById('data_inicio').value = data.data_inicio;
+  document.getElementById('previsao').value = data.previsao_conclusao;
+
+  // Mostra formulário
+  mostrarFormulario();
+
+  // Substitui o botão salvar por editar
+  const botao = document.querySelector('#formOrdem button');
+  botao.textContent = "Atualizar Ordem";
+  botao.onclick = async () => {
+    const novaQtd = parseInt(document.getElementById('quantidade').value);
+    const novoInicio = document.getElementById('data_inicio').value;
+    const novaPrevisao = document.getElementById('previsao').value;
+    const novoProduto = document.getElementById('produto').value;
+
+    const { error } = await supabase.from('ordens_producao').update({
+      produto_id: novoProduto,
+      qtd_produzir: novaQtd,
+      data_inicio: novoInicio,
+      previsao_conclusao: novaPrevisao
+    }).eq('id', id);
+
+    if (error) return alert("Erro ao atualizar: " + error.message);
+
+    alert("Ordem atualizada!");
+    document.getElementById("formOrdem").style.display = "none";
+    carregarProducao();
+  };
+}
+
 async function verificarEAdicionarProdutosConcluidos() {
   const { data: ordens, error } = await supabase
     .from('ordens_producao')
@@ -332,10 +426,16 @@ async function verificarEAdicionarProdutosConcluidos() {
   if (error || !ordens) return;
 
   const hoje = new Date();
+  hoje.setHours(0, 0, 0, 0); 
 
   for (const ordem of ordens) {
     const fim = new Date(ordem.previsao_conclusao);
-    if (hoje >= fim) {
+    fim.setHours(0, 0, 0, 0); 
+
+    if (hoje > fim) {
+
+      
+
       // Adicionar produto ao inventário
       const produto = await supabase.from('produtos').select('*').eq('id', ordem.produto_id).single();
       if (produto.error || !produto.data) continue;
@@ -380,9 +480,12 @@ window.addEventListener("click", function(e) {
 
 
     window.addEventListener('DOMContentLoaded', async () => {
-      await carregarProdutos();
-      await carregarProducao();
-    });
+  await carregarProdutos();
+  await carregarProducao();
+  await verificarEAdicionarProdutosConcluidos(); // 👈 adiciona aqui
+  setInterval(verificarEAdicionarProdutosConcluidos, 60000);
+});
+
   </script>
 </body>
 </html>
