@@ -156,7 +156,29 @@
     font-size: 0.8rem;
     color: white;
     display: inline-block;
+  
   }
+  .acao-btn {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-right: 4px;
+}
+.acao-btn:hover {
+  background: #2563eb;
+}
+th span {
+  font-size: 12px;
+  margin-left: 5px;
+  color: #888;
+}
+
+
+
   .andamento { background: #3b82f6; }
   .concluido { background: #10b981; }
   .atrasado { background: #ef4444; }
@@ -208,18 +230,21 @@
     <div class="table-section">
       <h2>Ordens de Produção</h2>
       <table>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Produto</th>
-            <th>Quantidade</th>
-            <th>Data Início</th>
-            <th>Previsão</th>
-            <th>Progresso</th>
-            <th>Status</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
+      <thead>
+        <tr>
+          <th onclick="sortTable('id')" id="th-id">ID <span></span></th>
+          <th onclick="sortTable('produto_nome')" id="th-produto_nome">Produto <span></span></th>
+          <th onclick="sortTable('qtd_produzir')" id="th-qtd_produzir">Quantidade <span></span></th>
+          <th onclick="sortTable('data_inicio')" id="th-data_inicio">Data Início <span></span></th>
+          <th onclick="sortTable('previsao_conclusao')" id="th-previsao_conclusao">Previsão <span></span></th>
+          <th>Progresso</th>
+          <th onclick="sortTable('statusFinal')" id="th-statusFinal">Status <span></span></th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+
+
+
         <tbody id="tabelaProducao">
           <tr><td colspan="7">Sem ordens ainda.</td></tr>
         </tbody>
@@ -232,6 +257,10 @@
       'https://nnitvxhubovlyfxdeemf.supabase.co',
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5uaXR2eGh1Ym92bHlmeGRlZW1mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgyNjU4ODYsImV4cCI6MjA2Mzg0MTg4Nn0.fTwCna-UBzfLRlbJ2EkWwQeXuq5t3ORwfgbsfiUqejU'
     );
+    let ordensProducaoOriginal = []; 
+let currentSortColumn = '';
+let sortDirection = 1;
+
 
     async function carregarProdutos() {
   const { data: sessionData } = await supabase.auth.getSession();
@@ -263,88 +292,87 @@
 
 
     async function carregarProducao() {
-  const { data, error } = await supabase.from('ordens_producao').select('*').order('data_inicio', { ascending: false });
+  const { data, error } = await supabase.from('ordens_producao').select('*');
   if (error) return alert('Erro ao carregar dados');
+
   const { data: produtos } = await supabase.from('produtos').select('id, nome');
   const nomes = Object.fromEntries(produtos.map(p => [p.id, p.nome]));
 
+  const hoje = new Date();
+
+  ordensProducaoOriginal = data.map(o => {
+    const inicioDate = new Date(o.data_inicio);
+    const fimDate = new Date(o.previsao_conclusao);
+
+    const diasTotais = Math.ceil((fimDate - inicioDate) / (1000 * 60 * 60 * 24));
+    const diasPassados = Math.floor((hoje - inicioDate) / (1000 * 60 * 60 * 24));
+    let progresso = Math.round((diasPassados / diasTotais) * 100);
+    progresso = Math.max(0, Math.min(progresso, 100));
+
+    if (progresso >= 100 && hoje <= fimDate) progresso = 99;
+
+    let statusFinal = o.status;
+    const fimSemHora = new Date(fimDate);
+    fimSemHora.setHours(0, 0, 0, 0);
+    const hojeSemHora = new Date(hoje);
+    hojeSemHora.setHours(0, 0, 0, 0);
+    if (statusFinal === 'pendente' && fimSemHora < hojeSemHora) {
+      statusFinal = 'atrasado';
+    }
+
+    return {
+      ...o,
+      produto_nome: nomes[o.produto_id] || '—',
+      data_inicio_formatada: inicioDate.toLocaleDateString(),
+      previsao_formatada: fimDate.toLocaleDateString(),
+      progresso,
+      statusFinal
+    };
+  });
+
+  renderizarTabela(ordensProducaoOriginal);
+}
+function renderizarTabela(data) {
   const tabela = document.getElementById('tabelaProducao');
+  if (!data.length) {
+    tabela.innerHTML = '<tr><td colspan="8">Sem ordens ainda.</td></tr>';
+    return;
+  }
+
   let mensal = 0, andamento = 0, concluidas = 0;
+  const hoje = new Date();
 
-  if (!data || data.length === 0) {
-    tabela.innerHTML = '<tr><td colspan="7">Sem ordens ainda.</td></tr>';
-  } else {
-    tabela.innerHTML = data.map(o => {
-      const inicioDate = new Date(o.data_inicio);
-      const fimDate = new Date(o.previsao_conclusao);
-      const hoje = new Date();
+  const linhas = data.map(o => {
+    if (new Date(o.data_inicio).getMonth() === hoje.getMonth()) {
+      mensal += o.qtd_produzir;
+    }
+    if (o.progresso >= 100) concluidas++;
+    else andamento++;
 
-      const diasTotais = Math.ceil((fimDate - inicioDate) / (1000 * 60 * 60 * 24));
-      const diasPassados = Math.floor((hoje - inicioDate) / (1000 * 60 * 60 * 24));
-      let progresso = Math.round((diasPassados / diasTotais) * 100);
+    return `<tr>
+      <td>${o.id.slice(0, 6)}</td>
+      <td>${o.produto_nome}</td>
+      <td>${o.qtd_produzir}</td>
+      <td>${o.data_inicio_formatada}</td>
+      <td>${o.previsao_formatada}</td>
+      <td><div class="progress-bar"><div class="progress-inner" style="width: ${o.progresso}%"></div></div></td>
+      <td><span class="${o.statusFinal}">${o.statusFinal}</span></td>
+      <td>
+        <button class="acao-btn" onclick="editarOrdem('${o.id}')" title="Editar">✏️</button>
+        <button class="acao-btn" onclick="eliminarOrdem('${o.id}')" title="Remover">🗑️</button>
+      </td>
+    </tr>`;
+  }).join('');
 
-
-progresso = Math.max(0, Math.min(progresso, 100));
-
-
-if (progresso >= 100) {
-  const hojeLimpo = new Date(hoje);
-  hojeLimpo.setHours(0, 0, 0, 0);
-  const fimLimpo = new Date(fimDate);
-  fimLimpo.setHours(0, 0, 0, 0);
-
-  if (hojeLimpo <= fimLimpo) {
-    progresso = 99; 
-  }
-}
-
-
-
-      // Atualiza os contadores
-      if (inicioDate.getMonth() === hoje.getMonth() && inicioDate.getFullYear() === hoje.getFullYear()) {
-        mensal += o.qtd_produzir;
-      }
-      if (progresso >= 100) {
-        concluidas++;
-      } else {
-        andamento++;
-      }
-
-      const fimDateSemHora = new Date(fimDate);
-fimDateSemHora.setHours(0, 0, 0, 0);
-const hojeSemHora = new Date(hoje);
-hojeSemHora.setHours(0, 0, 0, 0);
-
-let status = o.status;
-if (status === 'pendente' && fimDateSemHora < hojeSemHora) {
-  status = 'atrasado';
-}
-
-
-     return `<tr>
-  <td>${o.id.slice(0, 6)}</td>
-  <td>${nomes[o.produto_id] || '—'}</td>
-  <td>${o.qtd_produzir}</td>
-  <td>${inicioDate.toLocaleDateString()}</td>
-  <td>${fimDate.toLocaleDateString()}</td>
-  <td><div class="progress-bar"><div class="progress-inner" style="width: ${progresso}%"></div></div></td>
-  <td><span class="${status}">${status}</span></td>
-  <td>
-    <button onclick="editarOrdem('${o.id}')">✏️</button>
-    <button onclick="eliminarOrdem('${o.id}')" style="background:#ef4444;">🗑️</button>
-  </td>
-</tr>`;
-
-    }).join('');
-  }
-
+  tabela.innerHTML = linhas;
   document.getElementById('producaoMensal').textContent = `${mensal} unidades`;
   document.getElementById('ordensAndamento').textContent = andamento;
   document.getElementById('ordensConcluidas').textContent = concluidas;
 }
 
 
-    async function adicionarOrdem() {
+
+ async function adicionarOrdem() {
       const produto_id = document.getElementById('produto').value;
       const qtd = parseInt(document.getElementById('quantidade').value);
       const inicio = document.getElementById('data_inicio').value;
@@ -366,6 +394,41 @@ if (status === 'pendente' && fimDateSemHora < hojeSemHora) {
       document.getElementById('formOrdem').style.display = 'none';
       carregarProducao();
     }
+function sortTable(coluna) {
+  if (currentSortColumn === coluna) {
+    sortDirection *= -1;
+  } else {
+    currentSortColumn = coluna;
+    sortDirection = 1;
+  }
+
+  // Atualizar ícones de todas as colunas
+  document.querySelectorAll('th span').forEach(span => span.textContent = '');
+  const span = document.querySelector(`#th-${coluna} span`);
+  if (span) span.textContent = sortDirection === 1 ? '↑' : '↓';
+
+  const dadosOrdenados = [...ordensProducaoOriginal].sort((a, b) => {
+    let valA = a[coluna] ?? '';
+    let valB = b[coluna] ?? '';
+
+    // Converte datas corretamente para comparação
+    if (coluna.includes('data')) {
+      valA = new Date(valA);
+      valB = new Date(valB);
+      return sortDirection * (valA - valB);
+    }
+
+    // Se números, ordena como tal
+    if (typeof valA === 'number' && typeof valB === 'number') {
+      return sortDirection * (valA - valB);
+    }
+
+    return sortDirection * String(valA).localeCompare(String(valB));
+  });
+
+  renderizarTabela(dadosOrdenados);
+}
+
 
     function mostrarFormulario() {
   const modal = document.getElementById("formOrdem");
@@ -469,6 +532,16 @@ async function verificarEAdicionarProdutosConcluidos() {
     }
   }
 }
+async function logout() {
+  const { error } = await supabase.auth.signOut();
+  if (error) {
+    alert("Erro ao fazer logout: " + error.message);
+  } else {
+    // Redireciona para a página de login (ajusta o caminho conforme o teu projeto)
+    window.location.href = '../log/login.html';
+  }
+}
+
 
 window.addEventListener("click", function(e) {
   const modal = document.getElementById("formOrdem");

@@ -158,6 +158,13 @@
     color: white;
     display: inline-block;
   }
+  th .seta {
+  margin-left: 6px;
+  font-size: 12px;
+  opacity: 0.5;
+  transition: transform 0.2s;
+}
+
   .andamento { background: #3b82f6; }
   .concluido { background: #10b981; }
   .atrasado { background: #ef4444; }
@@ -203,21 +210,23 @@
     <h2>Pedidos de Compra</h2>
     <table>
       <thead>
-        <tr>
-          <th>ID</th>
-          <th>Fornecedor</th>
-          <th>Data</th>
-          <th>Total</th>
-          <th>Status</th>
-          <th>Observações</th>
-          <th>Ações</th>
-          <th>Quantidade</th>
+  <tr>
+    <th>ID <span class="seta"></span></th>
+    <th>Produto <span class="seta"></span></th>
+    <th>Fornecedor <span class="seta"></span></th>
+    <th>Data <span class="seta"></span></th>
+    <th>Valor Unitário <span class="seta"></span></th> 
+    <th>Quantidade <span class="seta"></span></th>
+    <th>Total <span class="seta"></span></th>
+    <th>Status <span class="seta"></span></th>
+    <th>Observações <span class="seta"></span></th>
+    <th>Ações <span class="seta"></span></th>
+  </tr>
+</thead>
 
-
-        </tr>
-      </thead>
       <tbody id="listaPedidos">
-  <tr><td colspan="8">Sem pedidos ainda.</td></tr>
+  <tr><td colspan="10">Sem pedidos ainda.</td></tr>
+
 </tbody>
     </table>
   </div>
@@ -282,20 +291,26 @@ async function carregarProdutosDropdown() {
 
   // 1. Carregar itens de compra
   const { data: itensCompra, error: itensErro } = await supabase
-    .from("ordem_compra_itens")
-    .select("ordem_id, qtd");
+  .from("ordem_compra_itens")
+  .select("ordem_id, qtd, valor_unitario, produto_id, produtos (nome)");
 
-  if (itensErro) {
-    console.error("Erro ao carregar itens de compras:", itensErro.message);
-    return;
-  }
+if (itensErro) {
+  console.error("Erro ao carregar itens de compras:", itensErro.message);
+  return;
+}
 
-  // 2. Mapear quantidades por ordem_id
-  const mapaQtd = {};
-  itensCompra.forEach(item => {
-    if (!mapaQtd[item.ordem_id]) mapaQtd[item.ordem_id] = 0;
-    mapaQtd[item.ordem_id] += item.qtd;
-  });
+
+  // 2. Mapear dados dos itens
+const mapaQtd = {};
+const mapaProdutoNome = {};
+const mapaValorUnitario = {};
+
+itensCompra.forEach(item => {
+  mapaQtd[item.ordem_id] = item.qtd;
+  mapaProdutoNome[item.ordem_id] = item.produtos?.nome || "—";
+  mapaValorUnitario[item.ordem_id] = item.valor_unitario;
+});
+
 
   // 3. Carregar ordens de compra do usuário
   const { data: compras, error: comprasErro } = await supabase
@@ -342,32 +357,40 @@ async function carregarProdutosDropdown() {
   const hoje = new Date();
   const pendentesCount = compras.filter(c => c.status === "pendente").length;
   const fornecedoresUnicos = new Set(compras.map(c => c.fornecedor_id)).size;
+lista.innerHTML = compras.map(c => {
+  const data = new Date(c.data_compra).toLocaleDateString();
+  const valor = `€ ${parseFloat(c.total_custo).toFixed(2)}`;
+  const quantidadeTexto = mapaQtd[c.id] ?? '—';
+  const nomeProduto = mapaProdutoNome[c.id] ?? '—';
+  const valorUnitario = mapaValorUnitario[c.id] !== undefined
+    ? `€ ${parseFloat(mapaValorUnitario[c.id]).toFixed(2)}`
+    : '—';
 
-  lista.innerHTML = compras.map(c => {
-    const data = new Date(c.data_compra).toLocaleDateString();
-    const valor = `€ ${parseFloat(c.total_custo).toFixed(2)}`;
-    const quantidadeTexto = mapaQtd[c.id] || '—';
+  if (new Date(c.data_compra).getMonth() === hoje.getMonth()) {
+    totalMes += parseFloat(c.total_custo);
+  }
 
-    if (new Date(c.data_compra).getMonth() === hoje.getMonth()) {
-      totalMes += parseFloat(c.total_custo);
-    }
+  return `
+    <tr>
+      <td>${c.id.slice(0, 6)}</td>
+      <td>${nomeProduto}</td>
+      <td>${fornecedorMap[c.fornecedor_id] || c.fornecedor_nome || '—'}</td>
+      <td>${data}</td>
+      <td>${valorUnitario}</td>
+      <td>${quantidadeTexto}</td>
+      <td>${valor}</td>
+      <td><span class="status ${c.status}">${c.status}</span></td>
+      <td>${c.observacoes || '—'}</td>
+      <td>
+        <button onclick="editarCompra('${c.id}')">✏️</button>
+        <button onclick="removerCompra('${c.id}')">🗑️</button>
+      </td>
+    </tr>
+  `;
+}).join('');
 
-    return `
-      <tr>
-        <td>${c.id.slice(0, 6)}</td>
-        <td>${fornecedorMap[c.fornecedor_id] || c.fornecedor_nome || '—'}</td>
-        <td>${data}</td>
-        <td>${valor}</td>
-        <td><span class="status ${c.status}">${c.status}</span></td>
-        <td>${c.observacoes || '—'}</td>
-        <td>
-          <button onclick="editarCompra('${c.id}')">✏️</button>
-          <button onclick="removerCompra('${c.id}')">🗑️</button>
-        </td>
-        <td>${quantidadeTexto}</td>
-      </tr>
-    `;
-  }).join('');
+
+
 
   valorMes.textContent = `€ ${totalMes.toFixed(2)}`;
   pendentes.textContent = pendentesCount;
@@ -441,68 +464,115 @@ async function carregarProdutosDropdown() {
 
 
 async function editarCompra(id) {
-  const { data, error } = await supabase.from("ordens_compra").select("*").eq("id", id).single();
+  const { data, error } = await supabase
+    .from("ordens_compra")
+    .select("*")
+    .eq("id", id)
+    .single();
+
   if (error) {
     alert("Erro ao carregar dados para editar: " + error.message);
     return;
   }
-async function carregarProdutosDropdown() {
-  const select = document.getElementById("produto_id");
-  const { data, error } = await supabase.from("produtos").select("id, nome");
-  if (error) return alert("Erro ao carregar produtos do inventário.");
 
-  data.forEach(produto => {
-    const opt = document.createElement("option");
-    opt.value = produto.id;
-    opt.textContent = produto.nome;
-    select.appendChild(opt);
-  });
-}
-
+  await carregarProdutosDropdown();
 
   // Preenche os campos
   document.getElementById("fornecedor_nome").value = data.fornecedor_nome;
-  document.getElementById("total_custo").value = data.total_custo;
+  document.getElementById("valor_unitario").value = "";
+  document.getElementById("quantidade").value = "";
+  document.getElementById("data_inicio").value = data.data_compra;
   document.getElementById("observacoes").value = data.observacoes;
 
   // Mostra o modal
   document.getElementById("formCompra").style.display = "flex";
 
-  // Substitui temporariamente o evento do botão
   const botao = document.querySelector("#formCompra button");
   botao.textContent = "Atualizar";
   botao.onclick = async () => {
     const fornecedor_nome = document.getElementById("fornecedor_nome").value.trim();
-const total = parseFloat(document.getElementById("total_custo").value);
-const observacoes = document.getElementById("observacoes").value;
+    const observacoes = document.getElementById("observacoes").value;
+    const produto_id = document.getElementById("produto_id").value;
+    const quantidade = parseInt(document.getElementById("quantidade").value);
+    const valor_unitario = parseFloat(document.getElementById("valor_unitario").value);
 
-if (!fornecedor_nome || isNaN(total) || total <= 0) {
-  alert("Preenche corretamente os campos. O valor deve ser maior que zero.");
-  return;
-}
+    if (!fornecedor_nome || !produto_id || isNaN(quantidade) || isNaN(valor_unitario)) {
+      alert("Preenche todos os campos corretamente.");
+      return;
+    }
 
+    // Atualizar ordem_compra
+    const novoTotal = quantidade * valor_unitario;
 
     const { error: updateError } = await supabase
       .from("ordens_compra")
-      .update({ fornecedor_nome, total_custo: total, observacoes })
+      .update({
+        fornecedor_nome,
+        observacoes,
+        total_custo: novoTotal
+      })
       .eq("id", id);
 
     if (updateError) {
-      alert("Erro ao atualizar: " + updateError.message);
-    } else {
-      alert("Compra atualizada com sucesso.");
-      document.getElementById("formCompra").style.display = "none";
-      botao.textContent = "Guardar Compra";
-      botao.onclick = guardarCompra; // restaura o comportamento original
-      carregarCompras();
+      alert("Erro ao atualizar a compra: " + updateError.message);
+      return;
     }
+
+    // Apagar itens antigos
+    await supabase
+      .from("ordem_compra_itens")
+      .delete()
+      .eq("ordem_id", id);
+
+    // Inserir novo item
+    const { error: itemErro } = await supabase.from("ordem_compra_itens").insert([{
+      ordem_id: id,
+      produto_id,
+      qtd: quantidade,
+      valor_unitario
+    }]);
+
+    if (itemErro) {
+      alert("Erro ao atualizar itens: " + itemErro.message);
+      return;
+    }
+
+    alert("Compra atualizada com sucesso.");
+    document.getElementById("formCompra").style.display = "none";
+    botao.textContent = "Guardar Compra";
+    botao.onclick = guardarCompra;
+    carregarCompras();
   };
 }
+
+
+
+
+
+
+
+  
+
+    
+  
 function alternarFormulario() {
   const modal = document.getElementById("formCompra");
   modal.style.display = "flex";
   carregarProdutosDropdown(); // carrega os produtos ao abrir
 }
+async function removerCompra(id) {
+  if (!confirm("Tens a certeza que queres remover esta compra?")) return;
+
+  const { error } = await supabase.from("ordens_compra").delete().eq("id", id);
+
+  if (error) {
+    alert("Erro ao remover compra: " + error.message);
+  } else {
+    alert("Compra removida com sucesso.");
+    carregarCompras();
+  }
+}
+
 
 
     window.addEventListener("click", function(e) {
@@ -514,8 +584,6 @@ function alternarFormulario() {
 
     window.addEventListener("DOMContentLoaded", () => {
   carregarCompras();
-  carregarFornecedoresDropdown();
- // <-- novo
 });
 
 
@@ -525,6 +593,76 @@ function alternarFormulario() {
         link.classList.add("active");
       }
     });
+    let ordenacao = {
+  coluna: null,
+  ascendente: true
+};
+
+document.querySelectorAll("th").forEach((th, index) => {
+  th.style.cursor = "pointer";
+  th.addEventListener("click", () => ordenarTabela(index, th.textContent.trim(), th));
+});
+
+function ordenarTabela(indiceColuna, nomeColuna, thClicado) {
+  const tabela = document.getElementById("listaPedidos");
+  const linhas = Array.from(tabela.querySelectorAll("tr"));
+  const getTexto = el => el.children[indiceColuna].textContent.trim();
+
+  let tipo = "texto";
+  if (["Quantidade", "Valor Unitário", "Total"].includes(nomeColuna)) tipo = "numero";
+  if (["Data"].includes(nomeColuna)) tipo = "data";
+  if (["Status"].includes(nomeColuna)) tipo = "status";
+
+  const asc = ordenacao.coluna === indiceColuna ? !ordenacao.ascendente : true;
+  ordenacao = { coluna: indiceColuna, ascendente: asc };
+
+  // Limpa todas as setas antes de atualizar
+  document.querySelectorAll("th .seta").forEach(s => s.textContent = "");
+
+  // Atualiza a seta do cabeçalho clicado
+  const seta = thClicado.querySelector(".seta");
+  seta.textContent = asc ? "▲" : "▼";
+
+  linhas.sort((a, b) => {
+    const t1 = getTexto(a);
+    const t2 = getTexto(b);
+
+    if (tipo === "numero") {
+      const n1 = parseFloat(t1.replace("€", "").replace(",", ".")) || 0;
+      const n2 = parseFloat(t2.replace("€", "").replace(",", ".")) || 0;
+      return asc ? n1 - n2 : n2 - n1;
+    }
+
+    if (tipo === "data") {
+      const d1 = new Date(t1.split("/").reverse().join("-"));
+      const d2 = new Date(t2.split("/").reverse().join("-"));
+      return asc ? d1 - d2 : d2 - d1;
+    }
+
+    if (tipo === "status") {
+      const ordem = { pendente: 1, concluido: 2, outro: 3 };
+      const s1 = ordem[t1.toLowerCase()] || 9;
+      const s2 = ordem[t2.toLowerCase()] || 9;
+      return asc ? s1 - s2 : s2 - s1;
+    }
+
+    return asc ? t1.localeCompare(t2) : t2.localeCompare(t1);
+  });
+
+  tabela.innerHTML = "";
+  linhas.forEach(l => tabela.appendChild(l));
+}
+async function logout() {
+  const { error } = await supabase.auth.signOut();
+  if (error) {
+    alert("Erro ao fazer logout: " + error.message);
+  } else {
+    // Redireciona para a página de login (ajusta o caminho conforme o teu projeto)
+    window.location.href = '../log/login.html';
+  }
+}
+
+
   </script>
 </body>
 </html>

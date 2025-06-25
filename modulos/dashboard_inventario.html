@@ -157,6 +157,20 @@
     color: white;
     display: inline-block;
   }
+  .acao-btn {
+  font-size: 16px;
+  padding: 6px 10px;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-right: 4px;
+}
+.acao-btn:hover {
+  background: #2563eb;
+}
+
   .andamento { background: #3b82f6; }
   .concluido { background: #10b981; }
   .atrasado { background: #ef4444; }
@@ -269,8 +283,9 @@
         ? `<span class="badge baixo">Estoque Baixo</span>`
         : `<span class="badge ativo">Disponível</span>`;
 
-      if (p.status === "ativo") ativos++;
+      if (p.qtd > 0) ativos++;
       else inativos++;
+
 
       total += p.qtd * p.valor_unitario;
 
@@ -282,9 +297,11 @@ return `<tr>
   <td>€ ${p.valor_unitario?.toFixed(2)}</td>
   <td>${statusBadge}</td>
   <td>
-    <button class="acao-btn" onclick="prepararEdicao('${p.id}', '${p.nome}', '${p.categoria}', ${p.qtd}, ${p.valor_unitario ?? 0})">Editar</button>
-    <button class="acao-btn" onclick="removerProduto('${p.id}')">Remover</button>
-  </td>
+  <button class="acao-btn" title="Editar" onclick="prepararEdicao('${p.id}', '${p.nome}', '${p.categoria}', ${p.qtd}, ${p.valor_unitario ?? 0})">✏️</button>
+  <button class="acao-btn" title="Remover" onclick="removerProduto('${p.id}')">🗑️</button>
+</td>
+
+
 </tr>`;
 
 
@@ -325,7 +342,9 @@ return `<tr>
   const categoria = document.getElementById("categoria").value.trim();
   const qtd = parseInt(document.getElementById("qtd").value);
   const valor_unitario = parseFloat(document.getElementById("valor_unitario").value);
-  const status = qtd === 0 ? 'inativo' : 'ativo';
+  let status = 'ativo';
+  if (qtd === 0) status = 'inativo';
+
 
   if (!nome || !categoria || isNaN(qtd) || isNaN(valor_unitario)) {
     return alert("Preencha todos os campos corretamente.");
@@ -337,13 +356,20 @@ return `<tr>
   const produto = { nome, categoria, qtd, valor_unitario, status, usuario_id: user.id };
 
   let result;
-  if (editandoId) {
-    result = await supabase.from("produtos").update(produto).eq("id", editandoId);
-    alert("Produto atualizado!");
-  } else {
-    result = await supabase.from("produtos").insert([produto]);
-    alert("Produto adicionado!");
-  }
+if (editandoId) {
+  result = await supabase
+    .from("produtos")
+    .update({ ...produto, status })
+    .eq("id", editandoId);
+  alert("Produto atualizado!");
+} else {
+  result = await supabase
+    .from("produtos")
+    .insert([produto]); // 👈 Adiciona o novo produto
+  alert("Produto adicionado!");
+}
+
+
 
   if (result.error) return alert("Erro: " + result.error.message);
 
@@ -377,10 +403,10 @@ function prepararEdicao(id, nome, categoria, qtd, valor_unitario) {
   document.getElementById("qtd").value = qtd;
   document.getElementById("valor_unitario").value = valor_unitario;
   document.getElementById("submitBtn").textContent = "Atualizar Produto";
-  document.getElementById("formularioProduto").style.display = "block";
+  document.getElementById("formularioProduto").style.display = "flex"; // 👈 aqui
   document.getElementById("toggleFormBtn").textContent = "✖ Cancelar";
-
 }
+
 
 async function removerProduto(id) {
   if (!confirm("Tem certeza que deseja remover este produto?")) return;
@@ -398,6 +424,15 @@ window.addEventListener("click", function(e) {
     document.getElementById("toggleFormBtn").textContent = "➕ Adicionar Produto";
   }
 });
+async function logout() {
+  const { error } = await supabase.auth.signOut();
+  if (error) {
+    alert("Erro ao fazer logout: " + error.message);
+  } else {
+    // Redireciona para a página de login (ajusta o caminho conforme o teu projeto)
+    window.location.href = '../log/login.html';
+  }
+}
 
 </script>
 
