@@ -215,12 +215,16 @@ th .seta {
       </div>
     </div>
 
-    <div style="text-align: center;">
-      <button onclick="alternarFormulario()">➕ Nova Compra</button>
-    </div>
+    <input type="text" id="searchInput" placeholder="Pesquisar por produto..." 
+       oninput="carregarCompras(this.value)" 
+       style="width: 100%; padding: 10px; margin-bottom: 16px; border-radius: 6px; border: 1px solid #ccc;">
+
+<button onclick="alternarFormulario()" style="margin-bottom: 20px;">
+  ➕ Nova Compra
+</button>
+
 
     <h2>Pedidos de Compra</h2>
-    <input type="text" id="searchInput" placeholder="Pesquisar por produto..." oninput="carregarCompras(this.value)" style="width: 100%; padding: 10px; margin-bottom: 16px; border-radius: 6px; border: 1px solid #ccc;">
     <table>
       <thead>
   <tr>
@@ -581,15 +585,31 @@ function alternarFormulario() {
 async function removerCompra(id) {
   if (!confirm("Tens a certeza que queres remover esta compra?")) return;
 
-  const { error } = await supabase.from("ordens_compra").delete().eq("id", id);
+  // 1. Apagar os itens da compra
+  const { error: erroItens } = await supabase
+    .from("ordem_compra_itens")
+    .delete()
+    .eq("ordem_id", id);
 
-  if (error) {
-    alert("Erro ao remover compra: " + error.message);
+  if (erroItens) {
+    alert("Erro ao remover itens da compra: " + erroItens.message);
+    return;
+  }
+
+  // 2. Agora apagar a própria ordem
+  const { error: erroOrdem } = await supabase
+    .from("ordens_compra")
+    .delete()
+    .eq("id", id);
+
+  if (erroOrdem) {
+    alert("Erro ao remover compra: " + erroOrdem.message);
   } else {
     alert("Compra removida com sucesso.");
     carregarCompras();
   }
 }
+
 
 
 

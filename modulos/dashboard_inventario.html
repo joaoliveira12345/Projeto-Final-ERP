@@ -252,26 +252,30 @@ th[onclick] span {
     </div>
 
     <h2>Produtos</h2>
-    
+
 <input type="text" id="searchInput" placeholder="Buscar produtos..." oninput="carregarInventario(this.value)" style="width: 100%; padding: 10px; margin-bottom: 16px; border-radius: 6px; border: 1px solid #ccc;">
 
-    <table>
-      <thead>
-        <tr>
-          <th onclick="ordenarPor('nome')" id="th-nome">Nome <span></span></th>
-          <th onclick="ordenarPor('categoria')" id="th-categoria">Categoria <span></span></th>
-          <th onclick="ordenarPor('qtd')" id="th-qtd">Qtd <span></span></th>
-          <th onclick="ordenarPor('valor_unitario')" id="th-valor_unitario">Valor Unit. <span></span></th>
-          <th>Status</th>
-          <th>Ações</th>
-        </tr>
-      </thead>
-
-
-      <tbody id="tabelaProdutos"></tbody>
-    </table>
-    <button id="toggleFormBtn" onclick="alternarFormulario()" style="margin-bottom: 20px;">
+<!-- Botão fora da tabela -->
+<button id="toggleFormBtn" onclick="alternarFormulario()" style="margin-bottom: 16px;">
   ➕ Adicionar Produto
+</button>
+
+<!-- Tabela -->
+<table>
+  <thead>
+    <tr>
+      <th onclick="ordenarPor('nome')" id="th-nome">Nome <span></span></th>
+      <th onclick="ordenarPor('categoria')" id="th-categoria">Categoria <span></span></th>
+      <th onclick="ordenarPor('qtd')" id="th-qtd">Qtd <span></span></th>
+      <th onclick="ordenarPor('valor_unitario')" id="th-valor_unitario">Valor Unit. <span></span></th>
+      <th>Status</th>
+      <th>Ações</th>
+    </tr>
+  </thead>
+  <tbody id="tabelaProdutos"></tbody>
+</table>
+
+    
 </button>
 
     <div class="form-modal" id="formularioProduto" style="display: none;">
@@ -466,12 +470,59 @@ function prepararEdicao(id, nome, categoria, qtd, valor_unitario) {
 async function removerProduto(id) {
   if (!confirm("Tem certeza que deseja remover este produto?")) return;
 
+  // Verifica se o produto está em ordens de compra
+  const { data: ordens, error: erroOrdens } = await supabase
+    .from("ordem_compra_itens")
+    .select("id")
+    .eq("produto_id", id);
+
+  if (erroOrdens) {
+    alert("Erro ao verificar ordens de compra.");
+    return;
+  }
+
+  if (ordens.length > 0) {
+    alert("Este produto está vinculado a ordens de compra e não pode ser removido.");
+    return;
+  }
+
+  // Verifica se o produto está em pedidos
+  const { data: pedidos, error: erroPedidos } = await supabase
+    .from("pedidos")
+    .select("id")
+    .eq("produto_id", id);
+
+  if (erroPedidos) {
+    alert("Erro ao verificar pedidos.");
+    return;
+  }
+
+  // Remove os itens associados aos pedidos (caso uses também `pedido_itens`)
+  for (const pedido of pedidos) {
+    await supabase
+      .from("pedido_itens")
+      .delete()
+      .eq("pedido_id", pedido.id);
+  }
+
+  // Remove os próprios pedidos
+  if (pedidos.length > 0) {
+    const ids = pedidos.map(p => p.id);
+    await supabase
+      .from("pedidos")
+      .delete()
+      .in("id", ids);
+  }
+
+  // Finalmente, remove o produto
   const { error } = await supabase.from("produtos").delete().eq("id", id);
   if (error) return alert("Erro ao remover: " + error.message);
 
   alert("Produto removido!");
   carregarInventario();
 }
+
+
 window.addEventListener("click", function(e) {
   const modal = document.getElementById("formularioProduto");
   if (e.target === modal) {

@@ -100,6 +100,13 @@
   button:hover {
     background: #2563eb;
   }
+  select option {
+  color: #111;            
+  font-weight: 500;        
+  background-color: #fff; 
+  padding: 10px;           
+}
+
   table {
     width: 100%;
     background: #fff;
@@ -114,18 +121,24 @@
     text-align: left;
   }
   th {
-    background-color: #f0f2f5;
+  background-color: #f0f2f5;
+  cursor: pointer;
+  user-select: none;
+  color: #333;
+}
+  th:hover {
+    background-color: #e0edff;
   }
   th .seta {
-  margin-left: 6px;
-  font-size: 12px;
-  opacity: 0.6;
-  color: #1d4ed8;
-  transition: transform 0.2s;
-}
-th .seta {
-  color: #1d4ed8 !important;
-}
+    margin-left: 6px;
+    font-size: 12px;
+    opacity: 0.6;
+    transition: transform 0.2s;
+    color: #1d4ed8;
+  }
+
+
+
 
 
   tr:nth-child(even) {
@@ -172,6 +185,11 @@ th .seta {
     color: white;
     display: inline-block;
   }
+  select:invalid {
+  color: #888;
+}
+
+
   .andamento { background: #3b82f6; }
   .concluido { background: #10b981; }
   .atrasado { background: #ef4444; }
@@ -204,38 +222,47 @@ th .seta {
 
     <div id="modalVenda" class="form-modal" style="display:none;">
       <div class="form-box">
-        <button onclick="fecharModal()" style="float:right;">X</button>
-        <h3>Adicionar Pedido de Venda</h3>
-        <select id="produtoVenda"></select>
-        <input type="number" id="quantidadeVenda" placeholder="Quantidade" />
-        <input type="number" id="valorVenda" placeholder="Valor Unitário (€)" />
-        <select id="clienteVenda"></select>
-        <input type="date" id="dataVenda">
-        <select id="statusVenda">
-        <option value="pendente">Pendente</option>
-        <option value="pago">Pago</option>
-        <option value="cancelado">Cancelado</option>
-</select>
 
-        <button onclick="salvarVenda()">Salvar</button>
-      </div>
+  <button id="btnFecharModal" type="button" style="float:right;">X</button>
+  <h3>Adicionar Pedido de Venda</h3>
+  <form onsubmit="salvarVenda(event)">
+    <select id="produtoVenda" required>
+      <option value="" disabled selected hidden>Produto</option>
+    </select>
+    <input type="number" id="quantidadeVenda" placeholder="Quantidade" required />
+    <input type="number" id="valorVenda" placeholder="Valor Unitário (€)" required />
+    <select id="clienteVenda" required>
+      <option value="" disabled selected hidden>Clientes</option>
+    </select>
+    <input type="date" id="dataVenda" required>
+    <select id="statusVenda">
+      <option value="pendente">Pendente</option>
+      <option value="pago">Pago</option>
+      <option value="cancelado">Cancelado</option>
+    </select>
+    <button type="submit">Salvar</button>
+  </form>
+</div>
+
     </div>
 
     
-    <input type="text" id="filtroProduto" placeholder="Pesquisar produto..." oninput="carregarVendas()" style="margin-bottom: 15px; padding: 8px; width: 300px;">
+    <input type="text" placeholder="Pesquisar por produto..." oninput="carregarVendas()" id="filtroProduto" style="width: 100%; padding: 10px; margin-bottom: 16px; border-radius: 6px; border: 1px solid #ccc;">
     <table>
       <thead>
         <tr>
-          <th onclick="ordenarPor('id')">ID <span class="seta">⇅</span></th>
-          <th onclick="ordenarPor('cliente')">Cliente <span class="seta">⇅</span></th>
-          <th onclick="ordenarPor('produto')">Produto <span class="seta">⇅</span></th>
-          <th onclick="ordenarPor('quantidade')">Qtd <span class="seta">⇅</span></th>
-          <th onclick="ordenarPor('unitario')">Unitário <span class="seta">⇅</span></th>
-          <th onclick="ordenarPor('total')">Total <span class="seta">⇅</span></th>
-          <th onclick="ordenarPor('status')">Status <span class="seta">⇅</span></th>
+          <th onclick="ordenarPor('id')">ID <span class="seta"></span></th>
+          <th onclick="ordenarPor('cliente')">Cliente <span class="seta"></span></th>
+          <th onclick="ordenarPor('produto')">Produto <span class="seta"></span></th>
+          <th onclick="ordenarPor('quantidade')">Qtd <span class="seta"></span></th>
+          <th onclick="ordenarPor('unitario')">Unitário <span class="seta"></span></th>
+          <th onclick="ordenarPor('total')">Total <span class="seta"></span></th>
+          <th onclick="ordenarPor('status')">Status <span class="seta"></span></th>
           <th>Ações</th>
         </tr>
       </thead>
+
+
 
       <tbody id="listaPedidos"><tr><td colspan="5">Sem pedidos encontrados.</td></tr></tbody>
     </table>
@@ -319,13 +346,15 @@ function desenharGraficoVendasPorMes(vendas) {
     return;
   }
 
+  await carregarProdutosVenda();
+  await carregarClientesVenda();
+
   document.getElementById("produtoVenda").value = venda.produto_id;
   document.getElementById("clienteVenda").value = venda.cliente_id;
   document.getElementById("quantidadeVenda").value = venda.quantidade;
   document.getElementById("valorVenda").value = venda.valor_unitario;
   document.getElementById("dataVenda").value = venda.data_pedido;
   document.getElementById("statusVenda").value = venda.status;
-
   document.getElementById("modalVenda").style.display = "flex";
 
   // Substituir salvar por atualizar
@@ -337,18 +366,88 @@ function desenharGraficoVendasPorMes(vendas) {
 async function atualizarVenda(id) {
   const produto_id = document.getElementById("produtoVenda").value;
   const cliente_id = document.getElementById("clienteVenda").value;
-  const quantidade = parseInt(document.getElementById("quantidadeVenda").value);
+  const quantidadeNova = parseInt(document.getElementById("quantidadeVenda").value);
   const valor_unitario = parseFloat(document.getElementById("valorVenda").value);
-  const total_custo = quantidade * valor_unitario;
+  const total_custo = quantidadeNova * valor_unitario;
   const status = document.getElementById("statusVenda").value;
   const data_pedido = document.getElementById("dataVenda").value;
 
+  if (!produto_id || !cliente_id) {
+    alert("Cliente e Produto são obrigatórios.");
+    return;
+  }
+
+  // Obter venda atual
+  const { data: vendaAtual, error: erroVendaAtual } = await supabase
+    .from("pedidos")
+    .select("quantidade, produto_id")
+    .eq("id", id)
+    .single();
+
+  if (erroVendaAtual || !vendaAtual) {
+    alert("Erro ao buscar venda anterior.");
+    return;
+  }
+
+  const produtoAnteriorId = vendaAtual.produto_id;
+  const quantidadeAnterior = vendaAtual.quantidade;
+
+  // Obter produto atual
+  const { data: produto, error: erroProduto } = await supabase
+    .from("produtos")
+    .select("qtd")
+    .eq("id", produto_id)
+    .single();
+
+  if (erroProduto || !produto) {
+    alert("Erro ao buscar produto.");
+    return;
+  }
+
+  let novaQtdEstoque = produto.qtd;
+
+  // Caso o produto continue o mesmo
+  if (produtoAnteriorId === produto_id) {
+    const diferenca = quantidadeNova - quantidadeAnterior;
+    novaQtdEstoque -= diferenca;
+  } else {
+    // Se o produto foi alterado, devolver ao antigo e retirar do novo
+    const { data: produtoAntigo, error: erroAntigo } = await supabase
+      .from("produtos")
+      .select("qtd")
+      .eq("id", produtoAnteriorId)
+      .single();
+
+    if (erroAntigo || !produtoAntigo) {
+      alert("Erro ao buscar produto anterior.");
+      return;
+    }
+
+    // Atualiza estoque do produto antigo (devolve a quantidade)
+    await supabase
+      .from("produtos")
+      .update({ qtd: produtoAntigo.qtd + quantidadeAnterior })
+      .eq("id", produtoAnteriorId);
+
+    // Subtrai do novo
+    novaQtdEstoque -= quantidadeNova;
+  }
+
+  if (novaQtdEstoque < 0) {
+    alert("Estoque insuficiente para essa alteração.");
+    return;
+  }
+
+  // Atualiza a venda
   const { error } = await supabase
     .from("pedidos")
     .update({
-      produto_id, cliente_id, quantidade,
-      valor_unitario, total_custo,
-      status, data_pedido
+      produto_id, cliente_id,
+      quantidade: quantidadeNova,
+      valor_unitario,
+      total_custo,
+      status,
+      data_pedido
     })
     .eq("id", id);
 
@@ -357,20 +456,47 @@ async function atualizarVenda(id) {
     return;
   }
 
-  alert("Venda atualizada com sucesso!");
+  // Atualiza estoque do produto novo
+  const statusProduto = novaQtdEstoque === 0 ? "inativo" : "ativo";
+  await supabase
+    .from("produtos")
+    .update({ qtd: novaQtdEstoque, status: statusProduto })
+    .eq("id", produto_id);
+
+  alert("Venda e estoque atualizados com sucesso!");
   fecharModal();
   carregarVendas();
 
-  // Voltar ao modo original
+  // Restaurar evento do botão para modo salvar
   document.querySelector("#modalVenda button").onclick = salvarVenda;
 }
 
 
-    function abrirModal() {
-      document.getElementById("modalVenda").style.display = "flex";
-      carregarClientesVenda(); carregarProdutosVenda();
 
-    }
+    async function abrirModal() {
+  // Recarrega os selects primeiro
+  await carregarProdutosVenda();
+  await carregarClientesVenda();
+
+  // Limpa todos os campos depois dos dados carregados
+  document.getElementById("produtoVenda").selectedIndex = 0;
+  document.getElementById("clienteVenda").selectedIndex = 0;
+
+  document.getElementById("quantidadeVenda").value = "";
+  document.getElementById("valorVenda").value = "";
+  document.getElementById("dataVenda").value = "";
+  document.getElementById("statusVenda").value = "pendente";
+
+  // Reatribui evento de salvar
+  const botaoSalvar = document.querySelector("#modalVenda form button[type='submit']");
+botaoSalvar.onclick = null; 
+
+
+  // Exibe o modal
+  document.getElementById("modalVenda").style.display = "flex";
+}
+
+
 
     function fecharModal() {
       document.getElementById("modalVenda").style.display = "none";
@@ -379,30 +505,61 @@ async function atualizarVenda(id) {
   const { data: sessionData } = await supabase.auth.getSession();
   const userId = sessionData?.session?.user?.id;
 
-  const { data: produtos, error } = await supabase
+  const { data: produtos } = await supabase
     .from("produtos")
     .select("id, nome")
     .eq("usuario_id", userId);
 
   const select = document.getElementById("produtoVenda");
-  select.innerHTML = produtos?.map(p => `<option value="${p.id}">${p.nome}</option>`).join('') || '<option>Nenhum produto</option>';
+while (select.options.length > 1) {
+  select.remove(1);
 }
 
 
+  produtos?.forEach(p => {
+    const opt = document.createElement("option");
+    opt.value = p.id;
+    opt.textContent = p.nome;
+    select.appendChild(opt);
+  });
+}
+// Fecha o modal ao clicar fora da caixa
+document.getElementById("modalVenda").addEventListener("click", function (e) {
+  if (e.target === this) {
+    fecharModal();
+  }
+});
+
+
+
+
+
     async function carregarClientesVenda() {
-      const { data: sessionData } = await supabase.auth.getSession();
-      const userId = sessionData?.session?.user?.id;
-      const { data, error } = await supabase.from("clientes").select("id, nome").eq("usuario_id", userId);
+  const { data: sessionData } = await supabase.auth.getSession();
+  const userId = sessionData?.session?.user?.id;
+  const { data } = await supabase.from("clientes").select("id, nome").eq("usuario_id", userId);
 
-      const select = document.getElementById("clienteVenda");
-      if (data?.length) {
-        select.innerHTML = data.map(c => `<option value="${c.id}">${c.nome}</option>`).join('');
-      } else {
-        select.innerHTML = '<option disabled selected>Nenhum cliente disponível</option>';
-      }
-    }
+  const select = document.getElementById("clienteVenda");
 
-    async function salvarVenda() {
+  
+while (select.options.length > 1) {
+  select.remove(1);
+}
+
+
+  data?.forEach(c => {
+    const opt = document.createElement("option");
+    opt.value = c.id;
+    opt.textContent = c.nome;
+    select.appendChild(opt);
+  });
+}
+
+
+
+    async function salvarVenda(event) {
+  event.preventDefault();
+
   const { data: sessionData } = await supabase.auth.getSession();
   const userId = sessionData?.session?.user?.id;
 
@@ -534,7 +691,8 @@ lista.innerHTML = vendasFiltradas.map(v => {
   return `
     <tr>
       <td>${v.id.slice(0,6)}</td>
-      <td>${clienteMap[v.cliente_id] || '—'}</td>
+      <td>${clienteMap[v.cliente_id] || 'cliente eliminado'}</td>
+
       <td>${produtoNome}</td>
       <td>${quantidade}</td>
       <td>${unitario}</td>
@@ -558,23 +716,82 @@ lista.innerHTML = vendasFiltradas.map(v => {
 }
 
 
+
+
     window.addEventListener("DOMContentLoaded", carregarVendas);
+    document.getElementById("btnFecharModal").addEventListener("click", fecharModal);
+
   </script>
   <script>
-let colunaOrdenacao = ''; let ordemAsc = true;
+let colunaOrdenacao = '';
+let ordemAsc = true;
 
 function ordenarPor(coluna) {
-  if (colunaOrdenacao === coluna) ordemAsc = !ordemAsc;
-  else { colunaOrdenacao = coluna; ordemAsc = true; }
+  if (colunaOrdenacao === coluna) {
+    ordemAsc = !ordemAsc;
+  } else {
+    colunaOrdenacao = coluna;
+    ordemAsc = true;
+  }
+
+  // Limpa todas as setas
+  document.querySelectorAll("th .seta").forEach(s => s.textContent = "");
+
+  // Atualiza a seta clicada
+  const index = ["id", "cliente", "produto", "quantidade", "unitario", "total", "status"].indexOf(coluna);
+  const th = document.querySelectorAll("thead th")[index];
+  const seta = th.querySelector(".seta");
+  if (seta) seta.textContent = ordemAsc ? "▲" : "▼";
+
   carregarVendas();
 }
 
+
+
+
 async function eliminarVenda(id) {
   if (!confirm("Tem certeza que deseja eliminar esta venda?")) return;
+
+  // 1. Buscar a venda
+  const { data: venda, error: erroVenda } = await supabase
+    .from("pedidos")
+    .select("produto_id, quantidade")
+    .eq("id", id)
+    .single();
+
+  if (erroVenda || !venda) {
+    alert("Erro ao buscar venda.");
+    return;
+  }
+
+  const { produto_id, quantidade } = venda;
+
+  // 2. Buscar o produto para saber o stock atual
+  const { data: produto, error: erroProduto } = await supabase
+    .from("produtos")
+    .select("qtd")
+    .eq("id", produto_id)
+    .single();
+
+  if (erroProduto || !produto) {
+    alert("Erro ao buscar produto.");
+    return;
+  }
+
+  // 3. Atualizar o stock somando de volta a quantidade da venda
+  const novaQtd = produto.qtd + quantidade;
+
+  await supabase
+    .from("produtos")
+    .update({ qtd: novaQtd, status: "ativo" })
+    .eq("id", produto_id);
+
+  // 4. Eliminar a venda
   const { error } = await supabase.from("pedidos").delete().eq("id", id);
   if (error) alert("Erro ao eliminar: " + error.message);
   else carregarVendas();
 }
+
 </script>
 </body>
 </html>

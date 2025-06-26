@@ -379,7 +379,8 @@ th .seta {
     else if (p.status === 'atrasado') atrasados++;
     else ativos++;
 
-    const clienteNome = window.clientesMap?.get(p.cliente_id) || p.cliente_id;
+    const clienteNome = window.clientesMap?.get(p.cliente_id) || "cliente eliminado";
+
 
     return `<tr>
       <td>${p.id.slice(0, 6)}</td>

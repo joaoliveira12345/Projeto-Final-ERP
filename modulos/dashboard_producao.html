@@ -188,6 +188,11 @@ th[onclick]:hover {
   background-color: #e0edff;
   color: #1d4ed8;
 }
+button {
+  font-weight: 600;
+  font-size: 14px;
+}
+
 
 
 
@@ -225,10 +230,6 @@ th[onclick]:hover {
       <div class="card"><h3>Ordens Concluídas</h3><p id="ordensConcluidas">0</p></div>
     </div>
 
-    <div style="text-align: center;">
-      <button onclick="mostrarFormulario()">➕ Nova Ordem de Produção</button>
-    </div>
-
     <div class="form-modal" id="formOrdem" style="display: none;">
   <div class="form-box">
     <h3>Nova Ordem de Produção</h3>
@@ -243,7 +244,16 @@ th[onclick]:hover {
 
     <div class="table-section">
       <h2>Ordens de Produção</h2>
-      <input type="text" id="searchProducao" placeholder="Buscar por produto..." oninput="carregarProducao(this.value)" style="width: 100%; padding: 10px; margin-bottom: 16px; border-radius: 6px; border: 1px solid #ccc;">
+<input type="text" id="searchProducao" placeholder="Buscar por produto..." 
+       oninput="carregarProducao(this.value)" 
+       style="width: 100%; padding: 10px; margin-bottom: 16px; border-radius: 6px; border: 1px solid #ccc;">
+
+<button onclick="mostrarFormulario()" style="margin-bottom: 20px;">
+  ➕ Nova Ordem de Produção
+</button>
+
+
+
 
       <table>
       <thead>

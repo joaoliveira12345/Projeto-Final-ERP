@@ -112,8 +112,16 @@
     text-align: left;
   }
   th {
-    background-color: #f0f2f5;
-  }
+  background-color: #f0f2f5;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+th:hover {
+  background-color: #e0edff;
+  color: #1d4ed8;
+}
+
   tr:nth-child(even) {
     background-color: #fafafa;
   }
@@ -158,6 +166,15 @@
     color: white;
     display: inline-block;
   }
+  th .seta {
+  margin-left: 6px;
+  font-size: 12px;
+  opacity: 0.6;
+  color: inherit;
+  transition: color 0.2s;
+}
+
+
   .andamento { background: #3b82f6; }
   .concluido { background: #10b981; }
   .atrasado { background: #ef4444; }
@@ -199,14 +216,15 @@
     <table>
       <thead>
         <tr>
-          <th>Empresa</th>
-          <th>NIF</th>
-          <th>Email</th>
-          <th>Telefone</th>
-          <th>Endereço</th>
+          <th onclick="ordenarPor('nome')">Empresa <span class="seta"></span></th>
+          <th onclick="ordenarPor('nif')">NIF <span class="seta"></span></th>
+          <th onclick="ordenarPor('email')">Email <span class="seta"></span></th>
+          <th onclick="ordenarPor('telefone')">Telefone <span class="seta"></span></th>
+          <th onclick="ordenarPor('endereco')">Endereço <span class="seta"></span></th>
           <th>Ações</th>
         </tr>
       </thead>
+
       <tbody id="listaClientes">
         <tr><td colspan="6">Nenhum cliente encontrado.</td></tr>
       </tbody>
@@ -218,6 +236,8 @@
       'https://nnitvxhubovlyfxdeemf.supabase.co',
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5uaXR2eGh1Ym92bHlmeGRlZW1mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgyNjU4ODYsImV4cCI6MjA2Mzg0MTg4Nn0.fTwCna-UBzfLRlbJ2EkWwQeXuq5t3ORwfgbsfiUqejU'
     );
+    let colunaOrdenacao = '';
+    let ordemAsc = true;
 
     let clientes = [], clienteEditandoId = null, graficoClientes;
 
@@ -237,7 +257,17 @@
 
       if (error) return console.error("Erro ao carregar clientes:", error);
 
-      clientes = data;
+      clientes = data.sort((a, b) => {
+  let valA = a[colunaOrdenacao] || "";
+  let valB = b[colunaOrdenacao] || "";
+
+  if (typeof valA === 'number' && typeof valB === 'number') {
+    return ordemAsc ? valA - valB : valB - valA;
+  } else {
+    return ordemAsc ? valA.localeCompare(valB) : valB.localeCompare(valA);
+  }
+});
+
       const lista = document.getElementById("listaClientes");
       lista.innerHTML = clientes.map(c => `
         <tr>
@@ -320,16 +350,28 @@
       carregarClientes();
     }
 
-    function editarCliente(id) {
-      const cliente = clientes.find(c => c.id === id);
-      if (cliente) abrirModal(cliente);
-    }
-
     async function eliminarCliente(id) {
-      if (!confirm("Deseja mesmo eliminar este cliente?")) return;
-      await supabase.from("clientes").delete().eq("id", id);
-      carregarClientes();
-    }
+  if (!confirm("Deseja mesmo eliminar este cliente?")) return;
+
+  // 1. Apagar apenas o cliente
+  const { error: erroCliente } = await supabase
+    .from("clientes")
+    .delete()
+    .eq("id", id);
+
+  if (erroCliente) {
+    console.error("Erro ao eliminar cliente:", erroCliente);
+    alert("Erro ao eliminar cliente: " + erroCliente.message);
+    return;
+  }
+
+  alert("Cliente eliminado com sucesso.");
+  carregarClientes();
+}
+
+
+
+
 
     function desenharGraficoInicial() {
       const ctx = document.getElementById("graficoClientes").getContext("2d");
@@ -341,6 +383,24 @@
         }
       });
     }
+    function ordenarPor(coluna) {
+  if (colunaOrdenacao === coluna) {
+    ordemAsc = !ordemAsc;
+  } else {
+    colunaOrdenacao = coluna;
+    ordemAsc = true;
+  }
+
+  // Atualiza ícones visuais (setas)
+  document.querySelectorAll("th .seta").forEach(s => s.textContent = "");
+  const index = ["nome", "nif", "email", "telefone", "endereco"].indexOf(coluna);
+  const th = document.querySelectorAll("thead th")[index];
+  const seta = th.querySelector(".seta");
+  if (seta) seta.textContent = ordemAsc ? "▲" : "▼";
+
+  carregarClientes();
+}
+
 
     async function logout() {
       await supabase.auth.signOut();
