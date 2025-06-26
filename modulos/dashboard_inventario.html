@@ -190,6 +190,22 @@
 .acao-btn:hover {
   background: #2563eb;
 }
+th[onclick]:hover {
+  background-color: #e0edff;
+  color: #1d4ed8;
+}
+th[onclick] {
+  cursor: pointer;
+}
+
+th[onclick] span {
+  font-size: 12px;
+  color: #888;
+  margin-left: 5px;
+  visibility: visible;
+}
+
+
 
 
   .andamento { background: #3b82f6; }
@@ -242,14 +258,15 @@
     <table>
       <thead>
         <tr>
-          <th onclick="ordenarPor('nome')">Nome ⬍</th>
-          <th onclick="ordenarPor('categoria')">Categoria ⬍</th>
-          <th onclick="ordenarPor('qtd')">Qtd ⬍</th>
-          <th onclick="ordenarPor('valor_unitario')">Valor Unit. ⬍</th>
+          <th onclick="ordenarPor('nome')" id="th-nome">Nome <span></span></th>
+          <th onclick="ordenarPor('categoria')" id="th-categoria">Categoria <span></span></th>
+          <th onclick="ordenarPor('qtd')" id="th-qtd">Qtd <span></span></th>
+          <th onclick="ordenarPor('valor_unitario')" id="th-valor_unitario">Valor Unit. <span></span></th>
           <th>Status</th>
           <th>Ações</th>
         </tr>
       </thead>
+
 
       <tbody id="tabelaProdutos"></tbody>
     </table>
@@ -478,8 +495,19 @@ function ordenarPor(campo) {
     campoOrdenacao = campo;
     ordemAscendente = true;
   }
+
+  // Resetar todas as setas
+  document.querySelectorAll('th[onclick] span').forEach(span => span.textContent = '');
+
+  // Atualizar a seta da coluna atual
+  const seta = document.querySelector(`#th-${campo} span`);
+  if (seta) {
+    seta.textContent = ordemAscendente ? '↑' : '↓';
+  }
+
   carregarInventario(document.getElementById("searchInput").value);
 }
+
 
 
 </script>

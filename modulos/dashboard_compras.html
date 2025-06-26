@@ -110,9 +110,6 @@
     padding: 12px 14px;
     text-align: left;
   }
-  th {
-    background-color: #f0f2f5;
-  }
   tr:nth-child(even) {
     background-color: #fafafa;
   }
@@ -158,12 +155,27 @@
     color: white;
     display: inline-block;
   }
-  th .seta {
+  th {
+  background-color: #f0f2f5;
+  cursor: pointer;
+  user-select: none;
+  color: #333; /* ou #444 para um cinzento mais suave */
+}
+
+th:hover {
+  background-color: #e0edff;
+}
+
+th .seta {
   margin-left: 6px;
   font-size: 12px;
-  opacity: 0.5;
+  opacity: 0.6;
   transition: transform 0.2s;
+  color: #1d4ed8; /* azul só para a seta */
 }
+
+
+
 
   .andamento { background: #3b82f6; }
   .concluido { background: #10b981; }
@@ -208,6 +220,7 @@
     </div>
 
     <h2>Pedidos de Compra</h2>
+    <input type="text" id="searchInput" placeholder="Pesquisar por produto..." oninput="carregarCompras(this.value)" style="width: 100%; padding: 10px; margin-bottom: 16px; border-radius: 6px; border: 1px solid #ccc;">
     <table>
       <thead>
   <tr>
@@ -282,7 +295,7 @@ async function carregarProdutosDropdown() {
 }
 
 
-  async function carregarCompras() {
+  async function carregarCompras(filtro = '') {
   const userId = sessionStorage.getItem("userId");
   if (!userId) {
     alert("Sessão inválida. Faça login novamente.");
@@ -291,26 +304,30 @@ async function carregarProdutosDropdown() {
 
   // 1. Carregar itens de compra
   const { data: itensCompra, error: itensErro } = await supabase
-  .from("ordem_compra_itens")
-  .select("ordem_id, qtd, valor_unitario, produto_id, produtos (nome)");
+    .from("ordem_compra_itens")
+    .select("ordem_id, qtd, valor_unitario, produto_id, produtos (nome)");
 
-if (itensErro) {
-  console.error("Erro ao carregar itens de compras:", itensErro.message);
-  return;
-}
-
+  if (itensErro) {
+    console.error("Erro ao carregar itens de compras:", itensErro.message);
+    return;
+  }
 
   // 2. Mapear dados dos itens
-const mapaQtd = {};
-const mapaProdutoNome = {};
-const mapaValorUnitario = {};
+  const mapaQtd = {};
+  const mapaProdutoNome = {};
+  const mapaValorUnitario = {};
+  const idsFiltrados = new Set();
 
-itensCompra.forEach(item => {
-  mapaQtd[item.ordem_id] = item.qtd;
-  mapaProdutoNome[item.ordem_id] = item.produtos?.nome || "—";
-  mapaValorUnitario[item.ordem_id] = item.valor_unitario;
-});
+  itensCompra.forEach(item => {
+    const nome = item.produtos?.nome || "—";
+    mapaQtd[item.ordem_id] = item.qtd;
+    mapaProdutoNome[item.ordem_id] = nome;
+    mapaValorUnitario[item.ordem_id] = item.valor_unitario;
 
+    if (nome.toLowerCase().includes(filtro.toLowerCase())) {
+      idsFiltrados.add(item.ordem_id);
+    }
+  });
 
   // 3. Carregar ordens de compra do usuário
   const { data: compras, error: comprasErro } = await supabase
@@ -324,7 +341,7 @@ itensCompra.forEach(item => {
     return;
   }
 
-  // 4. Carregar fornecedores (para mostrar o nome)
+  // 4. Carregar fornecedores
   const { data: fornecedores, error: fornErro } = await supabase
     .from("fornecedores")
     .select("id, nome");
@@ -345,7 +362,7 @@ itensCompra.forEach(item => {
 
   // 6. Sem compras?
   if (!compras || compras.length === 0) {
-    lista.innerHTML = '<tr><td colspan="8">Sem pedidos ainda.</td></tr>';
+    lista.innerHTML = '<tr><td colspan="10">Sem pedidos ainda.</td></tr>';
     valorMes.textContent = '€ 0.00';
     pendentes.textContent = '0';
     fornecedoresTotal.textContent = '0';
@@ -357,45 +374,46 @@ itensCompra.forEach(item => {
   const hoje = new Date();
   const pendentesCount = compras.filter(c => c.status === "pendente").length;
   const fornecedoresUnicos = new Set(compras.map(c => c.fornecedor_id)).size;
-lista.innerHTML = compras.map(c => {
-  const data = new Date(c.data_compra).toLocaleDateString();
-  const valor = `€ ${parseFloat(c.total_custo).toFixed(2)}`;
-  const quantidadeTexto = mapaQtd[c.id] ?? '—';
-  const nomeProduto = mapaProdutoNome[c.id] ?? '—';
-  const valorUnitario = mapaValorUnitario[c.id] !== undefined
-    ? `€ ${parseFloat(mapaValorUnitario[c.id]).toFixed(2)}`
-    : '—';
 
-  if (new Date(c.data_compra).getMonth() === hoje.getMonth()) {
-    totalMes += parseFloat(c.total_custo);
-  }
+  lista.innerHTML = compras
+    .filter(c => filtro === '' || idsFiltrados.has(c.id))
+    .map(c => {
+      const data = new Date(c.data_compra).toLocaleDateString();
+      const valor = `€ ${parseFloat(c.total_custo).toFixed(2)}`;
+      const quantidadeTexto = mapaQtd[c.id] ?? '—';
+      const nomeProduto = mapaProdutoNome[c.id] ?? '—';
+      const valorUnitario = mapaValorUnitario[c.id] !== undefined
+        ? `€ ${parseFloat(mapaValorUnitario[c.id]).toFixed(2)}`
+        : '—';
 
-  return `
-    <tr>
-      <td>${c.id.slice(0, 6)}</td>
-      <td>${nomeProduto}</td>
-      <td>${fornecedorMap[c.fornecedor_id] || c.fornecedor_nome || '—'}</td>
-      <td>${data}</td>
-      <td>${valorUnitario}</td>
-      <td>${quantidadeTexto}</td>
-      <td>${valor}</td>
-      <td><span class="status ${c.status}">${c.status}</span></td>
-      <td>${c.observacoes || '—'}</td>
-      <td>
-        <button onclick="editarCompra('${c.id}')">✏️</button>
-        <button onclick="removerCompra('${c.id}')">🗑️</button>
-      </td>
-    </tr>
-  `;
-}).join('');
+      if (new Date(c.data_compra).getMonth() === hoje.getMonth()) {
+        totalMes += parseFloat(c.total_custo);
+      }
 
-
-
+      return `
+        <tr>
+          <td>${c.id.slice(0, 6)}</td>
+          <td>${nomeProduto}</td>
+          <td>${fornecedorMap[c.fornecedor_id] || c.fornecedor_nome || '—'}</td>
+          <td>${data}</td>
+          <td>${valorUnitario}</td>
+          <td>${quantidadeTexto}</td>
+          <td>${valor}</td>
+          <td><span class="status ${c.status}">${c.status}</span></td>
+          <td>${c.observacoes || '—'}</td>
+          <td>
+            <button onclick="editarCompra('${c.id}')">✏️</button>
+            <button onclick="removerCompra('${c.id}')">🗑️</button>
+          </td>
+        </tr>
+      `;
+    }).join('');
 
   valorMes.textContent = `€ ${totalMes.toFixed(2)}`;
   pendentes.textContent = pendentesCount;
   fornecedoresTotal.textContent = fornecedoresUnicos;
 }
+
 
 
     async function guardarCompra() {

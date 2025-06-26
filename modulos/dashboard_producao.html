@@ -176,6 +176,20 @@ th span {
   margin-left: 5px;
   color: #888;
 }
+th[onclick] {
+  cursor: pointer;
+}
+th[onclick] span {
+  font-size: 12px;
+  color: #888;
+  visibility: visible;
+}
+th[onclick]:hover {
+  background-color: #e0edff;
+  color: #1d4ed8;
+}
+
+
 
 
 
@@ -229,19 +243,22 @@ th span {
 
     <div class="table-section">
       <h2>Ordens de Produção</h2>
+      <input type="text" id="searchProducao" placeholder="Buscar por produto..." oninput="carregarProducao(this.value)" style="width: 100%; padding: 10px; margin-bottom: 16px; border-radius: 6px; border: 1px solid #ccc;">
+
       <table>
       <thead>
-        <tr>
-          <th onclick="sortTable('id')" id="th-id">ID <span></span></th>
-          <th onclick="sortTable('produto_nome')" id="th-produto_nome">Produto <span></span></th>
-          <th onclick="sortTable('qtd_produzir')" id="th-qtd_produzir">Quantidade <span></span></th>
-          <th onclick="sortTable('data_inicio')" id="th-data_inicio">Data Início <span></span></th>
-          <th onclick="sortTable('previsao_conclusao')" id="th-previsao_conclusao">Previsão <span></span></th>
-          <th>Progresso</th>
-          <th onclick="sortTable('statusFinal')" id="th-statusFinal">Status <span></span></th>
-          <th>Ações</th>
-        </tr>
-      </thead>
+      <tr>
+        <th onclick="sortTable('id')" id="th-id">ID <span>↑</span></th>
+        <th onclick="sortTable('produto_nome')" id="th-produto_nome">Produto <span></span></th>
+        <th onclick="sortTable('qtd_produzir')" id="th-qtd_produzir">Quantidade <span></span></th>
+        <th onclick="sortTable('data_inicio')" id="th-data_inicio">Data Início <span></span></th>
+        <th onclick="sortTable('previsao_conclusao')" id="th-previsao_conclusao">Previsão <span></span></th>
+        <th>Progresso</th>
+        <th onclick="sortTable('statusFinal')" id="th-statusFinal">Status <span></span></th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+
 
 
 
@@ -291,7 +308,7 @@ let sortDirection = 1;
 }
 
 
-    async function carregarProducao() {
+    async function carregarProducao(filtro = '') {
   const { data, error } = await supabase.from('ordens_producao').select('*');
   if (error) return alert('Erro ao carregar dados');
 
@@ -300,7 +317,7 @@ let sortDirection = 1;
 
   const hoje = new Date();
 
-  ordensProducaoOriginal = data.map(o => {
+  let ordensProducaoOriginal = data.map(o => {
     const inicioDate = new Date(o.data_inicio);
     const fimDate = new Date(o.previsao_conclusao);
 
@@ -330,8 +347,16 @@ let sortDirection = 1;
     };
   });
 
+  
+  if (typeof filtro === 'string' && filtro.trim() !== '') {
+    ordensProducaoOriginal = ordensProducaoOriginal.filter(o =>
+      o.produto_nome.toLowerCase().includes(filtro.toLowerCase())
+    );
+  }
+
   renderizarTabela(ordensProducaoOriginal);
 }
+
 function renderizarTabela(data) {
   const tabela = document.getElementById('tabelaProducao');
   if (!data.length) {
