@@ -254,6 +254,7 @@
           <th onclick="ordenarPor('id')">ID <span class="seta"></span></th>
           <th onclick="ordenarPor('cliente')">Cliente <span class="seta"></span></th>
           <th onclick="ordenarPor('produto')">Produto <span class="seta"></span></th>
+          <th onclick="ordenarPor('data')">Data <span class="seta"></span></th>
           <th onclick="ordenarPor('quantidade')">Qtd <span class="seta"></span></th>
           <th onclick="ordenarPor('unitario')">Unitário <span class="seta"></span></th>
           <th onclick="ordenarPor('total')">Total <span class="seta"></span></th>
@@ -672,6 +673,10 @@ if (colunaOrdenacao) {
       case 'id': valA = a.id; valB = b.id; break;
       case 'cliente': valA = clienteMap[a.cliente_id] || ''; valB = clienteMap[b.cliente_id] || ''; break;
       case 'produto': valA = a.produtos?.nome || ''; valB = b.produtos?.nome || ''; break;
+      case 'data': 
+  valA = new Date(a.data_pedido); 
+  valB = new Date(b.data_pedido); 
+  break;
       case 'quantidade': valA = a.quantidade || 0; valB = b.quantidade || 0; break;
       case 'unitario': valA = a.valor_unitario || 0; valB = b.valor_unitario || 0; break;
       case 'total': valA = a.total_custo || 0; valB = b.total_custo || 0; break;
@@ -688,13 +693,17 @@ lista.innerHTML = vendasFiltradas.map(v => {
   const quantidade = v.quantidade || '—';
   const unitario = v.valor_unitario !== undefined ? `€ ${parseFloat(v.valor_unitario).toFixed(2).replace('.', ',')}` : '—';
   const total = isNaN(valor) ? '—' : `€ ${valor.toFixed(2).replace('.', ',')}`;
-  return `
-    <tr>
-      <td>${v.id.slice(0,6)}</td>
-      <td>${clienteMap[v.cliente_id] || 'cliente eliminado'}</td>
+  const dataFormatada = data.toLocaleDateString('pt-PT');
 
-      <td>${produtoNome}</td>
-      <td>${quantidade}</td>
+return `
+  <tr>
+    <td>${v.id.slice(0,6)}</td>
+    <td>${clienteMap[v.cliente_id] || 'cliente eliminado'}</td>
+    <td>${produtoNome}</td>
+    <td>${dataFormatada}</td>
+    <td>${quantidade}</td>
+    ...
+
       <td>${unitario}</td>
       <td>${total}</td>
       <td>${v.status}</td>
@@ -738,7 +747,7 @@ function ordenarPor(coluna) {
   document.querySelectorAll("th .seta").forEach(s => s.textContent = "");
 
   // Atualiza a seta clicada
-  const index = ["id", "cliente", "produto", "quantidade", "unitario", "total", "status"].indexOf(coluna);
+  const index = ["id", "cliente", "produto", "data", "quantidade", "unitario", "total", "status"].indexOf(coluna);
   const th = document.querySelectorAll("thead th")[index];
   const seta = th.querySelector(".seta");
   if (seta) seta.textContent = ordemAsc ? "▲" : "▼";

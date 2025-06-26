@@ -233,8 +233,10 @@ th .seta {
           <th>Término <span class="seta"></span></th>
           <th>Progresso <span class="seta"></span></th>
           <th>Status <span class="seta"></span></th>
+          <th>Ações</th>
         </tr>
       </thead>
+
 
       <tbody id="tabelaProjetos"></tbody>
     </table>
@@ -247,13 +249,25 @@ th .seta {
 
   let grafico;
 
-  function abrirModal() {
-    document.getElementById("modalProjeto").style.display = "flex";
-  }
+  let idEditando = null;
+
+function abrirModal() {
+  document.getElementById("modalProjeto").style.display = "flex";
+  document.querySelector("#modalProjeto h3").textContent = idEditando ? "Editar Projeto" : "Adicionar Projeto";
+}
+
 
   function fecharModal() {
-    document.getElementById("modalProjeto").style.display = "none";
-  }
+  document.getElementById("modalProjeto").style.display = "none";
+  document.querySelector("#modalProjeto h3").textContent = "Adicionar Projeto";
+  idEditando = null;
+
+  // limpa campos
+  ["nome", "cliente_id", "responsavel", "data_inicio", "data_termino"].forEach(id => {
+    document.getElementById(id).value = "";
+  });
+}
+
 
   async function carregarClientes() {
   const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
@@ -307,36 +321,53 @@ th .seta {
   }
 
   async function salvarProjeto() {
-    const { data: sessionData } = await supabase.auth.getSession();
-    const user = sessionData?.session?.user;
-    if (!user) return alert("Usuário não autenticado.");
+  const { data: sessionData } = await supabase.auth.getSession();
+  const user = sessionData?.session?.user;
+  if (!user) return alert("Usuário não autenticado.");
 
-    const nome = document.getElementById("nome").value;
-    const cliente_id = document.getElementById("cliente_id").value;
-    const responsavel = document.getElementById("responsavel").value;
-    const data_inicio = document.getElementById("data_inicio").value;
-    const data_termino = document.getElementById("data_termino").value;
+  const nome = document.getElementById("nome").value;
+  const cliente_id = document.getElementById("cliente_id").value;
+  const responsavel = document.getElementById("responsavel").value;
+  const data_inicio = document.getElementById("data_inicio").value;
+  const data_termino = document.getElementById("data_termino").value;
 
-    const { progresso, status } = calcularProgressoEStatus(data_inicio, data_termino);
+  const { progresso, status } = calcularProgressoEStatus(data_inicio, data_termino);
 
-    const projeto = {
-      nome,
-      cliente_id,
-      responsavel,
-      data_inicio,
-      data_termino,
-      progresso,
-      status,
-      usuario_id: user.id
-    };
+  const projeto = {
+    nome, cliente_id, responsavel,
+    data_inicio, data_termino, progresso, status,
+    usuario_id: user.id
+  };
 
-    const { error } = await supabase.from("projetos").insert([projeto]);
-    if (error) return alert("Erro ao adicionar projeto.");
-
-    alert("Projeto adicionado com sucesso!");
-    fecharModal();
-    carregarProjetos();
+  let resposta;
+  if (idEditando) {
+    resposta = await supabase.from("projetos").update(projeto).eq("id", idEditando);
+  } else {
+    resposta = await supabase.from("projetos").insert([projeto]);
   }
+
+  if (resposta.error) return alert("Erro ao salvar projeto.");
+
+  alert(idEditando ? "Projeto atualizado!" : "Projeto adicionado!");
+  fecharModal();
+  carregarProjetos();
+  idEditando = null;
+}
+
+  async function preencherFormularioEdicao(id) {
+  const { data, error } = await supabase.from("projetos").select("*").eq("id", id).single();
+  if (error) return alert("Erro ao buscar projeto.");
+
+  document.getElementById("nome").value = data.nome;
+  document.getElementById("cliente_id").value = data.cliente_id;
+  document.getElementById("responsavel").value = data.responsavel;
+  document.getElementById("data_inicio").value = data.data_inicio;
+  document.getElementById("data_termino").value = data.data_termino;
+
+  idEditando = id;
+  abrirModal();
+}
+
 
   async function carregarProjetos(filtro = '') {
   const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
@@ -383,15 +414,21 @@ th .seta {
 
 
     return `<tr>
-      <td>${p.id.slice(0, 6)}</td>
-      <td>${p.nome}</td>
-      <td>${clienteNome}</td>
-      <td>${p.responsavel}</td>
-      <td>${p.data_inicio}</td>
-      <td>${p.data_termino}</td>
-      <td><div class="progress-bar"><div class="progress-inner" style="width:${p.progresso}%"></div></div></td>
-      <td><span class="badge ${p.status}">${p.status}</span></td>
-    </tr>`;
+  <td>${p.id.slice(0, 6)}</td>
+  <td>${p.nome}</td>
+  <td>${clienteNome}</td>
+  <td>${p.responsavel}</td>
+  <td>${p.data_inicio}</td>
+  <td>${p.data_termino}</td>
+  <td><div class="progress-bar"><div class="progress-inner" style="width:${p.progresso}%"></div></div></td>
+  <td><span class="badge ${p.status}">${p.status}</span></td>
+  <td>
+  <button onclick="preencherFormularioEdicao('${p.id}')" title="Editar" style="background:#3b82f6;color:white;border:none;padding:6px 10px;border-radius:8px;margin-right:4px;">✏️</button>
+  <button onclick="eliminarProjeto('${p.id}')" title="Remover" style="background:#3b82f6;color:white;border:none;padding:6px 10px;border-radius:8px;">🗑️</button>
+</td>
+
+</tr>`;
+
   }).join('');
 
   document.getElementById("totalProjetos").textContent = filtrados.length;
@@ -423,11 +460,26 @@ th .seta {
       }
     });
   }
+  async function eliminarProjeto(id) {
+  if (!confirm("Deseja realmente eliminar este projeto?")) return;
 
-  window.addEventListener("DOMContentLoaded", () => {
-    carregarClientes();
-    carregarProjetos();
-  });
+  const { error } = await supabase.from("projetos").delete().eq("id", id);
+  if (error) {
+    alert("Erro ao eliminar: " + error.message);
+    return;
+  }
+
+  alert("Projeto eliminado com sucesso!");
+  carregarProjetos();
+}
+  
+
+
+  window.addEventListener("DOMContentLoaded", async () => {
+  await carregarClientes();       // Aguarda carregar os nomes corretamente
+  carregarProjetos();            // Agora já tem o mapa `clientesMap`
+});
+
   window.addEventListener("click", function(e) {
   const modal = document.getElementById("modalProjeto");
   if (e.target === modal) {
@@ -451,6 +503,7 @@ let ordenacaoProjetos = {
   coluna: null,
   ascendente: true
 };
+
 
 function ordenarProjetos(indiceColuna, thClicado) {
   const tabela = document.getElementById("tabelaProjetos");
@@ -496,16 +549,32 @@ function ordenarProjetos(indiceColuna, thClicado) {
   linhas.forEach(l => tabela.appendChild(l));
 }
 
-window.addEventListener("DOMContentLoaded", () => {
-  carregarClientes();
-  carregarProjetos();
 
   // Só adiciona os listeners depois que DOM estiver carregado
   document.querySelectorAll("th").forEach((th, index) => {
     th.addEventListener("click", () => ordenarProjetos(index, th));
   });
-});
+
 </script>
+<script>
+function editarProjeto(id) {
+  alert("Funcionalidade de editar projeto ainda não implementada para ID: " + id);
+}
+
+async function eliminarProjeto(id) {
+  if (!confirm("Deseja realmente eliminar este projeto?")) return;
+
+  const { error } = await supabase.from("projetos").delete().eq("id", id);
+  if (error) {
+    alert("Erro ao eliminar: " + error.message);
+    return;
+  }
+
+  alert("Projeto eliminado com sucesso!");
+  carregarProjetos();
+}
+</script>
+
 
 
 >

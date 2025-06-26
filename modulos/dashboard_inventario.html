@@ -424,7 +424,7 @@ if (editandoId) {
 } else {
   result = await supabase
     .from("produtos")
-    .insert([produto]); // 👈 Adiciona o novo produto
+    .insert([produto]); 
   alert("Produto adicionado!");
 }
 
@@ -462,7 +462,7 @@ function prepararEdicao(id, nome, categoria, qtd, valor_unitario) {
   document.getElementById("qtd").value = qtd;
   document.getElementById("valor_unitario").value = valor_unitario;
   document.getElementById("submitBtn").textContent = "Atualizar Produto";
-  document.getElementById("formularioProduto").style.display = "flex"; // 👈 aqui
+  document.getElementById("formularioProduto").style.display = "flex"; 
   document.getElementById("toggleFormBtn").textContent = "✖ Cancelar";
 }
 
