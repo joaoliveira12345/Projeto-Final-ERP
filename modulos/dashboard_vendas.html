@@ -116,6 +116,18 @@
   th {
     background-color: #f0f2f5;
   }
+  th .seta {
+  margin-left: 6px;
+  font-size: 12px;
+  opacity: 0.6;
+  color: #1d4ed8;
+  transition: transform 0.2s;
+}
+th .seta {
+  color: #1d4ed8 !important;
+}
+
+
   tr:nth-child(even) {
     background-color: #fafafa;
   }
@@ -210,11 +222,21 @@
     </div>
 
     
-    <h2>Pedidos de Venda</h2>
+    <input type="text" id="filtroProduto" placeholder="Pesquisar produto..." oninput="carregarVendas()" style="margin-bottom: 15px; padding: 8px; width: 300px;">
     <table>
       <thead>
-        <tr><th>ID</th><th>Cliente</th><th>Data</th><th>Total</th><th>Status</th></tr>
+        <tr>
+          <th onclick="ordenarPor('id')">ID <span class="seta">⇅</span></th>
+          <th onclick="ordenarPor('cliente')">Cliente <span class="seta">⇅</span></th>
+          <th onclick="ordenarPor('produto')">Produto <span class="seta">⇅</span></th>
+          <th onclick="ordenarPor('quantidade')">Qtd <span class="seta">⇅</span></th>
+          <th onclick="ordenarPor('unitario')">Unitário <span class="seta">⇅</span></th>
+          <th onclick="ordenarPor('total')">Total <span class="seta">⇅</span></th>
+          <th onclick="ordenarPor('status')">Status <span class="seta">⇅</span></th>
+          <th>Ações</th>
+        </tr>
       </thead>
+
       <tbody id="listaPedidos"><tr><td colspan="5">Sem pedidos encontrados.</td></tr></tbody>
     </table>
     <div class="chart-container">
@@ -238,7 +260,6 @@ function desenharGraficoVendasPorMes(vendas) {
 
   const ctx = document.getElementById("graficoVendasMes").getContext("2d");
   if (graficoVendas) graficoVendas.destroy();
-
   graficoVendas = new Chart(ctx, {
     type: 'bar',
     data: {
@@ -253,9 +274,11 @@ function desenharGraficoVendasPorMes(vendas) {
       responsive: true,
       plugins: {
         legend: { display: false },
-        tooltip: { callbacks: {
-          label: context => `€ ${context.parsed.y.toFixed(2).replace('.', ',')}`
-        }}
+        tooltip: {
+          callbacks: {
+            label: context => `€ ${context.parsed.y.toFixed(2).replace('.', ',')}`
+          }
+        }
       },
       scales: {
         y: {
@@ -270,6 +293,8 @@ function desenharGraficoVendasPorMes(vendas) {
 }
 
 
+
+
     const supabase = window.supabase.createClient(
       'https://nnitvxhubovlyfxdeemf.supabase.co',
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5uaXR2eGh1Ym92bHlmeGRlZW1mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgyNjU4ODYsImV4cCI6MjA2Mzg0MTg4Nn0.fTwCna-UBzfLRlbJ2EkWwQeXuq5t3ORwfgbsfiUqejU'
@@ -282,6 +307,64 @@ function desenharGraficoVendasPorMes(vendas) {
       if (!error) location.href = '../log/login.html';
 
     }
+    async function editarVenda(id) {
+  const { data: venda, error } = await supabase
+    .from("pedidos")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if (error || !venda) {
+    alert("Erro ao carregar venda para edição.");
+    return;
+  }
+
+  document.getElementById("produtoVenda").value = venda.produto_id;
+  document.getElementById("clienteVenda").value = venda.cliente_id;
+  document.getElementById("quantidadeVenda").value = venda.quantidade;
+  document.getElementById("valorVenda").value = venda.valor_unitario;
+  document.getElementById("dataVenda").value = venda.data_pedido;
+  document.getElementById("statusVenda").value = venda.status;
+
+  document.getElementById("modalVenda").style.display = "flex";
+
+  // Substituir salvar por atualizar
+  document.querySelector("#modalVenda button[onclick='salvarVenda()']").onclick = async () => {
+    await atualizarVenda(id);
+  };
+}
+
+async function atualizarVenda(id) {
+  const produto_id = document.getElementById("produtoVenda").value;
+  const cliente_id = document.getElementById("clienteVenda").value;
+  const quantidade = parseInt(document.getElementById("quantidadeVenda").value);
+  const valor_unitario = parseFloat(document.getElementById("valorVenda").value);
+  const total_custo = quantidade * valor_unitario;
+  const status = document.getElementById("statusVenda").value;
+  const data_pedido = document.getElementById("dataVenda").value;
+
+  const { error } = await supabase
+    .from("pedidos")
+    .update({
+      produto_id, cliente_id, quantidade,
+      valor_unitario, total_custo,
+      status, data_pedido
+    })
+    .eq("id", id);
+
+  if (error) {
+    alert("Erro ao atualizar venda: " + error.message);
+    return;
+  }
+
+  alert("Venda atualizada com sucesso!");
+  fecharModal();
+  carregarVendas();
+
+  // Voltar ao modo original
+  document.querySelector("#modalVenda button").onclick = salvarVenda;
+}
+
 
     function abrirModal() {
       document.getElementById("modalVenda").style.display = "flex";
@@ -362,8 +445,10 @@ function desenharGraficoVendasPorMes(vendas) {
       cliente_id,
       data_pedido,
       status,
-      total_custo
-    }]);
+      total_custo,
+      quantidade,
+      valor_unitario
+}]);
 
   if (error) {
     alert("Erro ao salvar venda: " + error.message);
@@ -390,80 +475,106 @@ function desenharGraficoVendasPorMes(vendas) {
 }
 
 
-    async function carregarVendas() {
-      const { data: sessionData } = await supabase.auth.getSession();
-      const userId = sessionData?.session?.user?.id;
+   async function carregarVendas() {
+  const { data: sessionData } = await supabase.auth.getSession();
+  const userId = sessionData?.session?.user?.id;
 
-      const lista = document.getElementById("listaPedidos");
-      const vendasMes = document.getElementById("vendasMes");
-      const pendentes = document.getElementById("pendentes");
-      const totalClientes = document.getElementById("clientes");
+  const lista = document.getElementById("listaPedidos");
+  const vendasMes = document.getElementById("vendasMes");
+  const pendentes = document.getElementById("pendentes");
+  const totalClientes = document.getElementById("clientes");
 
-      const { data: vendas } = await supabase.from("pedidos").select("*").eq("usuario_id", userId).order("data_pedido", { ascending: false });
-      const { data: clientes } = await supabase.from("clientes").select("id, nome");
+  // Buscar dados das vendas, incluindo produto e cliente
+  const { data: vendas } = await supabase
+    .from("pedidos")
+    .select("id, produto_id, cliente_id, data_pedido, status, total_custo, quantidade, valor_unitario, produtos (nome)")
+    .eq("usuario_id", userId)
+    .order("data_pedido", { ascending: false });
 
-      const clienteMap = Object.fromEntries(clientes.map(c => [c.id, c.nome]));
+  const { data: clientes } = await supabase.from("clientes").select("id, nome");
 
-      if (!vendas?.length) {
-        lista.innerHTML = '<tr><td colspan="5">Sem pedidos encontrados.</td></tr>';
-        return;
-      }
+  const clienteMap = Object.fromEntries(clientes.map(c => [c.id, c.nome]));
 
-      let totalMes = 0;
-      const hoje = new Date();
-      const pendentesCount = vendas.filter(v => v.status === "pendente").length;
-      const meses = Array(12).fill(0);
+  if (!vendas?.length) {
+    lista.innerHTML = '<tr><td colspan="7">Sem pedidos encontrados.</td></tr>';
+    return;
+  }
 
-      lista.innerHTML = vendas.map(v => {
-        const data = new Date(v.data_pedido);
-        const valor = parseFloat(v.total_custo);
-        if (data.getMonth() === hoje.getMonth()) totalMes += valor;
-        meses[data.getMonth()] += valor;
-        return `<tr>
-          <td>${v.id.slice(0,6)}</td>
-          <td>${clienteMap[v.cliente_id] || '—'}</td>
-          <td>${data.toLocaleDateString("pt-BR")}</td>
-          <td>€ ${valor.toFixed(2).replace('.', ',')}</td>
-          <td>${v.status}</td>
-        </tr>`;
-      }).join('');
+  let totalMes = 0;
+  const hoje = new Date();
+  const pendentesCount = vendas.filter(v => v.status === "pendente").length;
+  const meses = Array(12).fill(0);
 
-      vendasMes.textContent = `€ ${totalMes.toFixed(2).replace('.', ',')}`;
-      pendentes.textContent = pendentesCount;
-      totalClientes.textContent = clientes.length;
+  const filtro = document.getElementById("filtroProduto").value.toLowerCase();
+let vendasFiltradas = vendas.filter(v => (v.produtos?.nome || '').toLowerCase().includes(filtro));
 
-      const ctx = document.getElementById("graficoVendasMes").getContext("2d");
-
-      if (grafico) grafico.destroy();
-      grafico = new Chart(ctx, {
-        type: "bar",
-        data: {
-          labels: ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"],
-          datasets: [{
-            label: "Total por mês (€)",
-            data: meses.map(v => v.toFixed(2)),
-            backgroundColor: "#3b82f6"
-          }]
-        },
-        options: {
-          responsive: true,
-          plugins: {
-            legend: { display: false }
-          },
-          scales: {
-            y: {
-              beginAtZero: true,
-              ticks: {
-                callback: valor => `€ ${valor}`
-              }
-              
-            }
-          }
-        }
-      });
+if (colunaOrdenacao) {
+  vendasFiltradas.sort((a, b) => {
+    let valA, valB;
+    switch (colunaOrdenacao) {
+      case 'id': valA = a.id; valB = b.id; break;
+      case 'cliente': valA = clienteMap[a.cliente_id] || ''; valB = clienteMap[b.cliente_id] || ''; break;
+      case 'produto': valA = a.produtos?.nome || ''; valB = b.produtos?.nome || ''; break;
+      case 'quantidade': valA = a.quantidade || 0; valB = b.quantidade || 0; break;
+      case 'unitario': valA = a.valor_unitario || 0; valB = b.valor_unitario || 0; break;
+      case 'total': valA = a.total_custo || 0; valB = b.total_custo || 0; break;
+      case 'status': valA = a.status || ''; valB = b.status || ''; break;
     }
+    return ordemAsc ? valA.localeCompare ? valA.localeCompare(valB) : valA - valB : valB.localeCompare ? valB.localeCompare(valA) : valB - valA;
+  });
+}
+
+lista.innerHTML = vendasFiltradas.map(v => {
+  const data = new Date(v.data_pedido);
+  const valor = parseFloat(v.total_custo);
+  const produtoNome = v.produtos?.nome || '—';
+  const quantidade = v.quantidade || '—';
+  const unitario = v.valor_unitario !== undefined ? `€ ${parseFloat(v.valor_unitario).toFixed(2).replace('.', ',')}` : '—';
+  const total = isNaN(valor) ? '—' : `€ ${valor.toFixed(2).replace('.', ',')}`;
+  return `
+    <tr>
+      <td>${v.id.slice(0,6)}</td>
+      <td>${clienteMap[v.cliente_id] || '—'}</td>
+      <td>${produtoNome}</td>
+      <td>${quantidade}</td>
+      <td>${unitario}</td>
+      <td>${total}</td>
+      <td>${v.status}</td>
+      <td>
+        <button onclick="editarVenda('${v.id}')">✏️</button>
+        <button onclick="eliminarVenda('${v.id}')">🗑️</button>
+      </td>
+    </tr>`;
+}).join('');
+
+
+  vendasMes.textContent = `€ ${totalMes.toFixed(2).replace('.', ',')}`;
+  pendentes.textContent = pendentesCount;
+  totalClientes.textContent = clientes.length;
+
+
+  desenharGraficoVendasPorMes(vendasFiltradas);
+
+}
+
 
     window.addEventListener("DOMContentLoaded", carregarVendas);
   </script>
+  <script>
+let colunaOrdenacao = ''; let ordemAsc = true;
+
+function ordenarPor(coluna) {
+  if (colunaOrdenacao === coluna) ordemAsc = !ordemAsc;
+  else { colunaOrdenacao = coluna; ordemAsc = true; }
+  carregarVendas();
+}
+
+async function eliminarVenda(id) {
+  if (!confirm("Tem certeza que deseja eliminar esta venda?")) return;
+  const { error } = await supabase.from("pedidos").delete().eq("id", id);
+  if (error) alert("Erro ao eliminar: " + error.message);
+  else carregarVendas();
+}
+</script>
 </body>
 </html>
