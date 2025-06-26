@@ -30,6 +30,7 @@
     color: #333;
     text-align: center;
   }
+  
   .nav {
     margin-top: 30px;
   }
@@ -113,6 +114,10 @@
   th {
     background-color: #f0f2f5;
   }
+  th[onclick] {
+  cursor: pointer;
+}
+
   tr:nth-child(even) {
     background-color: #fafafa;
   }
@@ -237,15 +242,15 @@
     <table>
       <thead>
         <tr>
-          <th>Nome</th>
-          <th>Categoria</th>
-          <th>Qtd</th>
-          <th>Valor Unit.</th>
+          <th onclick="ordenarPor('nome')">Nome ⬍</th>
+          <th onclick="ordenarPor('categoria')">Categoria ⬍</th>
+          <th onclick="ordenarPor('qtd')">Qtd ⬍</th>
+          <th onclick="ordenarPor('valor_unitario')">Valor Unit. ⬍</th>
           <th>Status</th>
           <th>Ações</th>
-
         </tr>
       </thead>
+
       <tbody id="tabelaProdutos"></tbody>
     </table>
     <button id="toggleFormBtn" onclick="alternarFormulario()" style="margin-bottom: 20px;">
@@ -269,6 +274,8 @@
     'https://nnitvxhubovlyfxdeemf.supabase.co',
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5uaXR2eGh1Ym92bHlmeGRlZW1mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgyNjU4ODYsImV4cCI6MjA2Mzg0MTg4Nn0.fTwCna-UBzfLRlbJ2EkWwQeXuq5t3ORwfgbsfiUqejU'
   );
+let campoOrdenacao = 'criado_em';
+let ordemAscendente = false;
 
   async function carregarInventario(filtro = '') {
     const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
@@ -288,9 +295,23 @@
 
     let ativos = 0, inativos = 0, total = 0;
 
-    const produtosFiltrados = data.filter(p =>
-      typeof filtro === "string" && p.nome.toLowerCase().includes(filtro.toLowerCase())
-    );
+    const produtosFiltrados = data
+  .filter(p => typeof filtro === "string" && p.nome.toLowerCase().includes(filtro.toLowerCase()))
+  .sort((a, b) => {
+    const campoA = a[campoOrdenacao];
+    const campoB = b[campoOrdenacao];
+
+    if (typeof campoA === "string") {
+      return ordemAscendente
+        ? campoA.localeCompare(campoB)
+        : campoB.localeCompare(campoA);
+    } else {
+      return ordemAscendente
+        ? campoA - campoB
+        : campoB - campoA;
+    }
+  });
+
 
     const html = produtosFiltrados.map(p => {
       const statusBadge = p.qtd === 0
@@ -360,6 +381,7 @@ return `<tr>
   const valor_unitario = parseFloat(document.getElementById("valor_unitario").value);
   let status = 'ativo';
   if (qtd === 0) status = 'inativo';
+
 
 
   if (!nome || !categoria || isNaN(qtd) || isNaN(valor_unitario)) {
@@ -449,6 +471,16 @@ async function logout() {
     window.location.href = '../log/login.html';
   }
 }
+function ordenarPor(campo) {
+  if (campoOrdenacao === campo) {
+    ordemAscendente = !ordemAscendente;
+  } else {
+    campoOrdenacao = campo;
+    ordemAscendente = true;
+  }
+  carregarInventario(document.getElementById("searchInput").value);
+}
+
 
 </script>
 
