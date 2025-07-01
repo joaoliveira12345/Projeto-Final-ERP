@@ -1,94 +1,80 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt">
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Web Page</title> <!-- Mudar o nome do titulo da pagina -->
-    <link rel="stylesheet" href="style.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"> <!-- Updated Font Awesome link -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Novidades do ERP</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
 </head>
 <body>
-    <section class="sub-header">
-        <nav>
-            <a href="index.html"><img src="images/logo.png"></a>
-            <div class="nav-links" id="navLinks">
-                <i class="fa fa-times-circle" onclick="hideMenu()"></i>
 
-                <ul>
-                    <li><a href="index.html">HOME</a></li> <!-- Mudar o nome do arquivo HTML caso necessário -->
-                    <li><a href="about.html">ABOUT</a></li> <!-- Mudar o nome do arquivo HTML caso necessário -->
-                    <li><a href="course.html">COURSE</a></li> <!-- Mudar o nome do arquivo HTML caso necessário -->
-                    <li><a href="blog.html">BLOG</a></li> <!-- Mudar o nome do arquivo HTML caso necessário -->
-                    <li><a href="contact.html">CONTACT</a></li> <!-- Mudar o nome do arquivo HTML caso necessário -->                </ul>
-            </div>
-            <i class="fa fa-bars" onclick="showMenu()"></i>
-        </nav>
-        <h1> What We Are Working On For The Future</h1>
-    </section>
-<!------------- Blog page content ------------->
-    <section class="blog-content">
-        <div class="row">
-            <div class="blog-left">
-                <img src="images/temp.jpg">
-                <h2> What the Future Holds for 2025</h2>
-                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Praesentium, omnis.</p>
-                <br>
-                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusantium, quo.</p>
-                <br>
-                <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Voluptates, placeat.</p>
-                <br>
-                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Error, culpa.</p>
+  <section class="sub-header">
+    <nav>
+      <a href="index.html"><img src="images/logo.png" alt="Logo ERP"></a>
+      <div class="nav-links" id="navLinks">
+        <i class="fa fa-times-circle" onclick="hideMenu()"></i>
+        <ul>
+          <li><a href="index.html">INÍCIO</a></li>
+          <li><a href="about.html">SOBRE</a></li>
+          <li><a href="course.html">MÓDULOS</a></li>
+          <li><a href="blog.html">BLOG</a></li>
+          <li><a href="contact.html">CONTACTO</a></li>
+        </ul>
+      </div>
+      <i class="fa fa-bars" onclick="showMenu()"></i>
+    </nav>
+    <h1>Novidades e Atualizações do ERP</h1>
+  </section>
 
-                <div class="comment-box">
-                    <h3>Leave a Comment</h3>
-                    <form class="comment-form">
-                        <input type="text" placeholder=" Enter Name" required>
-                        <input type="email" placeholder="Enter Email" required>
-                        <textarea rows="5" placeholder=" Your Comment" required></textarea>
-                        <button type="submit" class="hero-btn blue-btn">POST COMMENT</button>
-                    </form>
-                </div>
+  <!-- Conteúdo do Blog -->
+  <section class="blog-content">
+    <div class="row">
+      <div class="blog-left">
+        <img src="images/erp-preview2.png" alt="ERP Atualização">
+        <h2>O Que Estamos a Preparar para 2025</h2>
+        <p>Em 2025, o ERP System receberá novos módulos para otimizar ainda mais os fluxos de trabalho nas áreas de produção, logística e recursos humanos.</p>
+        <br>
+        <p>Estamos a investir fortemente em inteligência artificial para fornecer previsões automáticas de stock, vendas e desempenho.</p>
+        <br>
+        <p>Com a nova integração de relatórios financeiros, será mais fácil para os gestores acompanharem os resultados em tempo real.</p>
+        <br>
+        <p>Além disso, a experiência do utilizador será repensada com uma interface mais rápida, limpa e adaptada a dispositivos móveis.</p>
 
-            </div>    
-            <div class="blog-right">
-                <h3>Post Categories</h3>
-                <div>
-                    <span>Business Analytics</span>
-                    <span>21</span>
-                </div>
-                <div>
-                    <span>AI Development</span>
-                    <span>37</span>
-                </div>
-                <div>
-                    <span>Security Operation</span>
-                    <span>43</span>
-                </div>
-                <div>
-                    <span>Sustainability and Environment</span>
-                    <span>13</span>
-                </div>
-                <div>
-                    <span>HR Future</span>
-                    <span>19</span>
-                </div>
-            </div>
+        <div class="comment-box">
+          <h3>Deixa o teu comentário</h3>
+          <form class="comment-form">
+            <input type="text" placeholder="Nome" required>
+            <input type="email" placeholder="Email" required>
+            <textarea rows="5" placeholder="Comentário" required></textarea>
+            <button type="submit" class="hero-btn blue-btn">ENVIAR</button>
+          </form>
         </div>
-    </section>
-   
-<!------------- JavaScript for Toggle Menu ------------->
-    <script>
+      </div>    
 
-        var navLinks = document.getElementById("navLinks");
-        function showMenu() {
-            navLinks.style.right = "0";
-        }
-        function hideMenu() {
-            navLinks.style.right = "-200px";
-        }
+      <div class="blog-right">
+        <h3>Categorias</h3>
+        <div><span>Gestão Comercial</span></div>
+        <div><span>Produção e Inventário</span></div>
+        <div><span>Clientes e Vendas</span></div>
 
-    </script>
+      </div>
+    </div>
+  </section>
+
+  <!-- Menu Toggle Script -->
+  <script>
+    const navLinks = document.getElementById("navLinks");
+    function showMenu() {
+      navLinks.style.right = "0";
+    }
+    function hideMenu() {
+      navLinks.style.right = "-200px";
+    }
+  </script>
+
 </body>
 </html>

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Módulos ERP</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+</head>
+<body>
+
+  <!-- Cabeçalho -->
+  <section class="sub-header">
+    <nav>
+      <a href="index.html"><img src="images/logo.png" alt="Logo ERP"></a>
+      <div class="nav-links" id="navLinks">
+        <i class="fa fa-times-circle" onclick="hideMenu()"></i>
+        <ul>
+        <li><a href="index.html">INÍCIO</a></li>
+        <li><a href="about.html">SOBRE</a></li>
+        <li><a href="modulos.html">MÓDULOS</a></li>
+        <li><a href="blog.html">BLOG</a></li>
+        <li><a href="contact.html">CONTACTO</a></li>
+    </ul>
+
+      </div>
+      <i class="fa fa-bars" onclick="showMenu()"></i>
+    </nav>
+    <h1>Módulos do Sistema ERP</h1>
+  </section>
+
+  <!-- Conteúdo dos módulos -->
+  <section class="course">
+    <h1>Funcionalidades Principais</h1>
+    <p>Explore os módulos que compõem o seu sistema de gestão integrada.</p>
+
+    <div class="row">
+      <div class="course-col">
+        <h3>📦 Inventário</h3>
+        <p>Gestão de stock, entradas e saídas de produtos e níveis de armazém.</p>
+      </div>
+      <div class="course-col">
+        <h3>🏭 Produção</h3>
+        <p>Planeamento da produção, ordens de fabrico e controlo de materiais.</p>
+      </div>
+      <div class="course-col">
+        <h3>🛒 Compras</h3>
+        <p>Gestão de fornecedores, pedidos de compra e receção de mercadorias.</p>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="course-col">
+        <h3>💰 Vendas</h3>
+        <p>Gestão de encomendas, faturas, clientes e condições comerciais.</p>
+      </div>
+      <div class="course-col">
+        <h3>📁 Projetos</h3>
+        <p>Acompanhamento de projetos, prazos, progresso e responsáveis.</p>
+      </div>
+      <div class="course-col">
+        <h3>👥 Clientes</h3>
+        <p>Base de dados de clientes, histórico de interações e contactos.</p>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- Scripts -->
+  <script>
+    var navLinks = document.getElementById("navLinks");
+    function showMenu() {
+      navLinks.style.right = "0";
+    }
+    function hideMenu() {
+      navLinks.style.right = "-200px";
+    }
+  </script>
+
+</body>
+</html>

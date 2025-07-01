@@ -1,58 +1,58 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt">
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Web Page</title> <!-- Mudar o nome do titulo da pagina -->
-    <link rel="stylesheet" href="style.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"> <!-- Updated Font Awesome link -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sobre o ERP System</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
 </head>
 <body>
-    <section class="sub-header">
-        <nav>
-            <a href="index.html"><img src="images/logo.png"></a>
-            <div class="nav-links" id="navLinks">
-                <i class="fa fa-times-circle" onclick="hideMenu()"></i>
 
-                <ul>
-                    <li><a href="index.html">HOME</a></li> <!-- Mudar o nome do arquivo HTML caso necessário -->
-                    <li><a href="about.html">ABOUT</a></li> <!-- Mudar o nome do arquivo HTML caso necessário -->
-                    <li><a href="course.html">COURSE</a></li> <!-- Mudar o nome do arquivo HTML caso necessário -->
-                    <li><a href="blog.html">BLOG</a></li> <!-- Mudar o nome do arquivo HTML caso necessário -->
-                    <li><a href="contact.html">CONTACT</a></li> <!-- Mudar o nome do arquivo HTML caso necessário -->                </ul>
-            </div>
-            <i class="fa fa-bars" onclick="showMenu()"></i>
-        </nav>
-        <h1> About Us</h1>
-    </section>
-<!------------- About us content ------------->
-<section class="about-us">
+  <section class="sub-header">
+    <nav>
+      <a href="index.html"><img src="images/logo.png" alt="Logo ERP"></a>
+      <div class="nav-links" id="navLinks">
+        <i class="fa fa-times-circle" onclick="hideMenu()"></i>
+        <ul>
+          <li><a href="index.html">INÍCIO</a></li>
+          <li><a href="about.html">SOBRE</a></li>
+          <li><a href="modulos.html">MÓDULOS</a></li>
+          <li><a href="blog.html">BLOG</a></li>
+          <li><a href="contact.html">CONTACTO</a></li>
+        </ul>
+      </div>
+      <i class="fa fa-bars" onclick="showMenu()"></i>
+    </nav>
+    <h1>Sobre o ERP System</h1>
+  </section>
 
+  <!-- Conteúdo Sobre Nós -->
+  <section class="about-us">
     <div class="row">
-        <div class="about-col">
-            <h1>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Non, culpa!</h1><!--Mudar frase-->
-            <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Necessitatibus tempore soluta similique tenetur. Et praesentium animi aut quae, error laborum.</p>
-            <a href="" class="hero-btn blue-btn">EXPLORE NOW</a>
-        </div>
-        <div class="about-col">
-            <img src="images/temp.jpg">
-        </div>
+      <div class="about-col">
+        <h1>O ERP que transforma a gestão da sua empresa</h1>
+        <p>O nosso sistema ERP foi desenvolvido para simplificar, automatizar e integrar todos os processos do seu negócio — desde vendas e inventário até produção e clientes. Com dashboards intuitivos, relatórios claros e integração com Supabase, oferecemos uma solução moderna e acessível.</p>
+        <a href="modulos.html" class="hero-btn blue-btn">VER MÓDULOS</a>
+      </div>
+      <div class="about-col">
+        <img src="images/erp-preview.png" alt="ERP Preview"> <!-- substitui por tua imagem -->
+      </div>
     </div>
-</section>
+  </section>
 
-<!------------- JavaScript for Toggle Menu ------------->
-    <script>
+  <script>
+    var navLinks = document.getElementById("navLinks");
+    function showMenu() {
+      navLinks.style.right = "0";
+    }
+    function hideMenu() {
+      navLinks.style.right = "-200px";
+    }
+  </script>
 
-        var navLinks = document.getElementById("navLinks");
-        function showMenu() {
-            navLinks.style.right = "0";
-        }
-        function hideMenu() {
-            navLinks.style.right = "-200px";
-        }
-
-    </script>
 </body>
 </html>

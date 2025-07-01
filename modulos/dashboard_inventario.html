@@ -211,6 +211,83 @@ th[onclick] span {
   .andamento { background: #3b82f6; }
   .concluido { background: #10b981; }
   .atrasado { background: #ef4444; }
+  @media (max-width: 768px) {
+  body {
+    flex-direction: column;
+    height: auto;
+  }
+
+  .sidebar {
+    width: 100%;
+    height: auto;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border-right: none;
+    border-bottom: 1px solid #ddd;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  }
+
+  .sidebar h2 {
+    font-size: 16px;
+    text-align: left;
+  }
+
+  .nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 0;
+  }
+
+  .nav a {
+    font-size: 14px;
+    padding: 6px 10px;
+  }
+
+  .logout {
+    padding: 6px 10px;
+    font-size: 14px;
+    margin-top: 0;
+  }
+
+  .main {
+    padding: 20px;
+  }
+
+  .cards {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .card h3 {
+    font-size: 14px;
+  }
+
+  .card p {
+    font-size: 20px;
+  }
+
+  table {
+    font-size: 13px;
+  }
+
+  th, td {
+    padding: 8px;
+  }
+
+  input, select, button {
+    font-size: 14px;
+    padding: 8px;
+  }
+
+  .form-box {
+    width: 90%;
+    padding: 15px;
+  }
+}
+
 </style>
 </head>
 <body>

@@ -1,155 +1,146 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt">
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Web Page</title> <!-- Mudar o nome do titulo da pagina -->
-    <link rel="stylesheet" href="style.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"> <!-- Updated Font Awesome link -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sistema ERP - Página Inicial</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
 </head>
 <body>
+
+    <!-- Cabeçalho -->
     <section class="header">
         <nav>
-            <a href="index.html"><img src="images/logo.png"></a>
+            <a href="index.html"><img src="images/logo.png" alt="Logo ERP" /></a>
             <div class="nav-links" id="navLinks">
                 <i class="fa fa-times-circle" onclick="hideMenu()"></i>
-
                 <ul>
-                    <li><a href="index.html">HOME</a></li> <!-- Mudar o nome do arquivo HTML caso necessário -->
-                    <li><a href="about.html">ABOUT</a></li> <!-- Mudar o nome do arquivo HTML caso necessário -->
-                    <li><a href="course.html">COURSE</a></li> <!-- Mudar o nome do arquivo HTML caso necessário -->
-                    <li><a href="blog.html">BLOG</a></li> <!-- Mudar o nome do arquivo HTML caso necessário -->
-                    <li><a href="contact.html">CONTACT</a></li> <!-- Mudar o nome do arquivo HTML caso necessário -->                </ul>
+                    <li><a href="index.html">INÍCIO</a></li>
+                    <li><a href="about.html">SOBRE</a></li>
+                    <li><a href="course.html">MÓDULOS</a></li>
+                    <li><a href="blog.html">BLOG</a></li>
+                    <li><a href="contact.html">CONTACTO</a></li>
+                </ul>
             </div>
             <i class="fa fa-bars" onclick="showMenu()"></i>
         </nav>
-    
-    <div class="text-box">
-        <h1>Welcome to My Web Page</h1> <!-- Mudar a frase -->
-        <p>This is a simple web page created using HTML and CSS.</p> <!-- Mudar a frase -->
-        <a href="" class="hero-btn">Venha Conhecer</a>
 
-    </div>
-
+        <div class="text-box">
+            <h1>Bem-vindo ao Sistema ERP</h1>
+            <p>Gestão inteligente e integrada para o seu negócio.</p>
+            <a href="about.html" class="hero-btn">Venha Conhecer</a>
+        </div>
     </section>
 
-<!------------- Course ------------->
-   <section class="course">
-    <h1>Our Courses</h1> <!-- Mudar a frase -->
-    <p>We offer a variety of courses to help you learn and grow.</p> <!-- Mudar a frase -->
+    <!-- Módulos / Cursos -->
+    <section class="course">
+        <h1>Principais Módulos</h1>
+        <p>Conheça os principais componentes do nosso sistema ERP.</p>
 
-    <div class="row">
-        <div class="course-col">
-            <h3>Course 1</h3> <!-- Mudar o nome do curso -->
-            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p> <!-- Mudar a frase -->
-        </div>
-        <div class="course-col">
-            <h3>Course 2</h3> <!-- Mudar o nome do curso -->
-            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p> <!-- Mudar a frase -->
-        </div>
-        <div class="course-col">
-            <h3>Course 3</h3> <!-- Mudar o nome do curso -->
-            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p> <!-- Mudar a frase -->
-        </div>
-   </section>
-
-<!------------- apps ------------->   
-   <section class="apps">
-    <h1>Apps We Offer</h1>
-    <p>Explore our range of applications designed to enhance your company planning.</p> <!-- Mudar a frase -->
-
-    <div class="row">
-        <div class="apps-col">
-            <img src="images/temp.jpg"> <!-- Mudar o nome do arquivo caso necessário -->
-            <div class="layer">
-                <h3>App 1</h3> <!-- Mudar o nome do aplicativo -->
+        <div class="row">
+            <div class="course-col">
+                <h3>Gestão Comercial</h3>
+                <p>Controlo de vendas, faturação e condições comerciais.</p>
+            </div>
+            <div class="course-col">
+                <h3>Inventário e Stock</h3>
+                <p>Gestão de produtos, entradas, saídas e armazéns.</p>
+            </div>
+            <div class="course-col">
+                <h3>Recursos Humanos</h3>
+                <p>Processamento salarial, férias, turnos e mais.</p>
             </div>
         </div>
-        <div class="apps-col">
-            <img src="images/temp.jpg"> <!-- Mudar o nome do arquivo caso necessário -->
-            <div class="layer">
-                <h3>App 2</h3> <!-- Mudar o nome do aplicativo -->
-            </div>
-        </div>
-        <div class="apps-col">
-            <img src="images/temp.jpg"> <!-- Mudar o nome do arquivo caso necessário -->
-            <div class="layer">
-                <h3>App 3</h3> <!-- Mudar o nome do aplicativo -->
-            </div>
-        </div>
-    </div>
-   </section>
+    </section>
 
-<!------------- business -------------> 
+    <!-- Aplicações -->
+    <section class="apps">
+        <h1>Aplicações Disponíveis</h1>
+        <p>Ferramentas modernas para melhorar a produtividade e gestão.</p>
+
+        <div class="row">
+            <div class="apps-col">
+                <img src="images/temp.jpg" alt="App Gestão" />
+                <div class="layer">
+                    <h3>Gestor de Tarefas</h3>
+                </div>
+            </div>
+            <div class="apps-col">
+                <img src="images/temp.jpg" alt="App Financeira" />
+                <div class="layer">
+                    <h3>Dashboard Financeira</h3>
+                </div>
+            </div>
+            <div class="apps-col">
+                <img src="images/temp.jpg" alt="App Vendas" />
+                <div class="layer">
+                    <h3>Portal de Vendas</h3>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Soluções Empresariais -->
     <section class="business">
-        <h1> Business Solutions</h1>
-        <p>We provide solutions to meet your business needs with excellency and determination.</p> <!-- Mudar a frase -->
+        <h1>Soluções Empresariais</h1>
+        <p>Desenvolvemos soluções adaptadas às suas necessidades.</p>
 
         <div class="row">
             <div class="business-col">
-                <img src="images/temp.jpg"> <!-- Mudar o nome do arquivo caso necessário -->
-                <h3>Business 1</h3> <!-- Mudar o nome do negócio -->
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p> <!-- Mudar a frase -->
+                <img src="images/temp.jpg" alt="Gestão Financeira" />
+                <h3>Contabilidade</h3>
+                <p>Automatização de relatórios e análise financeira em tempo real.</p>
             </div>
             <div class="business-col">
-                <img src="images/temp.jpg"> <!-- Mudar o nome do arquivo caso necessário -->
-                <h3>Business 2</h3> <!-- Mudar o nome do negócio -->
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p> <!-- Mudar a frase -->
+                <img src="images/temp.jpg" alt="Gestão Produção" />
+                <h3>Produção</h3>
+                <p>Controlo de ordens de fabrico e processos de produção.</p>
             </div>
             <div class="business-col">
-                <img src="images/temp.jpg"> <!-- Mudar o nome do arquivo caso necessário -->
-                <h3>Business 3</h3> <!-- Mudar o nome do negócio -->
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p> <!-- Mudar a frase -->
+                <img src="images/temp.jpg" alt="CRM ERP" />
+                <h3>CRM</h3>
+                <p>Gestão de leads, clientes e campanhas de marketing.</p>
             </div>
         </div>
-
     </section>
 
-<!------------- Reviews ------------->
+    <!-- Testemunhos -->
     <section class="reviews">
-        <h1> What our Partners Say</h1>
-        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p> <!-- Mudar a frase -->
+        <h1>O Que Dizem os Nossos Clientes</h1>
+        <p>Feedback real de empresas que usam o nosso ERP.</p>
 
         <div class="row">
             <div class="reviews-col">
-                <img src="images/temp.jpg">
+                <img src="images/temp.jpg" alt="Cliente 1" />
                 <div>
-                    <p>Este site ajudo-me a apnhar 6 pretos que tentavam entrar em Portugal, nunca vou deixar ladrões entrar</p>
-                    <h3>Comandante Vitor</h3>
-                    <i class="fa fa-star"></i>
-                    <i class="fa fa-star"></i>
-                    <i class="fa fa-star"></i>
-                    <i class="fa fa-star"></i>
-                    <i class="fa-regular fa-star"></i>
+                    <p>O sistema ERP permitiu-nos automatizar processos e reduzir erros operacionais. Excelente equipa de suporte.</p>
+                    <h3>João Mendes</h3>
+                    <i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa-regular fa-star"></i>
                 </div>
             </div>
             <div class="reviews-col">
-                <img src="images/temp.jpg">
+                <img src="images/temp.jpg" alt="Cliente 2" />
                 <div>
-                    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Modi ex nemo natus a veniam accusantium eius labore voluptate molestiae doloremque.</p>
-                    <h3>User 2</h3>
-                    <i class="fa fa-star"></i>
-                    <i class="fa fa-star"></i>
-                    <i class="fa fa-star"></i>
-                    <i class="fa fa-star"></i>
-                    <i class="fa-regular fa-star-half-stroke"></i>
+                    <p>A integração com os nossos departamentos foi simples. A plataforma é intuitiva e robusta.</p>
+                    <h3>Sofia Carvalho</h3>
+                    <i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa-regular fa-star-half-stroke"></i>
                 </div>
             </div>
         </div>
-
     </section>
 
-<!------------- Call to Action ------------->
+    <!-- Call to Action -->
     <section class="cta">
-        <h1> See all we have to offer to make your life easier</h1>
-        <a href="" class="hero-btn">CONTACT US</a>
+        <h1>Descubra como podemos transformar a gestão do seu negócio</h1>
+        <a href="contact.html" class="hero-btn">FALE CONNOSCO</a>
     </section>
 
-<!------------- JavaScript for Toggle Menu ------------->
+    <!-- JavaScript -->
     <script>
-
         var navLinks = document.getElementById("navLinks");
         function showMenu() {
             navLinks.style.right = "0";
@@ -157,7 +148,7 @@
         function hideMenu() {
             navLinks.style.right = "-200px";
         }
-
     </script>
+
 </body>
 </html>
