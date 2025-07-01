@@ -327,7 +327,8 @@ let sortDirection = 1;
 
   const hoje = new Date();
 
-  let ordensProducaoOriginal = data.map(o => {
+  ordensProducaoOriginal = data.map(o => {
+
     const inicioDate = new Date(o.data_inicio);
     const fimDate = new Date(o.previsao_conclusao);
 

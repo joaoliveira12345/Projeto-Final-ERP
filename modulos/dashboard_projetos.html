@@ -354,7 +354,7 @@ function abrirModal() {
   idEditando = null;
 }
 
-  async function preencherFormularioEdicao(id) {
+  async function editarProjeto(id) {
   const { data, error } = await supabase.from("projetos").select("*").eq("id", id).single();
   if (error) return alert("Erro ao buscar projeto.");
 
@@ -367,6 +367,7 @@ function abrirModal() {
   idEditando = id;
   abrirModal();
 }
+
 
 
   async function carregarProjetos(filtro = '') {
@@ -423,7 +424,7 @@ function abrirModal() {
   <td><div class="progress-bar"><div class="progress-inner" style="width:${p.progresso}%"></div></div></td>
   <td><span class="badge ${p.status}">${p.status}</span></td>
   <td>
-  <button onclick="preencherFormularioEdicao('${p.id}')" title="Editar" style="background:#3b82f6;color:white;border:none;padding:6px 10px;border-radius:8px;margin-right:4px;">✏️</button>
+  <button onclick="editarProjeto('${p.id}')" title="Editar" style="background:#3b82f6;color:white;border:none;padding:6px 10px;border-radius:8px;margin-right:4px;">✏️</button>
   <button onclick="eliminarProjeto('${p.id}')" title="Remover" style="background:#3b82f6;color:white;border:none;padding:6px 10px;border-radius:8px;">🗑️</button>
 </td>
 
@@ -555,28 +556,7 @@ function ordenarProjetos(indiceColuna, thClicado) {
     th.addEventListener("click", () => ordenarProjetos(index, th));
   });
 
-</script>
-<script>
-function editarProjeto(id) {
-  alert("Funcionalidade de editar projeto ainda não implementada para ID: " + id);
-}
-
-async function eliminarProjeto(id) {
-  if (!confirm("Deseja realmente eliminar este projeto?")) return;
-
-  const { error } = await supabase.from("projetos").delete().eq("id", id);
-  if (error) {
-    alert("Erro ao eliminar: " + error.message);
-    return;
-  }
-
-  alert("Projeto eliminado com sucesso!");
-  carregarProjetos();
-}
-</script>
 
 
 
->
-</body>
-</html>
+
