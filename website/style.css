@@ -6,7 +6,8 @@
 .header{
     min-height: 100vh;
     width: 100%;
-    background-image: linear-gradient(rgba(4,9,30,0.7)), url(images/logo.jpg);
+    background-image: linear-gradient(rgba(4,9,30,0.7), rgba(4,9,30,0.7)), url(images/logo.jpg);
+
     background-position: center;
     background-size: cover;
     position: relative;
@@ -405,6 +406,83 @@ h3{
 .blog-left img{
     width: 100%;
 }
+.business-col {
+    position: relative;
+    overflow: hidden;
+    margin: 15px;
+    border-radius: 10px;
+    transition: transform 0.3s ease;
+}
+
+.business-col img {
+    width: 100%;
+    display: block;
+    border-radius: 10px;
+}
+
+.business-col .layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    opacity: 0;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    transition: 0.4s ease;
+    text-align: center;
+}
+
+.business-col:hover .layer {
+    opacity: 1;
+}
+
+.business-col .layer h3 {
+    font-size: 1.5rem;
+}
+.course {
+    width: 80%;
+    margin: auto;
+    text-align: center;
+    padding-top: 50px;
+}
+
+.course .row {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    margin-top: 30px;
+}
+
+.course-col {
+    flex-basis: 30%;
+    background: #ffe9f9;
+    border-radius: 10px;
+    margin-bottom: 30px;
+    padding: 20px;
+    box-sizing: border-box;
+    transition: 0.3s;
+}
+
+.course-col h3 {
+    font-weight: 700;
+    margin-bottom: 15px;
+}
+
+.course-col p {
+    font-size: 14px;
+    color: #555;
+}
+
+.course-col:hover {
+    background: #fdd9f3;
+    transform: translateY(-5px);
+}
+
 
 .blog-left h2{
     color: #222;
