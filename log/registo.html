@@ -5,86 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Registo - Sistema de Inventário</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: linear-gradient(to right, #4f9ae0, #345b9c);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-    }
-    .registo-container {
-      background-color: #fff;
-      padding: 40px 30px;
-      border-radius: 12px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.2);
-      width: 100%;
-      max-width: 500px;
-      text-align: center;
-    }
-    .registo-container h2 {
-      margin-bottom: 20px;
-      color: #333;
-    }
-    .registo-container input, .registo-container select {
-      width: 100%;
-      padding: 12px;
-      margin: 8px 0;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      font-size: 16px;
-    }
-    .registo-container button {
-      width: 100%;
-      padding: 12px;
-      margin-top: 15px;
-      background-color: #4f9ae0;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      font-size: 16px;
-      cursor: pointer;
-    }
-    .registo-container button:hover {
-      background-color: #3a7cc4;
-    }
-    .secondary {
-      background-color: #ccc;
-      color: #333;
-    }
-    .secondary:hover {
-      background-color: #bbb;
-    }
-    @media (max-width: 768px) {
-  body {
-    padding: 20px;
-    height: auto;
-    flex-direction: column;
-  }
+ <link rel="stylesheet" href="style.css">
 
-  .registo-container {
-    width: 100%;
-    max-width: 100%;
-    padding: 30px 20px;
-    border-radius: 8px;
-    box-shadow: none;
-  }
-
-  .registo-container input,
-  .registo-container button {
-    font-size: 15px;
-    padding: 10px;
-  }
-
-  .registo-container h2 {
-    font-size: 22px;
-  }
-}
-
-    
-  </style>
 </head>
 <body>
   <div class="registo-container">

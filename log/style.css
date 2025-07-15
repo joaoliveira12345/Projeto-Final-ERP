@@ -1,0 +1,177 @@
+/* Base para ambas as páginas */
+body {
+  font-family: Arial, sans-serif;
+  background: linear-gradient(to right, #4f9ae0, #345b9c);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+/* Login */
+.login-container {
+  background-color: #fff;
+  padding: 40px 30px;
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+}
+
+.login-container h2 {
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.login-container input,
+.login-container button {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+  border-radius: 6px;
+  font-size: 16px;
+}
+
+.login-container input {
+  border: 1px solid #ccc;
+}
+
+.login-container button {
+  background-color: #4f9ae0;
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.login-container button:hover {
+  background-color: #3a7cc4;
+}
+
+.login-container .secondary {
+  background-color: #ddd;
+  color: #333;
+}
+
+.login-container .secondary:hover {
+  background-color: #ccc;
+}
+
+#success-message {
+  margin-top: 20px;
+  color: green;
+  font-size: 18px;
+  font-weight: bold;
+  display: none;
+}
+
+/* Registo */
+.registo-container {
+  background-color: #fff;
+  padding: 40px 30px;
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  max-width: 500px;
+  text-align: center;
+}
+
+.registo-container h2 {
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.registo-container input,
+.registo-container select {
+  width: 100%;
+  padding: 12px;
+  margin: 8px 0;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+}
+
+.registo-container button {
+  width: 100%;
+  padding: 12px;
+  margin-top: 15px;
+  background-color: #4f9ae0;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.registo-container button:hover {
+  background-color: #3a7cc4;
+}
+
+.secondary {
+  background-color: #ccc;
+  color: #333;
+}
+
+.secondary:hover {
+  background-color: #bbb;
+}
+
+/* Estilo adicional de cabeçalhos de tabela com setas */
+th span {
+  font-size: 12px;
+  margin-left: 5px;
+  color: #888;
+}
+
+/* Media Queries */
+@media (max-width: 768px) {
+  body {
+    padding: 20px;
+    height: auto;
+    flex-direction: column;
+  }
+
+  .registo-container {
+    width: 100%;
+    max-width: 100%;
+    padding: 30px 20px;
+    border-radius: 8px;
+    box-shadow: none;
+  }
+
+  .registo-container input,
+  .registo-container button {
+    font-size: 15px;
+    padding: 10px;
+  }
+
+  .registo-container h2 {
+    font-size: 22px;
+  }
+}
+
+@media (max-width: 480px) {
+  .login-container {
+    padding: 20px 15px;
+    border-radius: 8px;
+    box-shadow: none;
+  }
+
+  .login-container h2 {
+    font-size: 20px;
+  }
+
+  .login-container input,
+  .login-container button {
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  #success-message {
+    font-size: 16px;
+  }
+}

@@ -131,6 +131,7 @@ tr:nth-child(even) {
   align-items: center;
   z-index: 1000;
 }
+
 .form-box {
   background: #fff;
   padding: 20px;
