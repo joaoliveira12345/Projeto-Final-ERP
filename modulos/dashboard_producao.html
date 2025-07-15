@@ -6,280 +6,7 @@
   <title>Dashboard de Produção</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet"/>
-  <style>
-  body {
-    margin: 0;
-    font-family: 'Inter', sans-serif;
-    background-color: #f4f6fa;
-    display: flex;
-  }
-  .sidebar {
-    width: 220px;
-    background: #fff;
-    height: 100vh;
-    padding: 20px 10px;
-    border-right: 1px solid #ddd;
-    box-shadow: 2px 0 5px rgba(0,0,0,0.05);
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-  }
-  .sidebar h2 {
-    margin: 0;
-    font-size: 18px;
-    color: #333;
-    text-align: center;
-  }
-  .nav {
-    margin-top: 30px;
-  }
-  .nav a {
-    display: flex;
-    align-items: center;
-    padding: 10px 16px;
-    margin: 4px 0;
-    border-radius: 8px;
-    text-decoration: none;
-    color: #333;
-    transition: 0.2s;
-  }
-  .nav a:hover, .nav a.active {
-    background-color: #e0edff;
-    color: #1d4ed8;
-  }
-  .logout {
-    background: #f87171;
-    color: white;
-    padding: 10px;
-    border-radius: 8px;
-    cursor: pointer;
-    text-align: center;
-    margin-top: 20px;
-  }
-  .logout:hover {
-    background: #dc2626;
-  }
-  .main {
-    flex: 1;
-    padding: 30px;
-  }
-  .cards {
-    display: flex;
-    gap: 20px;
-    margin-bottom: 30px;
-  }
-  .card {
-    flex: 1;
-    background: #fff;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
-  }
-  .card h3 {
-    font-size: 16px;
-    color: #777;
-    margin-bottom: 8px;
-  }
-  .card p {
-    font-size: 24px;
-    font-weight: 600;
-    color: #1d4ed8;
-  }
-  button {
-    background: #3b82f6;
-    color: white;
-    border: none;
-    padding: 10px 16px;
-    border-radius: 6px;
-    cursor: pointer;
-    margin-bottom: 20px;
-  }
-  button:hover {
-    background: #2563eb;
-  }
-  table {
-    width: 100%;
-    background: #fff;
-    border-collapse: collapse;
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-    margin-bottom: 30px;
-  }
-  th, td {
-    padding: 12px 14px;
-    text-align: left;
-  }
-  th {
-    background-color: #f0f2f5;
-  }
-  tr:nth-child(even) {
-    background-color: #fafafa;
-  }
-  .form-modal {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: rgba(0,0,0,0.3);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-  }
-  .form-box {
-    background: #fff;
-    padding: 20px;
-    border-radius: 12px;
-    width: 400px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-  }
-  input, select {
-    width: 100%;
-    padding: 10px;
-    margin: 10px 0;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-  }
-  .progress-bar {
-    background: #e5e7eb;
-    border-radius: 8px;
-    height: 10px;
-    overflow: hidden;
-  }
-  .progress-inner {
-    background: #3b82f6;
-    height: 100%;
-  }
-  .badge {
-    padding: 4px 10px;
-    border-radius: 12px;
-    font-size: 0.8rem;
-    color: white;
-    display: inline-block;
-  
-  }
-  .acao-btn {
-  background: #3b82f6;
-  color: white;
-  border: none;
-  padding: 8px 12px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 16px;
-  margin-right: 4px;
-}
-.acao-btn:hover {
-  background: #2563eb;
-}
-th span {
-  font-size: 12px;
-  margin-left: 5px;
-  color: #888;
-}
-th[onclick] {
-  cursor: pointer;
-}
-th[onclick] span {
-  font-size: 12px;
-  color: #888;
-  visibility: visible;
-}
-th[onclick]:hover {
-  background-color: #e0edff;
-  color: #1d4ed8;
-}
-button {
-  font-weight: 600;
-  font-size: 14px;
-}
-
-
-
-
-
-
-  .andamento { background: #3b82f6; }
-  .concluido { background: #10b981; }
-  .atrasado { background: #ef4444; }
-  @media (max-width: 768px) {
-  body {
-    flex-direction: column;
-    height: auto;
-  }
-
-  .sidebar {
-    width: 100%;
-    height: auto;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px;
-    border-right: none;
-    border-bottom: 1px solid #ddd;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-  }
-
-  .sidebar h2 {
-    font-size: 16px;
-    text-align: left;
-  }
-
-  .nav {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-top: 0;
-  }
-
-  .nav a {
-    font-size: 14px;
-    padding: 6px 10px;
-  }
-
-  .logout {
-    padding: 6px 10px;
-    font-size: 14px;
-    margin-top: 0;
-  }
-
-  .main {
-    padding: 20px;
-  }
-
-  .cards {
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .card h3 {
-    font-size: 14px;
-  }
-
-  .card p {
-    font-size: 20px;
-  }
-
-  table {
-    font-size: 13px;
-  }
-
-  th, td {
-    padding: 8px;
-  }
-
-  input, select, button {
-    font-size: 14px;
-    padding: 8px;
-  }
-
-  .form-box {
-    width: 90%;
-    padding: 15px;
-  }
-}
-
-  
-</style>
+ <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="sidebar">
@@ -396,16 +123,42 @@ let sortDirection = 1;
 
 
     async function carregarProducao(filtro = '') {
-  const { data, error } = await supabase.from('ordens_producao').select('*');
-  if (error) return alert('Erro ao carregar dados');
+  const { data: sessionData } = await supabase.auth.getSession();
+  const userId = sessionData?.session?.user?.id;
 
-  const { data: produtos } = await supabase.from('produtos').select('id, nome');
+  if (!userId) {
+    alert('Usuário não autenticado.');
+    return;
+  }
+
+  // Busca os produtos do usuário logado
+  const { data: produtos, error: errorProdutos } = await supabase
+    .from('produtos')
+    .select('id, nome')
+    .eq('usuario_id', userId);
+
+  if (errorProdutos || !produtos) {
+    alert('Erro ao carregar produtos.');
+    return;
+  }
+
+  const produtoIds = produtos.map(p => p.id);
   const nomes = Object.fromEntries(produtos.map(p => [p.id, p.nome]));
+
+  // Busca ordens de produção apenas dos produtos do usuário
+  const { data: ordens, error: errorOrdens } = await supabase
+    .from('ordens_producao')
+    .select('*')
+    .in('produto_id', produtoIds);
+
+  if (errorOrdens || !ordens) {
+    alert('Erro ao carregar ordens de produção.');
+    return;
+  }
 
   const hoje = new Date();
 
-  ordensProducaoOriginal = data.map(o => {
-
+  ordensProducaoOriginal = ordens.map(o => {
     const inicioDate = new Date(o.data_inicio);
     const fimDate = new Date(o.previsao_conclusao);
 
@@ -435,8 +188,7 @@ let sortDirection = 1;
     };
   });
 
-  
-  if (typeof filtro === 'string' && filtro.trim() !== '') {
+  if (filtro.trim() !== '') {
     ordensProducaoOriginal = ordensProducaoOriginal.filter(o =>
       o.produto_nome.toLowerCase().includes(filtro.toLowerCase())
     );
@@ -444,6 +196,7 @@ let sortDirection = 1;
 
   renderizarTabela(ordensProducaoOriginal);
 }
+
 
 function renderizarTabela(data) {
   const tabela = document.getElementById('tabelaProducao');
@@ -666,11 +419,12 @@ window.addEventListener("click", function(e) {
 
 
     window.addEventListener('DOMContentLoaded', async () => {
+  await verificarEAdicionarProdutosConcluidos(); // 👈 deve vir antes
   await carregarProdutos();
   await carregarProducao();
-  await verificarEAdicionarProdutosConcluidos(); // 👈 adiciona aqui
   setInterval(verificarEAdicionarProdutosConcluidos, 60000);
 });
+
 
   </script>
 </body>
