@@ -163,6 +163,19 @@ input, select {
   color: white;
   display: inline-block;
 }
+.ativo {
+  background-color: #10b981; /* verde */
+}
+
+.inativo {
+  background-color: #ef4444; /* vermelho */
+}
+
+.baixo {
+  background-color: #facc15; /* amarelo */
+  color: #000;
+}
+
 .andamento { background: #3b82f6; }
 .concluido { background: #10b981; }
 .atrasado { background: #ef4444; }
