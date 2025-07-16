@@ -292,7 +292,7 @@ async function removerProduto(id) {
     return;
   }
 
-  // Remove os itens associados aos pedidos (caso uses também `pedido_itens`)
+  
   for (const pedido of pedidos) {
     await supabase
       .from("pedido_itens")
@@ -309,7 +309,7 @@ async function removerProduto(id) {
       .in("id", ids);
   }
 
-  // Finalmente, remove o produto
+  
   const { error } = await supabase.from("produtos").delete().eq("id", id);
   if (error) return alert("Erro ao remover: " + error.message);
 
@@ -330,7 +330,7 @@ async function logout() {
   if (error) {
     alert("Erro ao fazer logout: " + error.message);
   } else {
-    // Redireciona para a página de login (ajusta o caminho conforme o teu projeto)
+    // Redireciona para a página de login 
     window.location.href = '../log/login.html';
   }
 }
@@ -342,10 +342,10 @@ function ordenarPor(campo) {
     ordemAscendente = true;
   }
 
-  // Resetar todas as setas
+  
   document.querySelectorAll('th[onclick] span').forEach(span => span.textContent = '');
 
-  // Atualizar a seta da coluna atual
+  
   const seta = document.querySelector(`#th-${campo} span`);
   if (seta) {
     seta.textContent = ordemAscendente ? '↑' : '↓';
