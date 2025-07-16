@@ -51,7 +51,7 @@
       const { error: perfilError } = await supabase.from('perfis').insert([{
         id: user.id,
         nome: nome,
-        tipo_usuario: 'cliente',  // ou 'admin', 'colaborador' conforme apropriado
+        tipo_usuario: 'cliente',  
         criado_em: new Date().toISOString()
       }]);
 
